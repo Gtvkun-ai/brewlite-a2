@@ -1,0 +1,154 @@
+@startuml
+title Sơ đồ Lớp Miền (Domain Class Diagram - BrewLite)
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam classBorderColor #2B6CB0
+skinparam classBackgroundColor #F7FAFC
+
+enum Role {
+  CUSTOMER
+  BARISTA
+  MANAGER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+  PAYMENT_FAILED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  E_WALLET
+  CREDIT_CARD
+  DOMESTIC_ATM
+  CASH
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+class User {
+  - id: String
+  - email: String
+  - passwordHash: String
+  - fullName: String
+  - phone: String
+  - role: Role
+  - createdAt: DateTime
+  - updatedAt: DateTime
+  + verifyPassword(password: String): Boolean
+  + changeRole(newRole: Role): Void
+}
+
+class Product {
+  - id: String
+  - code: String
+  - name: String
+  - description: String
+  - basePrice: Decimal
+  - imageUrl: String
+  - category: String
+  - isAvailable: Boolean
+  - stockQuantity: Integer
+  - createdAt: DateTime
+  + checkAvailability(quantity: Integer): Boolean
+  + updateStock(delta: Integer): Void
+}
+
+class Order {
+  - id: String
+  - code: String
+  - userId: String
+  - status: OrderStatus
+  - subTotal: Decimal
+  - discountAmount: Decimal
+  - totalAmount: Decimal
+  - deliveryNote: String
+  - idempotencyKey: String
+  - createdAt: DateTime
+  - updatedAt: DateTime
+  + calculateTotal(): Decimal
+  + updateStatus(newStatus: OrderStatus): Void
+  + markAsPaid(): Void
+}
+
+class OrderItem {
+  - id: String
+  - orderId: String
+  - productId: String
+  - quantity: Integer
+  - unitPrice: Decimal
+  - selectedSize: String
+  - selectedToppings: String[]
+  - itemTotal: Decimal
+  + computeSubtotal(): Decimal
+}
+
+class Payment {
+  - id: String
+  - orderId: String
+  - method: PaymentMethod
+  - status: PaymentStatus
+  - amount: Decimal
+  - transactionRef: String
+  - idempotencyKey: String
+  - paymentGatewayResponse: Json
+  - createdAt: DateTime
+  + markSuccess(txRef: String): Void
+  + markFailed(reason: String): Void
+}
+
+class Promotion {
+  - id: String
+  - code: String
+  - description: String
+  - type: PromotionType
+  - value: Decimal
+  - minOrderValue: Decimal
+  - maxDiscount: Decimal
+  - validFrom: DateTime
+  - validTo: DateTime
+  - isActive: Boolean
+  + isValid(orderTotal: Decimal): Boolean
+  + calculateDiscount(orderTotal: Decimal): Decimal
+}
+
+class LoyaltyTransaction {
+  - id: String
+  - userId: String
+  - orderId: String
+  - pointsChange: Integer
+  - balanceAfter: Integer
+  - description: String
+  - createdAt: DateTime
+}
+
+' Relationships & Multiplicities
+User "1" -- "0..*" Order : places >
+User "1" -- "0..*" LoyaltyTransaction : owns >
+Order "1" *-- "1..*" OrderItem : contains >
+Product "1" -- "0..*" OrderItem : referenced in >
+Order "1" -- "0..1" Payment : settled by >
+Promotion "0..1" -- "0..*" Order : applied to >
+Order "0..1" -- "0..1" LoyaltyTransaction : generates >
+
+User ..> Role
+Order ..> OrderStatus
+Payment ..> PaymentStatus
+Payment ..> PaymentMethod
+Promotion ..> PromotionType
+@enduml

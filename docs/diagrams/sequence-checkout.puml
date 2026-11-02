@@ -1,0 +1,110 @@
+@startuml
+title Sơ đồ Tuần tự: Use-case Đặt và Thanh toán Đơn hàng (Sequence Diagram)
+autonumber
+skinparam defaultFontName Arial
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
+skinparam responseMessageBelowArrow true
+
+actor "Customer\n(Khách hàng)" as Customer
+box "Frontend Client" #EBF8FF
+participant "Next.js UI\n(PWA)" as UI
+end box
+
+box "Backend Services" #E6FFFA
+participant "NestJS API\n(OrderController)" as API
+participant "OrderService" as Service
+end box
+
+box "Data Persistence" #EDF2F7
+database "PostgreSQL\n(Prisma ORM)" as DB
+end box
+
+box "Third-party" #FED7D7
+participant "Payment Service\n(Mock Gateway)" as Payment
+end box
+
+Customer -> UI: Bấm "Xác nhận đặt hàng & Thanh toán"
+activate UI
+UI -> UI: Generate UUIDv4 for Idempotency-Key
+UI -> API: POST /api/orders/checkout\nHeaders: [Authorization: Bearer <JWT>, Idempotency-Key: <UUID>]\nBody: { items, paymentMethod: 'E_WALLET', deliveryNote }
+activate API
+
+API -> API: JwtAuthGuard: Verify Bearer Token & Extract userId
+API -> API: ValidationPipe: Validate CreateOrderDto format
+
+API -> Service: checkout(userId, dto, idempotencyKey)
+activate Service
+
+Service -> DB: Check IdempotencyKey in Cache/DB
+activate DB
+DB --> Service: Key status: NOT_FOUND (Request mới)
+deactivate DB
+
+note over Service, DB: Bắt đầu Database Transaction: prisma.$transaction(async (tx) => ...)
+Service -> DB: tx.product.findMany({ where: { id: in [itemIds] } })
+activate DB
+DB --> Service: Danh sách sản phẩm & tồn kho
+deactivate DB
+
+alt Trường hợp: Sản phẩm hết hàng (Stock <= 0)
+  Service --> API: Throw BadRequestException('Sản phẩm đã hết hàng')
+  API --> UI: HTTP 400 Bad Request { message: 'Out of stock' }
+  UI --> Customer: Hiển thị cảnh báo hết hàng & cập nhật giỏ
+else Sản phẩm đủ tồn kho
+  Service -> DB: tx.order.create({ data: { code, userId, status: 'PENDING', totalAmount } })
+  activate DB
+  DB --> Service: Order created (id: 'ord_123')
+  deactivate DB
+
+  Service -> DB: tx.orderItem.createMany({ items with price snapshot })
+  activate DB
+  DB --> Service: OrderItems created
+  deactivate DB
+
+  Service -> Payment: processPayment({ orderId: 'ord_123', amount, method: 'E_WALLET', idempotencyKey })
+  activate Payment
+
+  alt Nhánh thanh toán THẤT BẠI (Số dư không đủ / Thẻ lỗi)
+    Payment --> Service: { success: false, errorCode: 'INSUFFICIENT_FUNDS' }
+    Service -> DB: tx.order.update({ status: 'PAYMENT_FAILED' })
+    activate DB
+    DB --> Service: Order status updated
+    deactivate DB
+    Service --> API: Throw PaymentRequiredException('Thanh toán thất bại')
+    API --> UI: HTTP 402 Payment Required { errorCode: 'INSUFFICIENT_FUNDS' }
+    UI --> Customer: Báo lỗi thanh toán & cho phép chọn phương thức khác
+  else Nhánh thanh toán THÀNH CÔNG
+    Payment --> Service: { success: true, transactionRef: 'TX_998877', paidAt: ISO }
+    deactivate Payment
+
+    Service -> DB: tx.payment.create({ data: { orderId, transactionRef, status: 'SUCCESS' } })
+    activate DB
+    DB --> Service: Payment record saved
+    deactivate DB
+
+    Service -> DB: tx.order.update({ where: { id }, data: { status: 'PAID' } })
+    activate DB
+    DB --> Service: Order status updated to PAID
+    deactivate DB
+
+    loop Từng sản phẩm trong đơn hàng
+      Service -> DB: tx.product.update({ decrement: quantity })
+      activate DB
+      DB --> Service: Tồn kho đã trừ
+      deactivate DB
+    end
+    note over Service, DB: Commit Database Transaction thành công
+  end
+end
+
+Service --> API: Return { orderId, code: 'BL-2026', status: 'PAID', totalAmount }
+deactivate Service
+
+API --> UI: HTTP 201 Created { success: true, data: OrderSummary }
+deactivate API
+
+UI -> UI: Clear Cart in LocalStorage/State
+UI --> Customer: Điều hướng sang /orders/BL-2026 & Hiển thị thông báo thành công
+deactivate UI
+@enduml

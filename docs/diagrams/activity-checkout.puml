@@ -1,0 +1,118 @@
+@startuml
+title Sơ đồ Hoạt động Luồng Đặt & Thanh toán Đơn hàng (Activity Diagram with Swimlanes)
+skinparam defaultFontName Arial
+skinparam ActivityFontSize 12
+skinparam ActivityDiamondFontSize 11
+skinparam ActivityBackgroundColor #F7FAFC
+skinparam ActivityBorderColor #2B6CB0
+skinparam SwimlaneBorderColor #4A5568
+skinparam SwimlaneTitleFontSize 13
+
+|#EBF8FF|Customer (Khách hàng)|
+|#FEFCBF|Next.js UI (Frontend)|
+|#E6FFFA|NestJS API (Backend)|
+|#EDF2F7|Database (PostgreSQL)|
+|#FED7D7|Payment Gateway (Thanh toán)|
+
+|Customer (Khách hàng)|
+start
+:Mở giỏ hàng và kiểm tra các món đã chọn;
+:Bấm nút "Đặt hàng";
+
+|Next.js UI (Frontend)|
+:Kiểm tra trạng thái xác thực trong LocalState/Cookie;
+if (Khách hàng đã đăng nhập?) then (Chưa)
+  :Lưu trạng thái giỏ hàng vào LocalStorage;
+  :Chuyển hướng đến trang Đăng nhập (/auth/login);
+  |Customer (Khách hàng)|
+  :Nhập Email và Mật khẩu;
+  |Next.js UI (Frontend)|
+  :Gửi request POST /auth/login;
+  |NestJS API (Backend)|
+  :Xác thực tài khoản và cấp JWT Token;
+  |Next.js UI (Frontend)|
+  :Lưu JWT và chuyển hướng lại màn hình Checkout;
+else (Đã đăng nhập)
+endif
+
+|Customer (Khách hàng)|
+:Chọn phương thức thanh toán (Ví điện tử / Thẻ ngân hàng);
+:Bấm "Xác nhận thanh toán";
+
+|Next.js UI (Frontend)|
+:Tạo Idempotency-Key (UUID v4);
+:Gửi request POST /orders/checkout
+(Kèm JWT Token & Idempotency-Key);
+
+|NestJS API (Backend)|
+:Verify JWT Bearer Token;
+:Validate DTO (items, shipping, paymentMethod);
+:Kiểm tra Idempotency-Key trong Cache/DB;
+if (Yêu cầu thanh toán bị trùng lặp (Idempotent)?) then (Trùng lặp)
+  :Lấy lại kết quả đơn hàng đã tạo trước đó;
+  |Next.js UI (Frontend)|
+  :Hiển thị kết quả đơn hàng đã xử lý;
+  stop
+else (Yêu cầu mới)
+endif
+
+:Bắt đầu Database Transaction (prisma.$transaction);
+|Database (PostgreSQL)|
+:Kiểm tra số lượng tồn kho của các sản phẩm;
+|NestJS API (Backend)|
+if (Còn đủ tồn kho?) then (Không đủ / Hết hàng)
+  :Rollback Database Transaction;
+  :Trả về mã lỗi HTTP 400 (Out of stock);
+  |Next.js UI (Frontend)|
+  :Hiển thị thông báo "Sản phẩm đã hết hàng";
+  :Cập nhật lại giỏ hàng của người dùng;
+  |Customer (Khách hàng)|
+  :Điều chỉnh giỏ hàng;
+  stop
+else (Đủ tồn kho)
+endif
+
+|NestJS API (Backend)|
+|Database (PostgreSQL)|
+:Tạo bản ghi Order (Status: PENDING);
+:Tạo các bản ghi OrderItem kèm snapshot giá;
+
+|NestJS API (Backend)|
+:Gọi API trừ tiền qua Cổng thanh toán (Mock Payment Gateway);
+|Payment Gateway (Thanh toán)|
+:Xác thực thông tin thẻ/ví và xử lý trừ tiền;
+if (Giao dịch thành công?) then (Thất bại / Từ chối)
+  :Trả về Payment Failed (ErrorCode);
+  |NestJS API (Backend)|
+  |Database (PostgreSQL)|
+  :Cập nhật Order Status = PAYMENT_FAILED hoặc Rollback;
+  |NestJS API (Backend)|
+  :Trả về mã lỗi HTTP 402 Payment Required;
+  |Next.js UI (Frontend)|
+  :Hiển thị thông báo lỗi thanh toán kèm nút "Thử lại";
+  |Customer (Khách hàng)|
+  :Chọn phương thức khác hoặc thử lại;
+  stop
+else (Thành công)
+  :Trả về TransactionRef & Status = SUCCESS;
+endif
+
+|NestJS API (Backend)|
+|Database (PostgreSQL)|
+:Lưu bản ghi Payment (Status: SUCCESS);
+:Cập nhật trạng thái Order = PAID;
+:Trừ số lượng tồn kho sản phẩm (Atomic Update);
+:Commit Database Transaction;
+
+|NestJS API (Backend)|
+:Trả về response HTTP 201 Created (Kèm Order Summary);
+
+|Next.js UI (Frontend)|
+:Xóa sạch giỏ hàng trong LocalState;
+:Chuyển hướng đến màn hình /orders/[orderId];
+:Hiển thị thông tin xác nhận và mã đơn hàng;
+
+|Customer (Khách hàng)|
+:Xem mã đơn hàng và theo dõi tiến độ pha chế;
+stop
+@enduml
