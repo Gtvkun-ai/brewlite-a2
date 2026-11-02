@@ -1,0 +1,36 @@
+@startuml
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam usecaseBorderColor #2B6CB0
+skinparam usecaseBackgroundColor #EBF8FF
+
+left to right direction
+
+actor "Khách hàng\n(Customer)" as Customer
+actor "Cổng thanh toán mô phỏng\n(Payment Gateway)" as Gateway
+
+rectangle "Phạm vi Use-case: Đặt và Thanh toán Đơn hàng (UC-CHECKOUT-01)" {
+  usecase "Xác thực phiên đăng nhập (JWT)" as UC_VerifyAuth
+  usecase "Kiểm tra tồn kho sản phẩm" as UC_CheckStock
+  usecase "Tạo đơn hàng & OrderItems" as UC_CreateOrder
+  usecase "Chọn phương thức thanh toán\n(Ví điện tử / Thẻ)" as UC_SelectMethod
+  usecase "Thanh toán mô phỏng (Idempotency)" as UC_Pay
+  usecase "Xác nhận & Cập nhật đơn PAID" as UC_Confirm
+  usecase "Thông báo lỗi hết hàng" as UC_ErrorStock
+  usecase "Thông báo lỗi thanh toán" as UC_ErrorPayment
+}
+
+Customer --> UC_SelectMethod
+Customer --> UC_Pay
+
+UC_Pay ..> UC_VerifyAuth : <<include>>
+UC_Pay ..> UC_CheckStock : <<include>>
+UC_Pay ..> UC_CreateOrder : <<include>>
+UC_Pay ..> UC_Confirm : <<include>>
+
+UC_Pay --> Gateway
+
+UC_CheckStock <.. UC_ErrorStock : <<extend>>\n(khi hết hàng)
+UC_Pay <.. UC_ErrorPayment : <<extend>>\n(khi thanh toán thất bại)
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam handwritten false
+skinparam defaultFontName Arial
+skinparam monochrome false
+skinparam packageBorderColor #4A5568
+skinparam usecaseBorderColor #2B6CB0
+skinparam usecaseBackgroundColor #EBF8FF
+
+left to right direction
+
+actor "Khách hàng\n(Customer)" as Customer
+actor "Nhân viên / Quản lý\n(Store Staff)" as Staff
+actor "Cổng thanh toán\n(Payment Gateway)" as Gateway
+
+rectangle "Hệ thống BrewLite (System Boundary)" {
+  usecase "FR-01: Xem danh mục món" as UC_Menu
+  usecase "FR-02: Tùy biến món (size/topping)" as UC_Customize
+  usecase "FR-03: Quản lý giỏ hàng" as UC_Cart
+  usecase "FR-04: Đăng ký & Đăng nhập" as UC_Auth
+  usecase "FR-05: Đặt và thanh toán đơn" as UC_Checkout
+  usecase "FR-06: Theo dõi & Lịch sử đơn" as UC_Track
+  usecase "FR-07: Cập nhật trạng thái đơn" as UC_UpdateStatus
+  usecase "FR-08: Quản lý sản phẩm & tồn kho" as UC_ManageCatalog
+  usecase "Xử lý thanh toán số (Ví/Thẻ)" as UC_ProcessPayment
+}
+
+Customer --> UC_Menu
+Customer --> UC_Customize
+Customer --> UC_Cart
+Customer --> UC_Auth
+Customer --> UC_Checkout
+Customer --> UC_Track
+
+UC_Checkout ..> UC_Cart : <<include>>
+UC_Checkout ..> UC_Auth : <<include>>
+UC_Checkout ..> UC_ProcessPayment : <<include>>
+
+UC_ProcessPayment --> Gateway
+
+Staff --> UC_UpdateStatus
+Staff --> UC_ManageCatalog
+@enduml
