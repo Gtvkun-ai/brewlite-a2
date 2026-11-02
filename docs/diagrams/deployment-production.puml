@@ -1,0 +1,65 @@
+@startuml
+title Sơ đồ Triển khai Production Hệ thống BrewLite (UML Deployment Diagram)
+skinparam defaultFontName Arial
+skinparam nodeBorderColor #2B6CB0
+skinparam nodeBackgroundColor #F7FAFC
+skinparam componentBorderColor #2D3748
+skinparam componentBackgroundColor #EBF8FF
+skinparam databaseBackgroundColor #E6FFFA
+skinparam databaseBorderColor #319795
+
+cloud "Internet Public Network (HTTPS / TLS 1.3)" as Internet
+
+node "Client Device\n(Smartphone / Laptop)" as ClientDevice {
+  artifact "Web Browser / PWA\n(Mobile-first UI)" as Browser
+}
+
+node "Frontend Hosting Platform\n(Vercel / Render Edge)" as FrontendHost {
+  component "Next.js Web Service\n(Port 443 -> SSR/Static)" as WebApp
+  component "Global Edge CDN\n(Caching Assets)" as CDN
+}
+
+node "Backend Cloud Platform\n(Render / Railway Managed)" as BackendHost {
+  node "API Docker Container\n(Linux Alpine Node.js)" as APIContainer {
+    component "NestJS REST API\n(Port 3001)" as NestAPI
+    component "Health Check Endpoint\n(GET /health)" as HealthCheck
+    component "Prisma Client ORM" as PrismaClient
+  }
+}
+
+node "Database Cloud Provider\n(Supabase / Render Managed DB)" as DBHost {
+  database "PostgreSQL 16 Engine" as PostgresDB {
+    folder "Persistent Storage Volume\n(Encrypted at rest)" as DBStorage {
+      artifact "Tables: Users, Products,\nOrders, Payments, Seed" as DBData
+    }
+  }
+}
+
+node "CI/CD & Delivery Environment\n(GitHub Actions Runner)" as CIHost {
+  component "Continuous Integration\n(Lint, Test, Build)" as CI_Runner
+  component "Continuous Delivery\n(Deploy Trigger via Secret)" as CD_Runner
+}
+
+' Connections
+Browser --> Internet : HTTPS / JSON
+Internet --> CDN : HTTPS Request (Port 443)
+CDN --> WebApp : Route Request
+Browser --> Internet : REST API Calls
+Internet --> NestAPI : HTTPS Reverse Proxy (Port 443 -> Port 3001)
+
+NestAPI ..> HealthCheck : monitors
+PrismaClient --> PostgresDB : SSL/TLS Encrypted Connection\n(DATABASE_URL, Port 5432)
+PostgresDB --> DBStorage : Read/Write transactions
+
+CI_Runner --> BackendHost : Build & Verify Artifacts
+CD_Runner --> BackendHost : Trigger Production Deploy\n(Deploy Hook / SSH / Secret)
+CD_Runner --> FrontendHost : Trigger Frontend Deploy
+
+note right of BackendHost
+  <b>Security & Config:</b>
+  - JWT_SECRET (Hidden)
+  - DATABASE_URL (SSL Mode)
+  - CORS_ORIGIN restricted
+  - Health check ping: 30s
+end note
+@enduml
