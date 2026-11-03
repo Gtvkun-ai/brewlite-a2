@@ -4,6 +4,7 @@
   "private": true,
   "description": "BrewLite backend API (NestJS + Prisma)",
   "scripts": {
+    "postinstall": "prisma generate",
     "lint": "eslint \"src/**/*.ts\"",
     "test": "jest",
     "build": "prisma generate && nest build",
