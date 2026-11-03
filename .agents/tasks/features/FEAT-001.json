@@ -1,0 +1,23 @@
+{
+  "id": "FEAT-001",
+  "type": "chore",
+  "description": "Scaffold the npm-workspaces monorepo root so both apps can be installed, linted, tested, and built from the repo root. Independent of other FEATs except that FEAT-002/003/004 depend on it (root scripts + workspace resolution). No app code yet; this establishes the shell and the CI-facing root scripts.",
+  "status": "completed",
+  "steps": [
+    "Create root package.json at c:\\Users\\Gtvkun\\Documents\\GitHub\\brewlite-a2\\package.json with: \"private\": true, \"name\": \"brewlite-a2\", \"workspaces\": [\"apps/*\"], \"engines\": { \"node\": \">=20\" }, and scripts that CI calls and that fan out to every workspace: \"lint\": \"npm run lint --workspaces --if-present\", \"test\": \"npm run test --workspaces --if-present\", \"build\": \"npm run build --workspaces --if-present\". (Scripts use bare npm inside package.json — that is fine; only the interactive PowerShell shell needs npm.cmd.)",
+    "Create c:\\Users\\Gtvkun\\Documents\\GitHub\\brewlite-a2\\.nvmrc containing: 20",
+    "Extend (do NOT replace) c:\\Users\\Gtvkun\\Documents\\GitHub\\brewlite-a2\\.gitignore: keep existing node_modules/.next/dist/.env lines and append coverage/, *.tsbuildinfo, apps/api/dist/, *.log, and Prisma generated client paths if generated into source. Keep .env ignored.",
+    "Run `npm.cmd install` from the repo root to generate package-lock.json and the workspace node_modules (apps/* empty for now is acceptable — install must still succeed)."
+  ],
+  "acceptance_criteria": [
+    "Root package.json declares workspaces apps/* and lint/test/build scripts that fan out with --workspaces --if-present.",
+    "`npm.cmd install` from repo root exits 0 and creates c:\\Users\\Gtvkun\\Documents\\GitHub\\brewlite-a2\\package-lock.json.",
+    ".gitignore still contains node_modules, .next, dist, .env and is only extended, not rewritten."
+  ],
+  "verification": [
+    "Run `npm.cmd install` from c:\\Users\\Gtvkun\\Documents\\GitHub\\brewlite-a2 and confirm exit 0 and package-lock.json exists.",
+    "Run `npm.cmd run lint` and `npm.cmd run test` and `npm.cmd run build` from root and confirm they exit 0 (no-op with --if-present while apps are empty)."
+  ],
+  "blocked_reason": null,
+  "findings": "Toolchain: Node v24.15.0 local / npm 11.12.1; CI pins Node 20 LTS (.nvmrc=20, engines.node>=20). Root package.json: private, name brewlite-a2, workspaces [apps/*], scripts lint/test/build fan out via `npm run <s> --workspaces --if-present` (bare npm inside package.json is fine; only interactive PowerShell needs npm.cmd/npx.cmd). package-lock.json created at repo root by `npm.cmd install` (exit 0; audited 1 package, 0 vulnerabilities). .gitignore extended additively (kept node_modules/.next/dist/.env; appended coverage/, *.tsbuildinfo, apps/api/dist/, *.log, apps/api/node_modules/.prisma/, apps/api/src/generated/). GOTCHA for FEAT-002+: while apps/* is EMPTY, `npm run lint|test|build` exits 1 with 'No workspaces found!' — npm's --if-present suppresses missing SCRIPTS, not the zero-matching-workspace error. This is transient and self-resolves the moment the first app package lands under apps/*. Decision (confirmed with parent, option A): do NOT mask exit codes (`|| exit 0`/`|| true`) and do NOT add a placeholder app — masking would permanently hide real lint/test/build failures once apps exist. Acceptance criteria (install exit 0 + lockfile + additive .gitignore) all pass. See .agents/tasks/verification.md."
+}
