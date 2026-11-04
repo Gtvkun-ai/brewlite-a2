@@ -1,0 +1,863 @@
+BREWLITE A2 — CHỈ DẪN TRIỂN KHAI CHO AI
+Hạn bắt buộc: 18:00 ngày 13/11/2026, giờ Việt Nam (Asia/Saigon, UTC+7).
+Bàn giao chính: ngày 12/11/2026. Ngày 13/11 chỉ sửa phát sinh và kiểm tra cuối.
+Ngày lập kế hoạch: 04/11/2026.
+Repo làm việc: C:\Users\Gtvkun\Documents\GitHub\brewlite-a2
+GitHub A2: https://github.com/Gtvkun-ai/brewlite-a2
+Trello tham khảo: https://trello.com/b/WicUBZYp
+
+Đây là PROMPT/YÊU CẦU THỰC THI để giao cho AI, không phải báo cáo công việc đã hoàn thành.
+Tên/mô tả board Trello có thể còn lịch tháng 12; lịch trong tài liệu này là lịch đúng.
+Các ký hiệu A–G là người phụ trách, chưa phải tài khoản Trello.
+
+===============================================================================
+1. CÁCH DÙNG FILE NÀY
+===============================================================================
+
+Cách 1 — Giao cho một AI triển khai toàn dự án:
+Dán nguyên file và thêm câu:
+"Đọc repository hiện tại và thực hiện chỉ dẫn trong file này. Làm vai trò A trước
+để chốt contracts, sau đó triển khai tuần tự các phần B–G theo phụ thuộc.
+Hãy thực sự sửa code, chạy kiểm tra phù hợp, cập nhật tài liệu và báo kết quả thật.
+Không chỉ trả lời bằng kế hoạch. Không tự tạo nhiều agent/chat nếu tôi chưa yêu cầu.
+Chưa có quyền cloud thì hoàn tất Docker/CI/tài liệu và báo chính xác phần bị chặn."
+
+Cách 2 — Giao từng phần cho AI phụ trách một thành viên:
+Dán nguyên file và thêm câu:
+"Bạn phụ trách vai trò [A/B/C/D/E/F/G]. Đọc phần chung, hợp đồng A đã chốt và
+chỉ thực hiện các thẻ thuộc vai trò đó. Mọi shared-file change cần phối hợp A.
+Nếu contract chưa tồn tại, chuẩn bị fixture/test theo dự thảo, ghi rõ giả định;
+không âm thầm tạo contract khác rồi tích hợp như thể đã thống nhất."
+
+Khi tiếp tục ở một chat khác:
+- Đọc repo và trạng thái Git thực tế, không coi lời AI trước là bằng chứng đã xong.
+- Đọc api-contracts.md, migration/schema, test reports và handoff của owner liên quan.
+- Nêu ngắn gọn phần đã xác minh, việc đang làm và blocker thật.
+- Dùng mã A-00/B-10/... trong báo cáo để đối chiếu với lịch và Trello.
+
+===============================================================================
+2. MỤC TIÊU, PHẠM VI VÀ NỀN TẢNG
+===============================================================================
+
+BrewLite gốc (Assignment 1) là nền tảng tham chiếu nghiệp vụ.
+brewlite-a2 (Assignment 2) triển khai lại có chọn lọc theo quy trình:
+SRS → UML → kiến trúc → hai Sprint → CI/CD → production HTTPS.
+
+Không bê nguyên cấu trúc backend/frontend của A1 sang A2.
+Giữ monorepo npm workspaces apps/web và apps/api.
+Kế thừa tri thức nghiệp vụ sau khi đọc/đối chiếu source A1 nếu truy cập được:
+- Giá gốc + Large 10.000đ + tổng phụ thu topping.
+- Payment idempotency.
+- Order/stock trong transaction.
+- State machine đơn hàng.
+- Menu/topping/tài khoản demo qua seed.
+Không tuyên bố đã kiểm tra source A1 nếu chưa truy cập được.
+
+Ưu tiên theo SRS:
+- FR-01 Must: Xem menu.
+- FR-02 Must: Chi tiết món, Regular/Large, topping.
+- FR-03 Must: Thêm/sửa/xóa/tổng tiền giỏ hàng.
+- FR-04 Must: Đăng ký/đăng nhập JWT.
+- FR-05 Must: Tạo đơn và thanh toán mô phỏng.
+- FR-06 Must: Lịch sử và chi tiết/trạng thái đơn.
+- FR-07 Should: API nhân viên cập nhật trạng thái hợp lệ.
+- FR-08 Could: Promotion HOÃN khỏi bản bàn giao 13/11; thẻ C-25 lưu deferred.
+- NFR-01–05: Hiệu năng, bảo mật, mobile, deploy và toàn vẹn dữ liệu.
+
+Giữ đầy đủ 7 model của class diagram:
+User, Product, Order, OrderItem, Payment, Promotion, LoyaltyTransaction.
+Giữ model Promotion/LoyaltyTransaction không đồng nghĩa phải làm thêm loyalty
+workflow hoặc voucher UI trong đợt này.
+Không tự mở rộng sang cổng thanh toán thật, lưu thông tin thẻ thật, dashboard quản
+trị lớn hoặc tính năng ngoài phạm vi đã chốt.
+
+===============================================================================
+3. HIỆN TRẠNG REPO ĐÃ ĐỌC NGÀY 04/11/2026
+===============================================================================
+
+Các quan sát dưới đây là từ việc đọc file, CHƯA phải kết quả chạy kiểm thử:
+- Root package.json có workspaces ["apps/*"], Node >=22.
+- Scripts root hiện có: npm run lint, npm run test, npm run build.
+- API: @brewlite/api, NestJS + Prisma + PostgreSQL, Jest.
+- Web: @brewlite/web, Next.js App Router + React, Vitest/Testing Library.
+- API hiện có catalog và Prisma module; frontend có menu/detail nền.
+- Schema có đủ 7 model nêu trên.
+- docs/requirements, docs/diagrams, docs/architecture/adr đã có tài liệu.
+- .github/workflows/ci.yml có chuỗi Install → Lint → Unit Test → Build.
+- Chưa thấy thư mục tests/ trong lần khảo sát; cần tạo khi triển khai test liên quan.
+- Product.basePrice hiện được serialize qua JSON dưới dạng STRING.
+  apps/web/lib/types.ts đang dùng basePrice: string. Không đổi tùy tiện sang number.
+- API main.ts đang có CORS_ORIGIN, PORT và ValidationPipe.
+- NEXT_PUBLIC_API_URL là base URL hiện dùng của frontend.
+- package.json API hiện chưa khai báo bộ thư viện JWT/bcrypt.
+  Chỉ thêm dependency cần thiết, đúng workspace, cập nhật lockfile.
+- Jest API hiện rootDir=src; đặt tests/integration ngoài src cần config/script riêng.
+- Root test dùng --if-present: không coi root test xanh là bằng chứng E2E/integration
+  đã chạy. Phải có script và job chạy các suite đó thật.
+
+Thư viện/phiên bản có thể đã thay đổi khi AI bắt đầu làm: kiểm tra lại repo.
+Không tự nâng major framework chỉ để triển khai nhiệm vụ này.
+
+Trước khi sửa:
+- Đọc AGENTS.md áp dụng nếu có, README và git status.
+- Tôn trọng thay đổi chưa commit của người dùng, đặc biệt docs/evidence/
+  và docs/traceability-matrix.md đã tồn tại ở trạng thái untracked lúc khảo sát.
+- Không xóa/reset/ghi đè công việc của người dùng để làm sạch repo.
+- Không tự commit/push/merge; chỉ thực hiện khi người dùng đã giao quyền tương ứng.
+- Nếu cần nhánh mới, dùng codex/<vai-tro>-<nhiem-vu> hoặc tên người dùng yêu cầu.
+
+===============================================================================
+4. HỢP ĐỒNG CHUNG: A PHẢI CHỐT TRƯỚC KHI TÍCH HỢP
+===============================================================================
+
+Tạo/cập nhật docs/architecture/api-contracts.md:
+1) Method/path, auth/role, headers, DTO request và response.
+2) Mã HTTP, mã lỗi ổn định cho client và ví dụ JSON.
+3) Enum/types, kiểu tiền, cấu hình món, giá và idempotency.
+4) Policy payment fail/retry/cancel/hoàn kho.
+5) Liên kết FR → UML → code → test và trạng thái từng phần.
+
+Dự kiến bộ API:
+- GET /products
+- GET /products/:id
+- POST /auth/register
+- POST /auth/login
+- POST /orders                  JWT + Idempotency-Key tạo đơn
+- GET /orders                   lịch sử của khách đang đăng nhập
+- GET /orders/:id               kiểm tra ownership
+- PATCH /orders/:id/status      role nhân viên, transition hợp lệ
+- POST /payments                JWT + Idempotency-Key thanh toán
+- GET /health                   readiness có kiểm tra DB
+- POST /promotions/validate     deferred, không là điều kiện bàn giao 13/11
+
+MÂU THUẪN ĐÃ PHÁT HIỆN:
+docs/requirements/use-case-checkout.md hiện mô tả POST /orders/checkout và một
+transaction bao trùm checkout, trong khi kế hoạch phân công dùng POST /orders
+rồi POST /payments. Tài liệu cũng ghi payment fail không làm thay đổi tồn kho.
+A phải chọn và ghi nhận quyết định kiến trúc trước khi B–G tích hợp.
+Phương án đề xuất cho đợt này: hai endpoint như bảng trên, reservation ở tạo đơn,
+compensation hoàn kho khi thanh toán thất bại, và đồng bộ use-case/sequence/SRS.
+Không để tài liệu nói một luồng còn code triển khai một luồng khác.
+Nếu yêu cầu chính thức buộc combined checkout thì A phải cập nhật contract/lịch
+phối hợp tương ứng, không tự tạo hai nguồn nghiệp vụ checkout độc lập.
+
+Enum hiện tại phải dùng thống nhất:
+- Role: CUSTOMER, BARISTA, MANAGER, ADMIN. Không tự đổi sang STAFF.
+- OrderStatus: PENDING, PAID, PREPARING, READY, COMPLETED,
+  CANCELLED, PAYMENT_FAILED.
+- PaymentStatus: PENDING, SUCCESS, FAILED, REFUNDED.
+- PaymentMethod: E_WALLET, CREDIT_CARD, DOMESTIC_ATM, CASH.
+  Luồng ví/thẻ là mock; CASH không mặc nhiên thuộc checkout online của bản này.
+- Size UI: Regular/Large; giá trị wire chính xác do A chốt.
+- Không bịa model Category/ProductSize/ProductTopping rồi khẳng định schema đã có.
+
+Shared types tối thiểu:
+- UserPayload: id/email/fullName/role hoặc JWT sub tương ứng; không passwordHash.
+- CartItem: mã dòng ổn định, productId, size, topping codes, quantity, preview price.
+- CreateOrderRequest: cấu hình món và quantity; giá client không là nguồn sự thật.
+- OrderItem/OrderResponse: snapshot đơn giá, số lượng, thành tiền, tổng tiền,
+  trạng thái, mã đơn và timestamp.
+- PaymentRequest: orderId, method; idempotency key đặt đúng nơi contract quy định.
+- PaymentResponse: trạng thái payment/order, mã tham chiếu, kết quả có thể replay.
+- ErrorResponse: mã lỗi ổn định + thông điệp thân thiện.
+
+A chọn một vị trí shared types phù hợp với monorepo thực tế.
+Nếu thêm workspace packages/*, cập nhật workspace/build/tsconfig/lockfile đồng bộ.
+Không đưa import Prisma/server runtime vào client bundle.
+Kiểu tiền wire nên thống nhất decimal string như Product hiện tại; nội bộ backend
+dùng Decimal hoặc số nguyên VND với kiểm tra hợp lệ, tránh sai số floating point.
+
+===============================================================================
+5. CÁC QUY TẮC NGHIỆP VỤ KHÔNG ĐƯỢC BỎ QUA
+===============================================================================
+
+5.1. Giá và cấu hình món
+- unitPrice = basePrice + sizeSurcharge + tổng toppingSurcharge.
+- Regular +0đ; Large +10.000đ; trân châu +5.000đ theo dữ liệu/contract.
+- itemTotal = unitPrice * quantity; subTotal = tổng itemTotal.
+- Bản không promotion: discountAmount=0; totalAmount=subTotal.
+- Giá chính thức và amount thanh toán luôn lấy từ server.
+- Snapshot giá đơn phải không bị thay đổi khi Product thay giá sau đó.
+- Validate quantity nguyên dương, size/topping hợp lệ và món còn khả dụng.
+- Gộp tổng số lượng cùng productId khi kiểm tra/trừ kho, kể cả nhiều cấu hình món.
+- Không trừ stock topping riêng nếu domain không có tồn kho topping.
+- Schema OrderItem hiện chưa có note riêng; nếu cần ghi chú từng món, A phải
+  quyết định bỏ khỏi scope hoặc thêm field/migration/UML đúng nghĩa.
+  Không nhét note âm thầm vào selectedToppings; deliveryNote là ghi chú cấp đơn.
+
+5.2. Tồn kho và transaction
+- Đọc stock rồi update vô điều kiện vẫn có race condition dù bọc $transaction.
+- Dùng trừ kho có điều kiện stockQuantity >= tổng quantity, kiểm tra affected count;
+  hoặc lock/isolation phù hợp, có xử lý conflict/retry giới hạn.
+- Kiểm tra món, trừ kho và tạo Order/OrderItem phải atomic.
+- Một món lỗi: rollback toàn bộ, không để đơn nửa chừng hay trừ kho một phần.
+- Thứ tự xử lý product ổn định để giảm deadlock khi nhiều sản phẩm.
+- Test bằng PostgreSQL thật với nhiều request tranh stock ít.
+- Hoàn kho do payment failure/cancel phải tối đa một lần, gắn với transition
+  có điều kiện trong transaction; replay không cộng stock nhiều lần.
+- A chốt xử lý PENDING bị bỏ dở. Không tự tuyên bố có timeout reservation nếu
+  chưa triển khai cơ chế đó; ghi hạn chế và cách vận hành thực tế.
+
+5.3. Idempotency tách cho Order và Payment
+- Request tạo đơn có key riêng; request thanh toán có key riêng.
+- Retry mạng của cùng nghiệp vụ giữ nguyên key và payload.
+- Cùng user/key/payload phải trả cùng tài nguyên/kết quả, không trừ kho/tiền lặp.
+- Cùng key khác payload phải conflict, không replay nhầm.
+- Kiểm tra ownership trước khi trả kết quả replay; không làm lộ đơn user khác.
+- Unique constraint và xử lý concurrent conflict trong DB là bắt buộc;
+  check trước rồi insert mà không xử lý race là chưa đủ.
+- Cùng orderId đã trả tiền, dù dùng key khác cũng không trả tiền lần nữa.
+- Double click bị disable ở UI là hỗ trợ UX, không thay thế idempotency server.
+- Timeout/mất response không đồng nghĩa payment thất bại; tra/retry cùng key.
+- Request fingerprint nếu cần phải được normalize và persist/so sánh đủ thông tin;
+  mọi field schema thêm phải đi qua A và đồng bộ UML/migration.
+
+ĐIỂM KHÓ CỦA SCHEMA HIỆN TẠI:
+Payment.orderId là unique và Payment.idempotencyKey cũng unique.
+Không mặc định tạo nhiều Payment attempt trên một Order mà không thay thiết kế.
+
+Phương án đơn giản đề xuất để A chốt trước:
+- Payment fail đã xác nhận: ghi Payment FAILED và Order PAYMENT_FAILED,
+  hoàn kho trong một transaction có điều kiện.
+- Đơn đó là terminal cho lần thử này; replay key cũ trả kết quả fail cũ.
+- Khách chủ động thử thanh toán mới: tạo Order mới + hai key mới sau khi đã
+  xác nhận lần cũ fail; kiểm tra/trừ kho lại. Giữ giỏ để khách thử tiếp.
+- Khách retry do chưa biết kết quả: giữ order/key cũ, không tạo đơn mới.
+Nếu muốn nhiều attempt trên cùng order, phải thiết kế schema/contract/idempotency
+history tương ứng qua A, không sửa mỗi UI để sinh key mới rồi coi đã giải quyết.
+Không thu tiền thật: gateway mock deterministic, kiểm chứng hiệu ứng thanh toán
+mô phỏng và dữ liệu Payment/Order. Không suy diễn thành bảo đảm cho gateway thật.
+
+5.4. Auth, ownership và state machine
+- Public register chỉ tạo CUSTOMER; không nhận role ADMIN từ request.
+- Hash password; secret/token không vào source hoặc log.
+- API Orders/Payments yêu cầu JWT; đọc userId từ token.
+- Khách chỉ đọc/thanh toán đơn của mình.
+- Chỉ payment service được chuyển PENDING → PAID khi xử lý success.
+- Staff hợp lệ: PAID → PREPARING → READY → COMPLETED.
+- Chặn skip/backward/transition không hợp lệ và customer đổi trạng thái.
+- Failed/cancel terminal và retry đi đúng policy A chốt.
+- Không trả passwordHash trong JSON.
+- Frontend xử lý 401 và redirect nội bộ an toàn, giữ giỏ khi cần login.
+- Không dùng token/session của người phát triển làm fixture công khai.
+
+5.5. Frontend checkout
+- Giỏ trống/chưa đăng nhập phải có xử lý rõ.
+- Hiển thị total từ server nếu khác preview; không âm thầm charge số khác.
+- Lưu thông tin checkout attempt cần thiết để retry sau reload/mất response.
+- Không tạo order mới chỉ vì response cũ bị mất.
+- Chỉ clear giỏ sau khi xác nhận PAID; fail giữ giỏ.
+- Xử lý trường hợp user sửa giỏ trong lúc thanh toán: chỉ xóa phần đã mua hoặc
+  khóa chỉnh sửa trong attempt theo contract, không xóa món mới vô tình.
+- Mọi màn quan trọng có loading, empty, error và retry thích hợp.
+- Hỗ trợ 375px, 430px và desktop; không overflow chặn thao tác.
+
+===============================================================================
+6. OWNERSHIP VÀ LỊCH TOÀN NHÓM
+===============================================================================
+
+A: Tech Lead/Architect — contracts, schema, shared types/client, wiring, infra,
+   review, CI/CD và release.
+B: Backend Auth/JWT.
+C: Backend Orders, stock transaction, history, order state.
+D: Backend Payments/idempotency và health.
+E: Frontend product options và cart.
+F: Frontend login/register, Navbar và checkout.
+G: Frontend orders, E2E, traceability và delivery docs.
+
+Shared files do A điều phối: schema/migrations, workspace config/lockfile,
+shared types, API client, app.module, workflows, Docker và tài liệu kiến trúc.
+B–G không sửa đè shared file trong nhiều bản làm song song.
+Có thể làm fixture/test độc lập trước khi API sẵn sàng; khi nghiệm thu phải chạy
+với API/DB thật, ghi rõ payment gateway vẫn là mock.
+
+Lịch 2026, giờ Việt Nam:
+- 04–05/11: Chuẩn bị.
+  A-00 chốt contract trước 12:00 05/11; A-01 baseline trước 18:00 05/11.
+  Gate-PREP: 20:00 05/11.
+- 06–08/11: Sprint 1.
+  B giao guard trước 18:00 07/11; core C/D và UI nền hoàn thành 18:00 08/11.
+  Gate-S1 Review/Retro: 20:00 08/11.
+- 09–11/11: Sprint 2.
+  A có staging trước 14:00 10/11; API C/D ổn định tối 10/11.
+  F chốt full checkout trước 12:00 11/11.
+  G chốt E2E trước 18:00 11/11; Gate-S2: 20:00 11/11, đóng băng tính năng.
+- 12/11: Regression + docs + production.
+  B/C/D/E bàn giao trước 12:00; F trước 14:00; G trước 16:00.
+  A bàn giao release trước 18:00; Gate-RELEASE: 20:00.
+- 13/11: Chỉ xử lý phát sinh và kiểm tra gói nộp.
+  Gate-FINAL trước 18:00 13/11/2026.
+
+Ước lượng timebox 147 giờ công, không phải số giờ đã làm:
+A 25h; B 15h; C 23h; D 21h; E 18h; F 21h; G 24h.
+Lịch gấp dựa trên việc đã có nền A2 và tri thức A1; không phải cam kết rằng mọi
+đầu ra đã được xác minh. Báo blocker sớm; giữ Must trước, FR-08 vẫn deferred.
+Đề xuất cập nhật tiến độ mỗi tối 20:00; không tự gửi calendar hoặc tin nhắn.
+Ngày trong tài liệu là kế hoạch. Nếu AI chạy sau mốc đó, báo trễ thực tế và tiếp tục
+phần được giao; không ghi lùi ngày commit/test để trông như hoàn thành đúng hạn.
+
+===============================================================================
+7. CHI TIẾT THẺ CÔNG VIỆC — COPY PHẦN VAI TRÒ KHI GIAO AI
+===============================================================================
+
+----------------------- VAI TRÒ A: Tech Lead / Architect / Infra / Release -----------------------
+
+A-00 — Chốt phạm vi A2, schema và API contracts
+Lịch: 04/11/2026 → 05/11/2026, hạn 12:00 giờ Việt Nam.
+Ước lượng: 4h. Truy vết: FR-01–08; NFR-02,05
+Phụ thuộc: Không
+File/đầu ra: docs/requirements/*; docs/architecture/api-contracts.md; shared types tại vị trí thống nhất; apps/api/prisma/schema.prisma
+
+Việc cần thực hiện:
+1. Đối chiếu brewlite gốc với A2: kế thừa nghiệp vụ/seed, không sao chép cấu trúc backend/frontend cũ.
+2. Chốt 7 model với class-domain.puml; sửa lệch Role BARISTA/MANAGER/ADMIN, Regular/Large, topping, kiểu tiền, ghi chú và enum. Quyết định cách lưu cấu hình món trước khi B–G code.
+3. Định nghĩa endpoint, request/response, mã lỗi, JWT payload, CartItem/OrderItem/PaymentRequest/UserPayload; giá và amount do server quyết định.
+4. Chốt Idempotency-Key cho tạo đơn và thanh toán, cùng key/khác payload, retry sau mất response, trạng thái thất bại và chính sách giữ/hoàn kho.
+5. Must FR-01–06 ưu tiên; FR-07 Should triển khai sau luồng chính; FR-08 Could có thẻ riêng; không tự mở rộng chức năng tích điểm ngoài SRS.
+
+Kiểm chứng bắt buộc:
+Review SRS ↔ UML ↔ schema ↔ contracts; B–G có ví dụ JSON và ownership rõ; mọi điểm chưa thống nhất được quyết định trong contract.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+A-01 — Bàn giao nền monorepo, migration/seed và CI
+Lịch: 05/11/2026 → 05/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 3h. Truy vết: NFR-02,04
+Phụ thuộc: A-00
+File/đầu ra: package.json; .github/workflows/ci.yml; apps/api/prisma/*; .env.example
+
+Việc cần thực hiện:
+1. Xác minh npm workspaces apps/web và apps/api, Node 22, lockfile và lệnh chạy toàn repo.
+2. Đối chiếu seed với schema A2, tạo dữ liệu menu/topping/size và tài khoản demo theo contract; seed lặp không nhân đôi.
+3. Chạy migration trên DB sạch; ghi biến môi trường và cách khởi động cho nhóm.
+4. Xác minh CI Install → Lint → Unit Test → Build; thiết lập required status check trên main nếu quyền cho phép; mọi thay đổi qua PR.
+5. Chốt phạm vi file: A sở hữu schema/migration/shared client/app wiring/infra; B–G đề xuất thay đổi qua A.
+
+Kiểm chứng bắt buộc:
+Clone/install từ đầu, migrate + seed hai lần thành công; bằng chứng pipeline pass và chặn PR lỗi; ghi riêng nếu chưa thiết lập được branch protection.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+A-10 — Kiến trúc Task 3, tích hợp module và review Sprint 1
+Lịch: 06/11/2026 → 08/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 6h. Truy vết: FR-01–06; NFR-04
+Phụ thuộc: A-01; nhận PR B-10…G-10
+File/đầu ra: docs/architecture/*; docs/diagrams/deployment-production.*; apps/api/src/app.module.ts; apps/web/lib/*
+
+Việc cần thực hiện:
+1. Đối soát architecture overview, ADRs, deployment diagram với Next.js/NestJS/PostgreSQL thực tế.
+2. Phụ trách shared types/API client/module wiring để các owner không sửa chồng file.
+3. Review PR theo thứ tự B Auth → C Orders → D Payment, song song E Cart/F Auth UI/G Orders UI.
+4. Kiểm tra menu Sprint 1 hiện có, sửa lỗi tích hợp qua PR; không đánh dấu hoàn thành chỉ dựa tài liệu.
+5. Demo bản tích hợp local trước gate 08/11 và ghi các việc còn lại cho Sprint 2.
+
+Kiểm chứng bắt buộc:
+Install/lint/unit/build xanh; demo menu → cart, auth, order/payment nền; cập nhật traceability bằng đường dẫn code/test có thật.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+A-20 — Docker Compose, staging và pipeline CD
+Lịch: 09/11/2026 → 10/11/2026, hạn 14:00 giờ Việt Nam.
+Ước lượng: 8h. Truy vết: NFR-04
+Phụ thuộc: Gate-S1; D-10 health
+File/đầu ra: docker-compose.yml; apps/web/Dockerfile; apps/api/Dockerfile; .github/workflows/*; docs/deployment.md
+
+Việc cần thực hiện:
+1. Docker build web/api; Compose web/api/PostgreSQL, health/readiness và environment rõ.
+2. Chạy prisma migrate deploy an toàn, phân biệt seed demo với dữ liệu production.
+3. Thiết lập staging/cloud HTTPS, CORS/API URL, secrets môi trường và smoke checks; deploy theo CI xanh.
+4. Tài liệu quy trình release, kiểm tra migration, backup và rollback; xác minh cloud target theo quyền/chi phí sẵn có.
+5. Đưa staging khả dụng trước 10/11 để B–G test tích hợp.
+
+Kiểm chứng bắt buộc:
+Compose chạy từ đầu; health 200 khi DB sẵn sàng; staging HTTPS truy cập được; CI/CD log, URL và hướng dẫn deploy/rollback được ghi.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+A-30 — Production release, HTTPS và gói bàn giao
+Lịch: 12/11/2026 → 12/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 4h. Truy vết: NFR-04; toàn bộ Must
+Phụ thuộc: Gate-S2; G-30; B-30…F-30
+File/đầu ra: docs/deployment.md; README.md; release artifact; CI/CD; production
+
+Việc cần thực hiện:
+1. Review/merge PR với CI xanh, chốt release candidate và phiên bản tài liệu.
+2. Kiểm tra migration/backup/rollback, biến môi trường production và HTTPS trước deploy.
+3. Deploy production; smoke menu/auth/checkout mock/payment/history và GET /health; ghi URL/commit.
+4. Đối chiếu class schema, traceability, bằng chứng CI pass/fail và đóng góp nhóm.
+5. Gắn release/tag theo quy trình nhóm, bàn giao README cách chạy, tài khoản demo và known limitations trước 18:00 12/11.
+
+Kiểm chứng bắt buộc:
+Production HTTPS hoạt động, smoke pass và tài liệu gói bàn giao đủ; không còn P0/P1 trong phạm vi Must, có phương án rollback.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+
+----------------------- VAI TRÒ B: Backend Auth & JWT -----------------------
+
+B-10 — API đăng ký/đăng nhập, bcrypt và JWT guard
+Lịch: 06/11/2026 → 07/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 8h. Truy vết: FR-04; NFR-02
+Phụ thuộc: A-01
+File/đầu ra: apps/api/src/auth/*; auth.service.spec.ts
+
+Việc cần thực hiện:
+1. Làm POST /auth/register và POST /auth/login theo contract; hash mật khẩu, email unique, xử lý 400/401/409.
+2. JwtStrategy/JwtAuthGuard và payload sub/role đúng schema; secret lấy từ môi trường.
+3. Validate đầu vào; không trả passwordHash; đăng ký công khai chỉ tạo CUSTOMER, không nhận role đặc quyền.
+4. Bàn giao guard và JSON mẫu cho C/D, auth response cho F trước 07/11; đề xuất app.module wiring cho A.
+
+Kiểm chứng bắt buộc:
+Unit test register/login, email trùng, mật khẩu sai, thiếu/hết hạn token; test không thể tự đăng ký role ADMIN.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+B-20 — Tích hợp quyền truy cập và kiểm thử bảo mật
+Lịch: 09/11/2026 → 10/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 5h. Truy vết: FR-04,06,07; NFR-02
+Phụ thuộc: Gate-S1; phối hợp C-20/D-20/F-20
+File/đầu ra: apps/api/src/auth/*; tests/integration/auth*.spec.ts
+
+Việc cần thực hiện:
+1. Test JWT thực với Orders/Payments; thiếu/sai/hết hạn token bị chặn.
+2. Hoàn thiện RBAC theo Role CUSTOMER/BARISTA/MANAGER/ADMIN đã chốt; C dùng guard để cập nhật trạng thái.
+3. Kiểm tra không thể truy cập đơn user khác, không tự gán role; review DTO và dữ liệu nhạy cảm.
+4. Đối soát auth sequence và tài liệu FR-04; bàn giao test accounts cho G.
+
+Kiểm chứng bắt buộc:
+Integration 401/403 và auth regression pass trên DB thật; không có passwordHash/secret trong response hoặc repo.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+B-30 — Auth regression và bàn giao module
+Lịch: 12/11/2026 → 12/11/2026, hạn 12:00 giờ Việt Nam.
+Ước lượng: 2h. Truy vết: FR-04; NFR-02
+Phụ thuộc: Gate-S2
+File/đầu ra: apps/api/src/auth/*; docs/evidence/*
+
+Việc cần thực hiện:
+1. Chạy regression đăng ký/login/JWT/RBAC trên release candidate; kiểm tra secret và log nhạy cảm.
+2. Sửa lỗi auth được G tái hiện, cập nhật unit/integration test có ý nghĩa.
+3. Bàn giao PR/commit SHA, test accounts demo và phần giải thích module cá nhân.
+
+Kiểm chứng bắt buộc:
+Auth test pass; không truy cập trái phép; reviewer và log kiểm chứng được đính kèm.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+
+----------------------- VAI TRÒ C: Backend Orders & Stock -----------------------
+
+C-10 — Tạo đơn, tính giá server và transaction trừ kho
+Lịch: 06/11/2026 → 08/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 10h. Truy vết: FR-05; NFR-05
+Phụ thuộc: A-01; B-10 để tích hợp guard (có thể dùng fixture trước)
+File/đầu ra: apps/api/src/orders/*; orders.service.spec.ts
+
+Việc cần thực hiện:
+1. Làm POST /orders với DTO items/quantity/size/toppings hợp lệ; user lấy từ JWT.
+2. Tính basePrice + Large 10.000đ + topping theo contract; lưu snapshot unitPrice/itemTotal và total phía server.
+3. Trong cùng prisma.$transaction: kiểm tra món khả dụng, trừ kho có điều kiện stockQuantity >= quantity và tạo Order/OrderItem; lỗi thì rollback toàn bộ.
+4. Gộp/kiểm soát cùng sản phẩm xuất hiện nhiều dòng; không âm kho khi có request cạnh tranh.
+5. Xử lý key tạo đơn theo A-00; bàn giao response Order PENDING, JSON/history contract cho D/F/G.
+
+Kiểm chứng bắt buộc:
+Unit test công thức giá, quantity sai, hết hàng, rollback nhiều món; integration trên PostgreSQL cho hai request tranh món cuối, chỉ một đơn thành công.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+C-20 — History API, state machine và chống tạo đơn trùng
+Lịch: 09/11/2026 → 10/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 10h. Truy vết: FR-05,06,07; NFR-05
+Phụ thuộc: Gate-S1; B-20 role contract; phối hợp D-20
+File/đầu ra: apps/api/src/orders/*; tests/integration/orders.spec.ts
+
+Việc cần thực hiện:
+1. Làm GET /orders và GET /orders/:id chỉ trả đơn của user theo contract; staff access tách rõ nếu có.
+2. PATCH /orders/:id/status kiểm tra role và chuyển trạng thái hợp lệ; chỉ luồng thanh toán thành công được đặt PAID.
+3. Test đồng thời 10–20 request với stock thấp; dùng trừ kho có điều kiện/khóa hoặc isolation phù hợp, xử lý conflict.
+4. Retry create-order cùng key không sinh đơn/trừ kho lần nữa; khác payload cùng key bị từ chối.
+5. Chốt với D chính sách failed/cancel giữ hoặc hoàn kho và cơ chế hoàn tối đa một lần.
+
+Kiểm chứng bắt buộc:
+INT-T01: rollback, tồn kho không âm, replay không trùng Order; test history/ownership, customer không đổi status, chuyển trạng thái sai bị chặn.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+C-30 — Orders/stock concurrency regression
+Lịch: 12/11/2026 → 12/11/2026, hạn 12:00 giờ Việt Nam.
+Ước lượng: 3h. Truy vết: FR-05,06,07; NFR-05
+Phụ thuộc: Gate-S2
+File/đầu ra: apps/api/src/orders/*; tests/integration/orders.spec.ts; docs/evidence/*
+
+Việc cần thực hiện:
+1. Chạy lại cạnh tranh stock thấp, rollback, create-order replay và chuyển trạng thái trên release candidate.
+2. Đối chiếu số Order thành công, quantity bán và stock còn lại; kiểm tra đơn user khác.
+3. Sửa lỗi tích hợp, đồng bộ sequence/class diagram qua A, bàn giao PR/commit và test evidence.
+
+Kiểm chứng bắt buộc:
+Không âm kho/không trừ kho hai lần; trạng thái và quyền đúng; PostgreSQL integration pass.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+
+----------------------- VAI TRÒ D: Backend Payments & Health -----------------------
+
+D-10 — Payment mock và health check có kiểm tra DB
+Lịch: 06/11/2026 → 08/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 8h. Truy vết: FR-05; NFR-04,05
+Phụ thuộc: A-01; B-10 guard; C-10 Order (mock theo contract trước)
+File/đầu ra: apps/api/src/payments/*; apps/api/src/health/*
+
+Việc cần thực hiện:
+1. Dựng POST /payments cho E_WALLET/CREDIT_CARD/DOMESTIC_ATM theo enum; không dùng thông tin thẻ thật.
+2. Mock gateway có kết quả success/failure xác định để kiểm thử; amount đọc từ Order.
+3. Kiểm tra ownership và trạng thái hợp lệ trước thanh toán; thống nhất cập nhật PAID với C.
+4. Làm GET /health truy vấn DB; DB sẵn sàng trả 200, lỗi DB trả trạng thái không sẵn sàng theo contract.
+5. Bàn giao JSON success/failure và mẫu Idempotency-Key cho F; giao health URL cho A.
+
+Kiểm chứng bắt buộc:
+Unit test mock success/failure, không nhận amount client, không thanh toán đơn người khác; health test DB up/down.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+D-20 — Payment idempotency và transaction cập nhật PAID
+Lịch: 09/11/2026 → 10/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 10h. Truy vết: FR-05; NFR-05
+Phụ thuộc: Gate-S1; phối hợp C-20/F-20
+File/đầu ra: apps/api/src/payments/*; tests/integration/payments.spec.ts
+
+Việc cần thực hiện:
+1. Persist idempotency key có unique constraint; cùng key và payload trả kết quả cũ, cùng key khác payload bị từ chối.
+2. Kiểm thử hai request đồng thời và retry sau mất response; không tạo giao dịch/hiệu ứng gateway trùng.
+3. Payment SUCCESS và Order PAID cập nhật nhất quán; không để khách PATCH thành PAID.
+4. Thiết kế retry sau FAILED theo quan hệ Payment.orderId unique hiện tại; nếu cần thay schema gửi A quyết định trước khi code.
+5. Không chuyển PAID ngược sang failed; không thanh toán lại đơn thành công bằng key khác; bàn giao API cuối cho F.
+
+Kiểm chứng bắt buộc:
+INT-T02 trên PostgreSQL: concurrent same-key, changed-payload, same-order new-key, lost-response replay; một payment thành công và một hiệu ứng trừ tiền mô phỏng.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+D-30 — Payment retry regression và smoke health
+Lịch: 12/11/2026 → 12/11/2026, hạn 12:00 giờ Việt Nam.
+Ước lượng: 3h. Truy vết: FR-05; NFR-04,05
+Phụ thuộc: Gate-S2
+File/đầu ra: apps/api/src/payments/*; health/*; tests/integration/payments.spec.ts; docs/evidence/*
+
+Việc cần thực hiện:
+1. Chạy concurrent duplicate key, lost-response retry, payload mismatch và order đã PAID trên release candidate.
+2. Xác minh một hiệu ứng thanh toán mô phỏng, Payment/Order nhất quán; failure và retry đúng policy.
+3. Smoke GET /health trên môi trường deploy, ghi kết quả DB up/down và bàn giao evidence.
+
+Kiểm chứng bắt buộc:
+INT-T02 pass; replay không charge mô phỏng lần hai; health đúng trạng thái DB và không lộ cấu hình nhạy cảm.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+
+----------------------- VAI TRÒ E: Frontend Product Options & Cart -----------------------
+
+E-10 — Tùy chọn món và quản lý giỏ hàng
+Lịch: 06/11/2026 → 08/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 10h. Truy vết: FR-01,02,03; NFR-03
+Phụ thuộc: A-01; A-00 shared CartItem
+File/đầu ra: apps/web/app/products/[id]/page.tsx; apps/web/context/CartContext.tsx; CartDrawer.tsx hoặc app/cart/page.tsx; cart.test.tsx
+
+Việc cần thực hiện:
+1. Giữ menu A2 hiện có; hoàn thiện detail, Regular/Large +10.000đ, topping và ghi chú theo contract.
+2. Cart add/update/remove/clear, tổng số lượng và tổng giá xem trước; cùng cấu hình gộp dòng, cấu hình khác tách dòng.
+3. Giá tính lại ngay khi đổi size/topping/quantity; xử lý giỏ rỗng và dữ liệu không hợp lệ.
+4. Chốt public CartContext API và bàn giao payload productId/size/toppings/quantity cho F; giá client chỉ để hiển thị.
+
+Kiểm chứng bắt buộc:
+Test tổng tiền và cấu hình món, tăng/giảm/xóa, empty cart; kiểm tra 375px/430px và desktop, đủ loading/error/retry.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+E-20 — Tích hợp cart–checkout và hoàn thiện trải nghiệm mobile
+Lịch: 09/11/2026 → 10/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 6h. Truy vết: FR-01,02,03,05; NFR-03
+Phụ thuộc: Gate-S1; phối hợp F-20; A-20 staging trước 10/11
+File/đầu ra: apps/web/context/CartContext.tsx; app/products/[id]/page.tsx; cart components; cart.test.tsx
+
+Việc cần thực hiện:
+1. Tích hợp Cart API ổn định với checkout F; xử lý biến thể món/ghi chú đúng payload.
+2. Lưu/khôi phục giỏ theo contract và kiểm tra dữ liệu cũ nếu có persistence; xử lý sản phẩm hết hàng/giá đổi từ server.
+3. Chỉ clear giỏ sau khi xác nhận thanh toán thành công; thất bại giữ giỏ và cung cấp hành vi retry thống nhất với F.
+4. Rà loading/empty/error/retry, bàn phím, overflow ở 375–430px; đối chiếu preview với giá server.
+
+Kiểm chứng bắt buộc:
+Cart regression pass; chọn Large+topping → checkout có cùng cấu hình, lỗi payment giữ giỏ, success clear đúng một lần.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+E-30 — Cart/mobile regression và demo món
+Lịch: 12/11/2026 → 12/11/2026, hạn 12:00 giờ Việt Nam.
+Ước lượng: 2h. Truy vết: FR-01,02,03; NFR-03
+Phụ thuộc: Gate-S2
+File/đầu ra: apps/web/app/products/*; cart components; docs/evidence/*
+
+Việc cần thực hiện:
+1. Rà menu/detail/cart ở 375px, 430px và desktop; sửa overflow và thao tác khó dùng.
+2. Chạy size+topping/quantity/remove/empty/reload và đồng bộ payload checkout.
+3. Bàn giao ảnh/video demo module, PR/commit và log unit test.
+
+Kiểm chứng bắt buộc:
+Giá preview đúng với bộ dữ liệu demo, không mất cấu hình món, không có lỗi UI chặn luồng Must.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+
+----------------------- VAI TRÒ F: Frontend Auth & Checkout -----------------------
+
+F-10 — Auth UI, Navbar và khung checkout
+Lịch: 06/11/2026 → 08/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 8h. Truy vết: FR-04,05; NFR-02,03
+Phụ thuộc: A-01; B-10 API trước 07/11; E-10 public Cart API
+File/đầu ra: apps/web/app/login/page.tsx; register/page.tsx; components/Navbar.tsx; app/checkout/page.tsx; __tests__/checkout.test.tsx
+
+Việc cần thực hiện:
+1. Form đăng nhập/đăng ký có validate, loading, thông báo lỗi; gọi API B và quản lý token theo contract A.
+2. Navbar hiển thị người dùng/đăng xuất/cart badge; phối hợp E, shared file để A review.
+3. Checkout shell đọc giỏ, chặn giỏ rỗng/chưa đăng nhập, chọn phương thức thanh toán; dùng fixture khi C/D chưa xong.
+4. Chuẩn bị lưu orderId và Idempotency-Key ổn định cho mỗi lần thử nghiệp vụ; phân biệt retry mạng với lần thanh toán mới.
+
+Kiểm chứng bắt buộc:
+Test form hợp lệ/sai, lỗi 401/409, login/đăng xuất, bảo vệ checkout; giao payload mẫu cho C/D và kiểm tra giao diện mobile.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+F-20 — Checkout thật, retry an toàn và xác nhận đơn
+Lịch: 09/11/2026 → 11/11/2026, hạn 12:00 giờ Việt Nam.
+Ước lượng: 10h. Truy vết: FR-04,05,06; NFR-03,05
+Phụ thuộc: Gate-S1; C-20 Orders; D-20 Payments; E-20 Cart
+File/đầu ra: apps/web/app/checkout/page.tsx; __tests__/checkout.test.tsx; auth UI
+
+Việc cần thực hiện:
+1. Kết nối luồng JWT → POST /orders → POST /payments → trang chi tiết mã đơn của G.
+2. Sinh key đúng contract; giữ orderId/key khi timeout, mất mạng hoặc bấm lại; không gọi tạo đơn mới nếu đơn cũ đã được tạo.
+3. Disable submit khi đang gửi; xử lý decline, 401, out-of-stock, mất response và kết quả đang chờ.
+4. Chỉ hiển thị thành công/clear cart sau xác nhận PAID; thất bại hiển thị lỗi và cho retry theo policy.
+5. Kiểm tra response server, không gửi amount làm nguồn sự thật; phối hợp C/D/G cho E2E.
+
+Kiểm chứng bắt buộc:
+WEB checkout tests và chạy staging: double click, timeout sau success, payment fail rồi retry không tạo đơn/giao dịch trùng; có mã đơn và history.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+F-30 — Checkout regression và kịch bản demo
+Lịch: 12/11/2026 → 12/11/2026, hạn 14:00 giờ Việt Nam.
+Ước lượng: 3h. Truy vết: FR-04,05,06; NFR-03,05
+Phụ thuộc: Gate-S2; phối hợp C-30/D-30/E-30
+File/đầu ra: apps/web/app/checkout/page.tsx; auth UI; docs/evidence/*
+
+Việc cần thực hiện:
+1. Kiểm thử timeout, bấm thanh toán hai lần, 401, hết hàng, payment decline và retry.
+2. Đối chiếu mã đơn, tổng tiền, clear/giữ giỏ và trang Orders trên release candidate.
+3. Sửa lỗi UI/tích hợp, chuẩn bị demo success + failure, bàn giao PR/commit/tests.
+
+Kiểm chứng bắt buộc:
+Checkout không tạo đơn/giao dịch trùng khi retry; success tới đúng mã đơn, failure có hướng xử lý và không mất giỏ.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+
+----------------------- VAI TRÒ G: Frontend Orders / QA / Delivery Docs -----------------------
+
+G-10 — Orders UI và kế hoạch kiểm thử truy vết
+Lịch: 06/11/2026 → 08/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 8h. Truy vết: FR-06; NFR-03
+Phụ thuộc: A-01; C-10 response contract (fixture trước khi API sẵn sàng)
+File/đầu ra: apps/web/app/orders/page.tsx; orders/[id]/page.tsx; tests/e2e/checkout-flow.spec.ts; docs/traceability-matrix.md
+
+Việc cần thực hiện:
+1. Làm danh sách lịch sử và chi tiết đơn, stepper PENDING → PAID → PREPARING → READY → COMPLETED; hiện trạng thái thất bại/hủy nếu contract có.
+2. Loading/empty/error/retry, không hiển thị đơn user khác; fixture ghi rõ là fixture.
+3. Lập test cases API/unit/integration/E2E đối chiếu FR/NFR; dựng khung E2E có dữ liệu test độc lập.
+4. Rà traceability: bỏ đường dẫn/model không tồn tại, ghi trạng thái theo bằng chứng; A review tài liệu chung.
+
+Kiểm chứng bắt buộc:
+Unit test lịch sử/stepper và ba trạng thái UI; test plan có happy path, payment failure, retry, hết hàng và unauthorized.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+G-20 — Orders UI thật, E2E toàn luồng và bằng chứng NFR
+Lịch: 09/11/2026 → 11/11/2026, hạn 18:00 giờ Việt Nam.
+Ước lượng: 12h. Truy vết: FR-01–07; NFR-01–05
+Phụ thuộc: Gate-S1; A-20 staging; C-20/D-20/E-20/F-20
+File/đầu ra: apps/web/app/orders/*; tests/e2e/checkout-flow.spec.ts; docs/traceability-matrix.md; docs/evidence/*
+
+Việc cần thực hiện:
+1. Thay fixture Orders bằng API thật; phản ánh trạng thái qua polling/refresh theo contract, bảo đảm ownership.
+2. E2E menu → tùy chọn → cart → login → order → payment → mã đơn → history; thêm failed payment/retry/hết hàng.
+3. Chạy với API và PostgreSQL thật, ghi rõ chỗ mô phỏng gateway; lưu report/trace/log và commit SHA.
+4. Đo p95 API <=500ms dưới điều kiện ghi rõ và Lighthouse >=80; kiểm tra mobile loading/empty/error, ghi kết quả thực chứ không tự đánh đạt.
+5. Đối soát SRS/UML/code/test hai chiều; báo lỗi cho đúng owner trước gate 11/11.
+
+Kiểm chứng bắt buộc:
+E2E pass từ môi trường sạch trên staging; có dữ liệu/môi trường đo hiệu năng, test traceability, mọi lỗi Must được đóng hoặc đưa vào việc sửa trước gate.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+G-30 — QA cuối, Sprint Review/Retro và báo cáo bằng chứng
+Lịch: 12/11/2026 → 12/11/2026, hạn 16:00 giờ Việt Nam.
+Ước lượng: 4h. Truy vết: FR-01–08 theo scope; NFR-01–05
+Phụ thuộc: Gate-S2; B-30…F-30 để chốt regression
+File/đầu ra: docs/sprint-review.md; docs/sprint-retrospective.md; docs/traceability-matrix.md; docs/evidence/*; tests/e2e/*
+
+Việc cần thực hiện:
+1. Chạy E2E release candidate sau các bản sửa, ghi expected/actual, URL, commit, ảnh/video và CI report.
+2. Hoàn thiện review/retrospective của hai Sprint từ kết quả thực tế; phân biệt planned/done/deferred.
+3. Ma trận truy vết hai chiều tới code/test tồn tại; rà UML nguồn và SVG cùng phiên bản.
+4. Tổng hợp đóng góp A–G bằng PR/commit/test evidence thật; chuẩn bị kịch bản thuyết trình và danh sách hạn chế.
+5. Không ghi NFR đạt nếu chưa có phép đo/log; báo lỗi Must còn mở cho A trước 12/11.
+
+Kiểm chứng bắt buộc:
+Bộ báo cáo đủ Tasks 1–5, traceability và evidence mở được; E2E release pass, reviewer xác nhận không còn lỗi chặn Must.
+Bàn giao: file đã đổi, PR nếu được yêu cầu, commit SHA nếu có, lệnh đã chạy,
+kết quả thật và các điểm cần owner khác tiếp nhận.
+
+
+C-25 — FR-08 Promotion: DEFERRED ngoài bản bàn giao 13/11.
+Không nằm trong 147 giờ công. C/F không tự triển khai lại trong đợt này.
+Ghi deferred trong traceability và review, giữ model Promotion trong schema.
+
+===============================================================================
+8. KIỂM THỬ, CI VÀ BẰNG CHỨNG
+===============================================================================
+
+Lệnh hiện có ở root:
+  npm ci
+  npm run lint
+  npm run test
+  npm run build
+
+Lệnh workspace hiện có:
+  npm run start:dev --workspace @brewlite/api
+  npm run dev --workspace @brewlite/web
+  npm run prisma:seed --workspace @brewlite/api
+
+Điều kiện trước khi chạy: đúng Node, DATABASE_URL/env, PostgreSQL khả dụng.
+Không tự dùng database production để seed/reset/test.
+
+A/G phải bổ sung scripts/config CHẠY THẬT cho integration và E2E khi tạo suite;
+tên script cụ thể ghi trong README. Không giả định "npm run test:e2e" đã tồn tại.
+Jest rootDir=src cần giải quyết khi test đặt trong tests/integration.
+Nếu dùng browser runner mới, cài dependency/config tối thiểu và cập nhật lockfile.
+
+Bộ kiểm chứng tối thiểu:
+API-T01 / WEB-T01:
+  Menu list/detail/404, ảnh/giá, loading/empty/error.
+API-T02:
+  Register, duplicate email, login đúng/sai, hash password, token/role/401/403.
+INT-T01:
+  Giá server, stock thấp, nhiều dòng cùng product, rollback, concurrent orders,
+  create-order replay và mismatch payload.
+INT-T02:
+  Payment success/fail, duplicate key đồng thời, lost response, payload mismatch,
+  same order/new key, ownership, trạng thái và hoàn kho đúng một lần.
+WEB-T02 / WEB-T03:
+  Size/topping, cart identity, quantity/remove/totals/persistence nếu có.
+WEB checkout:
+  Login/cart empty, success clear đúng phần giỏ, decline giữ giỏ,
+  double click/timeout/reload không tạo order/payment trùng.
+API-T03 / API-T04 / WEB-T04:
+  Order history/ownership, state machine, RBAC và stepper.
+E2E-T01:
+  Menu → cấu hình món → cart → auth → order → mock payment → mã đơn → history,
+  chạy web + API + PostgreSQL thật; thêm failed/retry/out-of-stock.
+SMOKE-01:
+  Health DB up/down; readiness/HTTPS/production flow phù hợp.
+NFR-01:
+  p95 API <=500ms cho endpoint yêu cầu và Lighthouse Performance >=80
+  theo SRS; ghi rõ môi trường, dữ liệu, số mẫu, tải và kết quả thật.
+  Không dùng elapsed của unit test mock làm benchmark hệ thống.
+NFR-03:
+  Mobile 375px/430px và desktop; các trạng thái UI quan trọng.
+NFR-04:
+  Docker Compose từ môi trường sạch, migration, health/readiness và CI/CD thật.
+
+CI:
+- Install → Lint → Unit Test → Build bắt buộc.
+- Integration/E2E chạy bằng job/config phù hợp, có service PostgreSQL riêng.
+- Cấu hình required checks/branch protection chỉ khi có quyền; workflow xanh
+  không tự chứng minh GitHub đã chặn merge. Nếu thiếu quyền, báo riêng.
+- Không bỏ test, tắt lint, tăng timeout vô hạn hoặc dùng assertion rỗng để xanh CI.
+- Chỉ chạy lại/bổ sung kiểm tra khi thay đổi hoặc lỗi cần xác minh.
+
+Evidence:
+- Liên kết FR → UC → UML source → module/API → test case → report.
+- Không bịa PR, commit, test log, coverage, ảnh/video hoặc benchmark.
+- Bằng chứng CI fail nên là lần chạy thực tế trên PR/nhánh phù hợp, không cố phá main.
+- Không đánh mọi NFR "đạt" khi chưa đo; ghi chưa kiểm chứng/không đạt nếu đúng thực tế.
+
+===============================================================================
+9. INFRA, PRODUCTION VÀ HẠN CHẾ QUYỀN TRUY CẬP
+===============================================================================
+
+A phải tạo Dockerfile web/api và docker-compose.yml:
+- Web, API, PostgreSQL với health/readiness rõ.
+- Env mẫu không chứa secret thật.
+- Migration deploy có thứ tự, không reset dữ liệu người dùng.
+- NEXT_PUBLIC_API_URL của client phải truy cập được từ trình duyệt, không dùng
+  hostname nội bộ Docker như thể người dùng bên ngoài truy cập được.
+- Phân biệt cấu hình Next.js cần tại build time và runtime.
+- Production có HTTPS, CORS đúng origin, JWT secret được cấu hình từ môi trường.
+- Ghi cách release, smoke, backup/rollback và known limitations.
+
+Nếu chưa có cloud account/credential/quyền GitHub:
+- Hoàn thiện code, Docker, CI config và hướng dẫn chạy/deploy có thể review.
+- Nêu đúng bước cần người dùng cung cấp quyền/tài khoản; không tự mua dịch vụ.
+- Không đánh dấu production đã deploy hoặc tự bịa URL.
+- Không gửi token/secret vào chat, docs, image hoặc test report.
+- Không merge/push hoặc đổi quyền repo nếu chưa được giao quyền tương ứng.
+
+===============================================================================
+10. ĐỊNH NGHĨA HOÀN THÀNH VÀ BÁO CÁO BẮT BUỘC CỦA AI
+===============================================================================
+
+Một thẻ hoàn thành khi:
+[ ] Code thực sự được triển khai đúng ownership và contract.
+[ ] Test phù hợp đã chạy, CI/check liên quan có kết quả thật.
+[ ] Không phá menu hoặc contract hiện có.
+[ ] UML/schema/SRS/traceability đồng bộ nếu nghiệp vụ thay đổi.
+[ ] Có đầu ra bàn giao cho module phụ thuộc và reviewer xác minh.
+[ ] Không còn blocker bị giấu bằng fixture hoặc mock ngoài phạm vi payment mock.
+
+Mẫu handoff khi kết thúc một vai trò:
+  Vai trò/thẻ: ...
+  Đã triển khai: ...
+  File đã sửa/tạo: ...
+  API/type bàn giao: ...
+  Quyết định contract/schema: ...
+  Lệnh đã chạy và kết quả: ...
+  Test dùng DB thật / fixture / mock: ...
+  Bằng chứng: ...
+  Chưa hoàn thành/blocker: ...
+  Owner tiếp theo và việc họ cần tiếp nhận: ...
+
+Mẫu kết quả toàn dự án:
+  - FR-01…FR-08: Done / Failed / Chưa kiểm chứng / Deferred, kèm bằng chứng.
+  - NFR-01…NFR-05: kết quả đo/check thực tế.
+  - Lint / unit / integration / E2E / build: lệnh + PASS/FAIL/NOT RUN.
+  - Local Docker: cách chạy và kết quả.
+  - Production: URL/commit và smoke thật, hoặc lý do chưa deploy.
+  - Tài liệu: SRS/UML/ADRs/traceability/review/retro/deployment/evidence.
+  - Known limitations và việc còn lại.
+
+Gói bàn giao mục tiêu:
+- Source monorepo apps/web, apps/api.
+- Migration/seed + env example.
+- API contracts/shared types và kiến trúc/ADRs.
+- SRS, UML .puml + .svg đúng phiên bản.
+- Tests và report kiểm chứng.
+- Traceability hai chiều.
+- Sprint Review/Retrospective cho hai Sprint.
+- Docker/CI/CD, deployment guide, production HTTPS nếu đã có quyền triển khai.
+- README và kịch bản demo; bằng chứng đóng góp thật cho A–G.
+
+KHÔNG ĐƯỢC COI VIỆC VIẾT FILE CHỈ DẪN NÀY LÀ ĐÃ TRIỂN KHAI DỰ ÁN.
+Khi nhận lệnh triển khai, AI phải làm thật, báo đúng trạng thái và giữ hạn
+18:00 ngày 13/11/2026 giờ Việt Nam làm mốc bàn giao.
+
