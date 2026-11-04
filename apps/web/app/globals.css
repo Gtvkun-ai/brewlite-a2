@@ -1,0 +1,178 @@
+/* Mobile-first base — optimized for 375-430px, scales up to desktop. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #faf7f2;
+  --surface: #ffffff;
+  --text: #2b2320;
+  --muted: #7a6f68;
+  --accent: #6f4e37;
+  --border: #e7ded4;
+  --danger: #b3261e;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.page__header {
+  margin: 0.5rem 0 1rem;
+}
+
+.page__title {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.page__subtitle {
+  color: var(--muted);
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+}
+
+/* Product grid: single column on small screens, more columns as width allows. */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 420px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .page {
+    max-width: 960px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+}
+
+.card__image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--border);
+  display: block;
+}
+
+.card__body {
+  padding: 0.75rem;
+}
+
+.card__name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.card__category {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0.15rem 0 0;
+}
+
+.card__price {
+  color: var(--accent);
+  font-weight: 700;
+  margin: 0.5rem 0 0;
+}
+
+.card__badge {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--danger);
+}
+
+/* Shared UI states. */
+.state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--muted);
+}
+
+.state__title {
+  font-size: 1.1rem;
+  color: var(--text);
+  margin: 0 0 0.25rem;
+}
+
+.btn {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.6rem 1.25rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.detail__image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--border);
+  display: block;
+}
+
+.detail__name {
+  font-size: 1.4rem;
+  margin: 1rem 0 0.25rem;
+}
+
+.detail__price {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.detail__description {
+  margin-top: 0.75rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.95rem;
+}

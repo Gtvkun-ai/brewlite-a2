@@ -3,3 +3,10 @@ node_modules
 dist
 .env
 
+coverage/
+*.tsbuildinfo
+apps/api/dist/
+*.log
+# Prisma generated client (if generated into source)
+apps/api/node_modules/.prisma/
+apps/api/src/generated/
