@@ -35,6 +35,7 @@ export interface Product {
   createdAt?: string;
 }
 
+
 export interface UserPayload {
   sub: string;
   email: string;
@@ -115,3 +116,4 @@ export interface PaymentResponse {
   transactionRef?: string;
   message?: string;
 }
+
