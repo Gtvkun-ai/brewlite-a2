@@ -36,7 +36,7 @@ RUN npm ci --omit=dev
 WORKDIR /app/apps/web
 
 COPY --from=builder /app/apps/web/.next ./.next
-# COPY --from=builder /app/apps/web/public ./public
+COPY --from=builder /app/apps/web/public ./public
 COPY --from=builder /app/node_modules ./../../node_modules
 
 EXPOSE 3000
