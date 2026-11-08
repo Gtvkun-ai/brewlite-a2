@@ -10,3 +10,5 @@ apps/api/dist/
 # Prisma generated client (if generated into source)
 apps/api/node_modules/.prisma/
 apps/api/src/generated/
+playwright-report/
+test-results/
