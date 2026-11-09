@@ -9,7 +9,7 @@ export const CurrentUser = createParamDecorator(
     const req = ctx.switchToHttp().getRequest();
     const user = req.user;
     if (user) {
-      return user.id || user.sub;
+      return user.userId || user.id || user.sub;
     }
 
     const headerUserId = req.headers['x-user-id'];
