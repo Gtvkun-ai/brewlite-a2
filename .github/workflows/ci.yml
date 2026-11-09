@@ -21,7 +21,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Generate Prisma Client
         run: npm --workspace @brewlite/api run postinstall
