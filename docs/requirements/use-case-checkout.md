@@ -34,17 +34,18 @@ Use-case này có giá trị nghiệp vụ cốt lõi nhất trong hệ thống 
 2. **Next.js UI** kiểm tra trạng thái xác thực: nhận thấy khách hàng đã đăng nhập với JWT hợp lệ.
 3. **Next.js UI** hiển thị màn hình Thanh toán (Checkout Screen) gồm: Tóm tắt đơn hàng, lựa chọn phương thức thanh toán (Ví điện tử hoặc Thẻ ngân hàng mô phỏng), và ghi chú đơn hàng.
 4. **Khách hàng** chọn phương thức thanh toán (mặc định: Ví điện tử BrewPay) và bấm **"Xác nhận thanh toán"**.
-5. **Next.js UI** tự động sinh một mã `Idempotency-Key` duy nhất (UUID v4) và gửi request `POST /orders/checkout` kèm JWT Bearer Token lên **NestJS API**.
-6. **NestJS API** xác thực JWT, giải mã thông tin `userId`, và kiểm tra payload DTO.
-7. **NestJS API** khởi tạo một **Database Transaction** (`prisma.$transaction`):
-   * Kiểm tra tình trạng tồn kho của các sản phẩm trong giỏ hàng (tất cả còn hàng).
-   * Tạo bản ghi `Order` với mã đơn `BL-XXXX` và trạng thái tạm `PENDING`.
-   * Tạo các bản ghi chi tiết `OrderItem` kèm snapshot đơn giá và tùy chọn size/topping.
-8. **NestJS API** gửi yêu cầu xử lý trừ tiền sang **Payment Gateway Service** kèm số tiền và `Idempotency-Key`.
-9. **Payment Gateway Service** xử lý giao dịch thành công và trả về mã tham chiếu giao dịch `TX-XXXX` kèm trạng thái `SUCCESS`.
-10. **NestJS API** cập nhật trạng thái đơn hàng sang `PAID`, lưu bản ghi `Payment`, cập nhật trừ tồn kho và hoàn tất transaction (Commit).
-11. **NestJS API** trả về response HTTP 201 Created kèm dữ liệu chi tiết đơn hàng.
-12. **Next.js UI** xóa sạch giỏ hàng trong local state, chuyển hướng khách hàng sang màn hình **Xác nhận đơn hàng (Order Confirmation)** và hiển thị mã đơn hàng để theo dõi.
+5. **Next.js UI** gửi request `POST /orders` kèm JWT Bearer Token lên **NestJS API** để khởi tạo đơn hàng.
+6. **NestJS API** xác thực JWT, giải mã thông tin `userId`, và thực thi **Database Transaction** (`prisma.$transaction`):
+   * Kiểm tra tồn kho của từng sản phẩm trong giỏ (`stockQuantity >= quantity`).
+   * Tạm giữ tồn kho (Reservation): trừ trực tiếp số lượng trong kho.
+   * Tính toán đơn giá phía server (snapshot đơn giá và phụ thu size/topping).
+   * Tạo bản ghi `Order` với trạng thái `PENDING` và các bản ghi `OrderItem`.
+7. **NestJS API** trả về mã đơn hàng `BL-XXXX` và thông tin thanh toán (HTTP 201 Created).
+8. **Next.js UI** tự động sinh một mã `Idempotency-Key` duy nhất (UUID v4) và gửi request `POST /payments` kèm mã đơn và phương thức thanh toán lên **NestJS API**.
+9. **NestJS API** kiểm tra `Idempotency-Key`, gọi **Payment Gateway Service** để xử lý giao dịch.
+10. **Payment Gateway Service** xử lý thành công, trả về mã giao dịch `TX-XXXX` kèm trạng thái `SUCCESS`.
+11. **NestJS API** cập nhật trạng thái đơn hàng sang `PAID`, lưu bản ghi `Payment`, và trả về kết quả thành công cho client.
+12. **Next.js UI** nhận được trạng thái `PAID`, xóa sạch giỏ hàng trong local state, chuyển hướng khách hàng sang màn hình **Xác nhận đơn hàng (Order Confirmation)** và hiển thị mã đơn hàng để theo dõi.
 
 ---
 
@@ -68,10 +69,11 @@ Use-case này có giá trị nghiệp vụ cốt lõi nhất trong hệ thống 
   * NestJS API trả về mã lỗi HTTP 400 Bad Request kèm thông báo: *"Sản phẩm [Tên sản phẩm] hiện đã hết hàng, vui lòng cập nhật lại giỏ hàng"*.
   * Next.js UI hiển thị thông báo lỗi nổi bật và đánh dấu sản phẩm hết hàng trong giỏ.
 * **Exc-3: Thanh toán bị từ chối / Thất bại:**
-  * Tại bước 9, Payment Gateway trả về lỗi (số dư ví không đủ hoặc thẻ bị từ chối).
-  * NestJS API cập nhật trạng thái đơn hàng sang `PAYMENT_FAILED` hoặc Rollback, ghi nhận log giao dịch lỗi.
-  * API trả về mã lỗi HTTP 402 Payment Required.
-  * Next.js UI thông báo: *"Thanh toán không thành công. Giỏ hàng của bạn vẫn được giữ nguyên, vui lòng thử lại hoặc chọn phương thức khác."*
+  * Tại bước 9, Payment Gateway trả về lỗi (số dư ví không đủ hoặc thẻ bị từ chối / số thẻ kết thúc bằng 0000).
+  * NestJS API cập nhật trạng thái đơn hàng sang `PAYMENT_FAILED`, ghi nhận bản ghi `Payment` với trạng thái `FAILED`.
+  * **Cơ chế bù trừ (Compensation):** Hệ thống tự động thực hiện hoàn trả lại số lượng tồn kho (`stockQuantity`) đã trừ ban đầu cho toàn bộ sản phẩm trong đơn.
+  * API trả về response với trạng thái `PAYMENT_FAILED`.
+  * Next.js UI thông báo: *"Thanh toán không thành công. Giỏ hàng của bạn vẫn được giữ nguyên, vui lòng thử lại hoặc chọn phương thức khác."* và giữ nguyên giỏ hàng để khách hàng thao tác lại.
 * **Exc-4: Client retry do rớt mạng (Idempotency Trigger):**
   * Do mạng chập chờn, khách hàng nhấn nút xác nhận nhiều lần hoặc trình duyệt tự động gửi lại request với cùng `Idempotency-Key`.
   * NestJS API phát hiện key đã tồn tại trong cache/database và đơn hàng đã được xử lý thành công trước đó.
