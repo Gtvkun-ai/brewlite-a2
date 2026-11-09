@@ -3,6 +3,16 @@ import { E2E_FAIL_ACCOUNT_REF, E2E_USER } from './test-data';
 
 // Nhóm 1: chạy được ngay bằng dữ liệu mẫu (fixture), không cần API thật.
 test.describe('Orders UI (fixture mode)', () => {
+  // Next dev biên dịch từng trang ở lần truy cập đầu tiên.
+  // Truy cập trước để các test bên dưới không phụ thuộc tốc độ biên dịch.
+  test.beforeAll(async ({ browser }) => {
+    test.setTimeout(180_000);
+    const page = await browser.newPage();
+    await page.goto('http://localhost:3100/orders', { timeout: 120_000 });
+    await page.goto('http://localhost:3100/orders/fx-1001', { timeout: 120_000 });
+    await page.close();
+  });
+
   test('TC-01: order history lists fixture orders', async ({ page }) => {
     await page.goto('/orders');
     await expect(page.getByRole('heading', { name: 'Order history' })).toBeVisible();
