@@ -65,3 +65,7 @@ Một User Story / Task được coi là hoàn thành khi:
 3. Toàn bộ test suite chạy pass cục bộ và trên GitHub Actions CI.
 4. Đã cập nhật ma trận truy vết (`traceability-matrix.md`) và tài liệu liên quan.
 5. Pull Request được review và merge vào nhánh chính thông qua quy trình CI xanh.
+
+## 4. Authentication API
+
+API đăng ký/đăng nhập, định dạng request/response và cách dùng JWT Bearer guard được mô tả tại [`docs/auth-api.md`](docs/auth-api.md). Cấu hình `JWT_SECRET` bằng chuỗi ngẫu nhiên tối thiểu 32 ký tự trước khi chạy API.
