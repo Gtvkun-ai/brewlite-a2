@@ -66,6 +66,24 @@ Một User Story / Task được coi là hoàn thành khi:
 4. Đã cập nhật ma trận truy vết (`traceability-matrix.md`) và tài liệu liên quan.
 5. Pull Request được review và merge vào nhánh chính thông qua quy trình CI xanh.
 
+### 3.4. Quản lý dự án & Product Backlog (Task 4.1)
+Nhóm triển khai quản lý dự án linh hoạt (Agile/Scrum) với sự đồng bộ chặt chẽ giữa Trello Board và GitHub Issues:
+* **Trello Board (Công khai):** [BrewLite A2 | 7 người | 04/11–13/11/2026](https://trello.com/b/WicUBZYp/brewlite-a2-7-ng%C6%B0%E1%BB%9Di-04-11-12-12-2026)
+  * Cấu trúc đầy đủ 8 cột: *00 Đọc trước*, *01 Chuẩn bị (PREP)*, *02 Sprint 1*, *03 Sprint 2*, *04 Delivery*, *05 Đang làm*, *06 Review & kiểm thử*, *07 Hoàn thành*.
+  * Tổng cộng 31 User Stories / Kỹ thuật với thời gian ước lượng (timebox), Definition of Done (DoD) và mã truy vết (FR/NFR).
+* **GitHub Issues & Milestones:** Toàn bộ Backlog được đồng bộ trực tiếp lên tab [GitHub Issues](https://github.com/Gtvkun-ai/brewlite-a2/issues) và phân bổ theo 3 Milestones:
+  * `Sprint 1: Nền tảng, MVP Menu & CI` (Đã hoàn thành)
+  * `Sprint 2: Tích hợp E2E, Checkout & Staging` (Đang triển khai)
+  * `Sprint Delivery: Production Release & Báo cáo` (Chuẩn bị nghiệm thu)
+* **Phân công vai trò 7 thành viên:**
+  * **A (Tech Lead & DevOps):** `Gtvkun-ai`
+  * **B (Auth & Security):** `lamdat1005`
+  * **C (Orders & Inventory):** `Duy-12`
+  * **D (Payments & Health Check):** `hyynee`
+  * **E (Product Options & Cart UI):** `hotrungtin206`
+  * **F (Auth & Checkout UI):** `chigiabao` (`baonguyen17102005`)
+  * **G (Orders UI, Test Plan & QA):** `nam14072006`
+
 ## 4. Authentication API
 
 API đăng ký/đăng nhập, định dạng request/response và cách dùng JWT Bearer guard được mô tả tại [`docs/auth-api.md`](docs/auth-api.md). Cấu hình `JWT_SECRET` bằng chuỗi ngẫu nhiên tối thiểu 32 ký tự trước khi chạy API.
