@@ -1,4 +1,5 @@
 import { ApiError } from './api';
+import { getStoredToken } from './auth-api';
 import { ORDER_FIXTURES } from './orders-fixtures';
 import type { OrderResponse } from './types';
 
@@ -10,10 +11,10 @@ export const isUsingFixtures = process.env.NEXT_PUBLIC_USE_FIXTURES !== 'false';
 
 /**
  * Contract: JWT Bearer (api-contracts.md, mục 2.2).
- * TODO(B): chỗ lưu accessToken sau đăng nhập chưa chốt; khi có thì chỉ sửa hàm này.
+ * Lấy token xác thực từ LocalStorage đã được lưu khi đăng nhập (Owner F).
  */
 function getAccessToken(): string | null {
-  return null;
+  return getStoredToken();
 }
 
 async function request<T>(path: string): Promise<T> {

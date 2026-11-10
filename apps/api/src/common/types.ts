@@ -39,4 +39,3 @@ export interface UserPayload {
   fullName: string;
   role: Role;
 }
-
