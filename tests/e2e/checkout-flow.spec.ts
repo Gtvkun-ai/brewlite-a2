@@ -47,6 +47,8 @@ test('test data is isolated from demo seed accounts', () => {
   expect(E2E_FAIL_ACCOUNT_REF.endsWith('0000')).toBe(true);
 });
 
+
+
 // Nhóm 3: chờ API Sprint 2. Đánh dấu fixme, KHÔNG tính là pass.
 test.describe('Checkout flow (chờ API thật)', () => {
   test.fixme('TC-10: happy path – giỏ hàng -> tạo đơn -> thanh toán -> PAID', async () => {});
