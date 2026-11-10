@@ -35,8 +35,8 @@ Phạm vi và nguồn dữ liệu:
 | TC-13 | NFR-05 | Integration | Cùng `Idempotency-Key` nhưng khác payload | `409 IDEMPOTENCY_KEY_PAYLOAD_MISMATCH` | Chưa chạy | ⏳ Chờ | Chờ D |
 | TC-14 | FR-05 | Integration | Thanh toán đơn đã `PAID` | `400 ORDER_ALREADY_PAID` | Chưa chạy | ⏳ Chờ | Chờ D |
 | TC-15 | FR-05, NFR-05 | Integration | Hết hàng khi tạo đơn | `400 OUT_OF_STOCK`, tồn kho không đổi, không tạo đơn | Chưa chạy | ⏳ Chờ | Chờ C |
-| TC-16 | NFR-02 | Integration | Gọi `POST /orders` không có token | `401 UNAUTHORIZED` | Chưa chạy | ⏳ Chờ | Chờ B, C |
-| TC-17 | FR-07 | API | Nhân viên chuyển `PAID` sang `PREPARING`; khách gọi `PATCH` | Staff thành công; khách bị chặn; chuyển trạng thái sai trả `400 INVALID_STATE_TRANSITION` | Chưa chạy | ⏳ Chờ | Chờ C |
+| TC-16 | NFR-02 | Integration | Gọi `POST /orders` không có token | `401 UNAUTHORIZED` | Khớp Expected | ✅ Pass | `orders.security.spec.ts` |
+| TC-17 | FR-07 | API | Nhân viên chuyển `PAID` sang `PREPARING`; khách gọi `PATCH` | Staff thành công (200); khách bị chặn (403); chuyển sai trả 400 | Khớp Expected | ✅ Pass | `orders.security.spec.ts`, `orders.service.spec.ts` |
 | TC-18 | NFR-03 | Thủ công | Xem `/orders` ở 375px và 430px; ngắt mạng | Layout không vỡ; có thông báo lỗi thân thiện và nút Retry | Chưa chạy | ⏳ Chờ | Ảnh chụp, bổ sung sau |
 | TC-19 | NFR-04 | Smoke | `GET /health` | `200 OK`, database `up` | Chưa chạy | ⏳ Chờ | Chờ D |
 | TC-20 | FR-08 | Unit | Áp mã ưu đãi | Giảm tiền theo voucher | Không áp dụng | ⛔ Hoãn | `api-contracts.md` mục 1.2 |

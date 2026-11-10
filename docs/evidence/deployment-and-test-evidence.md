@@ -19,6 +19,8 @@ Dưới đây là các hình ảnh thực tế đã được lưu trữ trong th
 | **4** | `ci-pipeline-success.png` | **Task 4.2: CI Pipeline** | *Hình 4.1: Pipeline GitHub Actions CI tự động vượt qua 4 chặng: Install, Lint, Unit Test, Build.* |
 | **5** | `ci-pipeline-success-pr.jpg` | **Task 4.2: Branch Protection** | *Hình 4.2: Pull Request vượt qua kiểm tra CI tự động trước khi merge vào nhánh chính.* |
 | **6** | `ci-pipeline-failure.jpg` | **Task 4.2: CI Chặn Lỗi** | *Hình 4.3: Pipeline CI phát hiện và chặn đứng commit lỗi khi vi phạm Lint hoặc Test thất bại.* |
+| **7** | `test-a-hack-price-rejected.jpg` | **Task C (FR-05): Chống sửa giá API** | *Hình 4.4: Postman gửi request chèn thêm price: 1000 bị ValidationPipe chặn đứng ngay lập tức với mã lỗi 400 Bad Request.* |
+| **8** | `test-a-security-suite-pass.jpg` | **Task C (NFR-02 & FR-07): Kiểm thử HTTP** | *Hình 4.5: Bộ kiểm thử tích hợp Supertest pass 100% 5/5 kịch bản bảo vệ giá API, chặn 401 khi thiếu token và bảo vệ phân quyền Role Barista.* |
 
 ---
 
