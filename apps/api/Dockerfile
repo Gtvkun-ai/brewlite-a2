@@ -6,11 +6,11 @@ WORKDIR /app
 COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 
-# Install dependencies
-RUN npm ci
-
-# Copy API source and schema
+# Copy API source and schema before install so postinstall prisma generate can run if needed
 COPY apps/api ./apps/api
+
+# Install dependencies and build
+RUN npm ci
 
 WORKDIR /app/apps/api
 
@@ -28,10 +28,9 @@ ENV NODE_ENV=production
 COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 
-RUN npm ci --omit=dev
-
 WORKDIR /app/apps/api
 
+# Copy pre-built production node_modules, compiled dist and prisma schema from builder
 COPY --from=builder /app/node_modules ./../../node_modules
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
@@ -39,4 +38,3 @@ COPY --from=builder /app/apps/api/prisma ./prisma
 EXPOSE 3001
 
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
-

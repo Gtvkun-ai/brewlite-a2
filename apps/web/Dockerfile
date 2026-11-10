@@ -6,11 +6,11 @@ WORKDIR /app
 COPY package*.json ./
 COPY apps/web/package*.json ./apps/web/
 
+# Copy Web source and public assets
+COPY apps/web ./apps/web
+
 # Install dependencies
 RUN npm ci
-
-# Copy Web source
-COPY apps/web ./apps/web
 
 WORKDIR /app/apps/web
 
@@ -31,8 +31,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY package*.json ./
 COPY apps/web/package*.json ./apps/web/
 
-RUN npm ci --omit=dev
-
 WORKDIR /app/apps/web
 
 COPY --from=builder /app/apps/web/.next ./.next
@@ -42,4 +40,3 @@ COPY --from=builder /app/node_modules ./../../node_modules
 EXPOSE 3000
 
 CMD ["npm", "start"]
-
