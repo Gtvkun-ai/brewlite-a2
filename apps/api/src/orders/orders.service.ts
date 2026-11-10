@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -78,6 +79,28 @@ export class OrdersService {
             message: 'Bạn không có quyền truy cập đơn hàng này',
           });
         }
+
+        // Kiểm tra payload có khớp với đơn hàng đã tạo hay không (Chống đổi payload cùng key)
+        const isSameItemCount = existingOrder.items.length === dto.items.length;
+        const isPayloadMatch =
+          isSameItemCount &&
+          dto.items.every((reqItem) => {
+            const matched = existingOrder.items.find(
+              (dbItem) =>
+                dbItem.productId === reqItem.productId &&
+                dbItem.quantity === reqItem.quantity &&
+                (dbItem.selectedSize || 'REGULAR') === reqItem.selectedSize,
+            );
+            return !!matched;
+          });
+
+        if (!isPayloadMatch) {
+          throw new ConflictException({
+            errorCode: 'IDEMPOTENCY_KEY_PAYLOAD_MISMATCH',
+            message: 'Idempotency-Key đã được sử dụng với thông tin đặt hàng khác',
+          });
+        }
+
         return this.mapToResponse(existingOrder);
       }
     }
@@ -232,6 +255,27 @@ export class OrdersService {
               message: 'Bạn không có quyền truy cập đơn hàng này',
             });
           }
+
+          const isSameItemCount = raceOrder.items.length === dto.items.length;
+          const isPayloadMatch =
+            isSameItemCount &&
+            dto.items.every((reqItem) => {
+              const matched = raceOrder.items.find(
+                (dbItem) =>
+                  dbItem.productId === reqItem.productId &&
+                  dbItem.quantity === reqItem.quantity &&
+                  (dbItem.selectedSize || 'REGULAR') === reqItem.selectedSize,
+              );
+              return !!matched;
+            });
+
+          if (!isPayloadMatch) {
+            throw new ConflictException({
+              errorCode: 'IDEMPOTENCY_KEY_PAYLOAD_MISMATCH',
+              message: 'Idempotency-Key đã được sử dụng với thông tin đặt hàng khác',
+            });
+          }
+
           return this.mapToResponse(raceOrder);
         }
       }

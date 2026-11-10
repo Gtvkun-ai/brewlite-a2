@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { OrdersService } from './orders.service';
@@ -338,6 +339,50 @@ describe('OrdersService', () => {
       await expect(
         service.createOrder('user-1', dto, 'idemp-hijack'),
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('throws ConflictException when idempotencyKey is reused with a different payload', async () => {
+      const existingOrder = {
+        id: 'ord-existing-999',
+        code: 'BL-20261108-EXIST',
+        userId: 'user-1',
+        status: 'PENDING',
+        subTotal: new Prisma.Decimal(50000),
+        discountAmount: new Prisma.Decimal(0),
+        totalAmount: new Prisma.Decimal(50000),
+        deliveryNote: 'Đơn cũ',
+        idempotencyKey: 'idemp-duplicate',
+        createdAt: new Date('2026-11-08T00:00:00Z'),
+        updatedAt: new Date('2026-11-08T00:00:00Z'),
+        items: [
+          {
+            id: 'item-1',
+            productId: 'prod-milk-coffee',
+            quantity: 1,
+            unitPrice: new Prisma.Decimal(50000),
+            selectedSize: 'LARGE',
+            selectedToppings: ['TRAN_CHAU'],
+            itemTotal: new Prisma.Decimal(50000),
+            product: mockProductMilkCoffee,
+          },
+        ],
+      };
+
+      prisma.order.findUnique.mockResolvedValueOnce(existingOrder);
+
+      const differentDto: CreateOrderDto = {
+        items: [
+          {
+            productId: 'prod-peach-tea',
+            quantity: 2,
+            selectedSize: 'REGULAR',
+          },
+        ],
+      };
+
+      await expect(
+        service.createOrder('user-1', differentDto, 'idemp-duplicate'),
+      ).rejects.toThrow(ConflictException);
     });
   });
 
