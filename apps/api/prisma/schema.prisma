@@ -56,8 +56,8 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  orders               Order[]
-  loyaltyTransactions  LoyaltyTransaction[]
+  orders              Order[]
+  loyaltyTransactions LoyaltyTransaction[]
 }
 
 model Product {
@@ -92,7 +92,7 @@ model Order {
   user               User                @relation(fields: [userId], references: [id])
   promotion          Promotion?          @relation(fields: [promotionId], references: [id])
   items              OrderItem[]
-  payment            Payment?
+  payments           Payment[]
   loyaltyTransaction LoyaltyTransaction?
 }
 
@@ -112,7 +112,7 @@ model OrderItem {
 
 model Payment {
   id                     String        @id @default(cuid())
-  orderId                String        @unique
+  orderId                String
   method                 PaymentMethod
   status                 PaymentStatus @default(PENDING)
   amount                 Decimal
@@ -122,6 +122,8 @@ model Payment {
   createdAt              DateTime      @default(now())
 
   order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
 }
 
 model Promotion {
