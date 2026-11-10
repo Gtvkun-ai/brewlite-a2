@@ -372,6 +372,65 @@ export class OrdersService {
   }
 
   /**
+   * Nhân viên cập nhật trạng thái chế biến đơn hàng (FR-07)
+   * State Machine: PAID -> PREPARING -> READY -> COMPLETED
+   */
+  async updateOrderStatus(
+    orderId: string,
+    newStatus: OrderStatus,
+  ): Promise<OrderResponseDto> {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Không tìm thấy đơn hàng với mã #${orderId}`);
+    }
+
+    const currentStatus = order.status as OrderStatus;
+
+    // Định nghĩa bảng chuyển trạng thái hợp lệ
+    const validTransitions: Record<OrderStatus, OrderStatus[]> = {
+      PENDING: ['PAID', 'CANCELLED', 'PAYMENT_FAILED'],
+      PAID: ['PREPARING', 'CANCELLED'],
+      PREPARING: ['READY'],
+      READY: ['COMPLETED'],
+      COMPLETED: [],
+      CANCELLED: [],
+      PAYMENT_FAILED: [],
+    };
+
+    const allowedNext = validTransitions[currentStatus] || [];
+    if (!allowedNext.includes(newStatus)) {
+      throw new BadRequestException({
+        errorCode: 'INVALID_STATE_TRANSITION',
+        message: `Không thể chuyển trạng thái từ ${currentStatus} sang ${newStatus}`,
+      });
+    }
+
+    const updatedOrder = await this.prisma.order.update({
+      where: { id: orderId },
+      data: { status: newStatus },
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    return this.mapToResponse(updatedOrder);
+  }
+
+  /**
    * Chuyển đổi Prisma Order Model sang format OrderResponseDto chuẩn
    */
   public mapToResponse(order: any): OrderResponseDto {

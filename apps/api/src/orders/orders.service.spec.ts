@@ -340,4 +340,132 @@ describe('OrdersService', () => {
       ).rejects.toThrow(ForbiddenException);
     });
   });
+
+  describe('updateOrderStatus (FR-07 State Machine)', () => {
+    it('allows valid transition PAID -> PREPARING', async () => {
+      prisma.order.findUnique.mockResolvedValueOnce({
+        id: 'ord-1',
+        status: 'PAID',
+        subTotal: new Prisma.Decimal(50000),
+        discountAmount: new Prisma.Decimal(0),
+        totalAmount: new Prisma.Decimal(50000),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        items: [],
+      });
+      prisma.order.update = jest.fn().mockResolvedValueOnce({
+        id: 'ord-1',
+        status: 'PREPARING',
+        subTotal: new Prisma.Decimal(50000),
+        discountAmount: new Prisma.Decimal(0),
+        totalAmount: new Prisma.Decimal(50000),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        items: [],
+      });
+
+      const res = await service.updateOrderStatus('ord-1', 'PREPARING');
+      expect(res.status).toBe('PREPARING');
+      expect(prisma.order.update).toHaveBeenCalledWith({
+        where: { id: 'ord-1' },
+        data: { status: 'PREPARING' },
+        include: expect.any(Object),
+      });
+    });
+
+    it('allows valid transition PREPARING -> READY and READY -> COMPLETED', async () => {
+      prisma.order.findUnique.mockResolvedValueOnce({
+        id: 'ord-2',
+        status: 'PREPARING',
+        subTotal: new Prisma.Decimal(50000),
+        discountAmount: new Prisma.Decimal(0),
+        totalAmount: new Prisma.Decimal(50000),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        items: [],
+      });
+      prisma.order.update = jest.fn().mockResolvedValueOnce({
+        id: 'ord-2',
+        status: 'READY',
+        subTotal: new Prisma.Decimal(50000),
+        discountAmount: new Prisma.Decimal(0),
+        totalAmount: new Prisma.Decimal(50000),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        items: [],
+      });
+
+      const res = await service.updateOrderStatus('ord-2', 'READY');
+      expect(res.status).toBe('READY');
+    });
+
+    it('rejects invalid state transition e.g. PENDING -> COMPLETED with 400', async () => {
+      prisma.order.findUnique.mockResolvedValueOnce({
+        id: 'ord-pending',
+        status: 'PENDING',
+        subTotal: new Prisma.Decimal(50000),
+        discountAmount: new Prisma.Decimal(0),
+        totalAmount: new Prisma.Decimal(50000),
+        items: [],
+      });
+
+      await expect(
+        service.updateOrderStatus('ord-pending', 'COMPLETED'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws NotFoundException when order does not exist', async () => {
+      prisma.order.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.updateOrderStatus('non-existent', 'PREPARING'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('cancelOrder (TEST B - Hủy đơn & Hoàn kho)', () => {
+    it('cancels a PENDING order and restores stock', async () => {
+      const orderToCancel = {
+        id: 'ord-cancel-1',
+        userId: 'user-1',
+        status: 'PENDING',
+        items: [
+          { productId: 'prod-milk-coffee', quantity: 2 },
+        ],
+      };
+
+      txMock.order.findUnique = jest.fn().mockResolvedValueOnce(orderToCancel);
+      txMock.product.update = jest.fn().mockResolvedValue({ id: 'prod-milk-coffee' });
+      txMock.order.update = jest.fn().mockResolvedValueOnce({
+        ...orderToCancel,
+        status: 'CANCELLED',
+        subTotal: new Prisma.Decimal(50000),
+        discountAmount: new Prisma.Decimal(0),
+        totalAmount: new Prisma.Decimal(50000),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        items: [],
+      });
+
+      const res = await service.cancelOrder('ord-cancel-1', 'user-1');
+      expect(res.status).toBe('CANCELLED');
+      expect(txMock.product.update).toHaveBeenCalledWith({
+        where: { id: 'prod-milk-coffee' },
+        data: { stockQuantity: { increment: 2 } },
+      });
+    });
+
+    it('rejects cancellation from another user with ForbiddenException', async () => {
+      txMock.order.findUnique = jest.fn().mockResolvedValueOnce({
+        id: 'ord-other',
+        userId: 'user-2', // not user-1
+        status: 'PENDING',
+        items: [],
+      });
+
+      await expect(
+        service.cancelOrder('ord-other', 'user-1'),
+      ).rejects.toThrow(ForbiddenException);
+    });
+  });
 });
