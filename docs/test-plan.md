@@ -40,6 +40,8 @@ Phạm vi và nguồn dữ liệu:
 | TC-18 | NFR-03 | Thủ công | Xem `/orders` ở 375px và 430px; ngắt mạng | Layout không vỡ; có thông báo lỗi thân thiện và nút Retry | Chưa chạy | ⏳ Chờ | Ảnh chụp, bổ sung sau |
 | TC-19 | NFR-04 | Smoke | `GET /health` | `200 OK`, database `up` | Chưa chạy | ⏳ Chờ | Chờ D |
 | TC-20 | FR-08 | Unit | Áp mã ưu đãi | Giảm tiền theo voucher | Không áp dụng | ⛔ Hoãn | `api-contracts.md` mục 1.2 |
+| TC-21 | FR-02, NFR-03 | Unit | `/products/[id]` chọn Size Regular/Large (+10.000đ), Topping và các trạng thái Loading/Error/Retry/404/Out of stock | Giá tính lại tức thời đúng công thức; nút Retry hoạt động; món hết hàng khóa nút thêm | Khớp Expected | ✅ Pass | `apps/web/__tests__/cart.test.tsx` (`WEB-T02`) |
+| TC-22 | FR-03 | Unit | Quản lý giỏ hàng (`CartContext`, `/cart`, `CartDrawer`): thêm/tăng/giảm/xóa/clear, gộp dòng cùng cấu hình, tách dòng khác cấu hình, xuất payload cho F | Cùng cấu hình gộp số lượng; khác cấu hình tách dòng; payload chỉ gửi `productId/quantity/selectedSize/selectedToppings` | Khớp Expected | ✅ Pass | `apps/web/__tests__/cart.test.tsx` (`WEB-T03`) |
 
 ## 3. Ghi chú
 

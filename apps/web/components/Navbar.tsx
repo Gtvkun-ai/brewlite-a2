@@ -27,6 +27,12 @@ export function Navbar() {
             Menu
           </Link>
           <Link
+            href="/cart"
+            className={`navbar__link ${pathname === '/cart' ? 'navbar__link--active' : ''}`}
+          >
+            Giỏ hàng
+          </Link>
+          <Link
             href="/orders"
             className={`navbar__link ${pathname?.startsWith('/orders') ? 'navbar__link--active' : ''}`}
           >
