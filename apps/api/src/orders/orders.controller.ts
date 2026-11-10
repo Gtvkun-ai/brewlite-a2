@@ -1,6 +1,9 @@
 import {
   Controller,
   Post,
+  Get,
+  Patch,
+  Param,
   Body,
   Headers,
   HttpCode,
@@ -27,4 +30,26 @@ export class OrdersController {
   ): Promise<OrderResponseDto> {
     return this.ordersService.createOrder(userId, createOrderDto, idempotencyKey);
   }
+
+  @Get()
+  async getMyOrders(@CurrentUser() userId: string): Promise<OrderResponseDto[]> {
+    return this.ordersService.findUserOrders(userId);
+  }
+
+  @Get(':id')
+  async getOrderById(
+    @Param('id') orderId: string,
+    @CurrentUser() userId: string,
+  ): Promise<OrderResponseDto> {
+    return this.ordersService.findOrderById(orderId, userId);
+  }
+
+  @Patch(':id/cancel')
+  async cancelOrder(
+    @Param('id') orderId: string,
+    @CurrentUser() userId: string,
+  ): Promise<OrderResponseDto> {
+    return this.ordersService.cancelOrder(orderId, userId);
+  }
 }
+

@@ -241,6 +241,137 @@ export class OrdersService {
   }
 
   /**
+   * Lấy danh sách lịch sử đơn hàng của người dùng hiện tại
+   */
+  async findUserOrders(userId: string): Promise<OrderResponseDto[]> {
+    const orders = await this.prisma.order.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    return orders.map((o) => this.mapToResponse(o));
+  }
+
+  /**
+   * Lấy chi tiết một đơn hàng theo ID (Bảo vệ quyền riêng tư: chỉ chủ đơn hoặc Staff mới xem được)
+   */
+  async findOrderById(
+    orderId: string,
+    userId: string,
+    role?: string,
+  ): Promise<OrderResponseDto> {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Không tìm thấy đơn hàng với mã #${orderId}`);
+    }
+
+    if (
+      order.userId !== userId &&
+      role !== 'BARISTA' &&
+      role !== 'ADMIN' &&
+      role !== 'MANAGER'
+    ) {
+      throw new ForbiddenException(
+        'Bạn không có quyền truy cập đơn hàng của người khác',
+      );
+    }
+
+    return this.mapToResponse(order);
+  }
+
+  /**
+   * Hủy đơn hàng và hoàn trả số lượng tồn kho (Yêu cầu 4 của Giảng viên)
+   */
+  async cancelOrder(
+    orderId: string,
+    userId: string,
+  ): Promise<OrderResponseDto> {
+    return await this.prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        include: { items: true },
+      });
+
+      if (!order) {
+        throw new NotFoundException(`Không tìm thấy đơn hàng với mã #${orderId}`);
+      }
+
+      if (order.userId !== userId) {
+        throw new ForbiddenException(
+          'Bạn không có quyền hủy đơn hàng của người khác',
+        );
+      }
+
+      if (order.status === 'CANCELLED') {
+        throw new BadRequestException('Đơn hàng này đã bị hủy trước đó');
+      }
+
+      if (
+        order.status !== 'PENDING' &&
+        order.status !== 'PAID'
+      ) {
+        throw new BadRequestException(
+          'Không thể hủy đơn hàng đang được chế biến hoặc đã hoàn thành',
+        );
+      }
+
+      // Hoàn lại tồn kho nguyên tử
+      for (const item of order.items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            stockQuantity: { increment: item.quantity },
+          },
+        });
+      }
+
+      // Cập nhật trạng thái đơn CANCELLED
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: 'CANCELLED',
+        },
+        include: {
+          items: {
+            include: {
+              product: { select: { name: true } },
+            },
+          },
+        },
+      });
+
+      // Nếu đã thanh toán, ghi nhận hoàn tiền REFUND_PENDING
+      if (order.status === 'PAID') {
+        await tx.payment.updateMany({
+          where: { orderId, status: 'SUCCESS' },
+          data: {
+            status: 'REFUND_PENDING' as any,
+          },
+        });
+      }
+
+      return this.mapToResponse(updatedOrder);
+    });
+  }
+
+  /**
    * Chuyển đổi Prisma Order Model sang format OrderResponseDto chuẩn
    */
   public mapToResponse(order: any): OrderResponseDto {
