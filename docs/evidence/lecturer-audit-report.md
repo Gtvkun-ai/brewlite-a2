@@ -19,8 +19,11 @@
   1. Tầng Controller: `ValidationPipe` với cờ `forbidNonWhitelisted: true` phát hiện trường `price` không nằm trong `CreateOrderItemDto` và ngay lập tức chặn lại với mã lỗi **`400 Bad Request: property price should not exist`**.
   2. Tầng Service: `OrdersService` truy vấn trực tiếp `product.basePrice` từ Database, cộng thêm phụ thu Large (+10.000đ) và Topping niêm yết, tự tính `unitPrice` và `total` trên Server.
 * **Bằng chứng:**
+  * Ảnh chụp Postman gửi `price: 1000` bị chặn 400 Bad Request: ![TEST A - Chặn sửa giá qua Postman](./test-a-hack-price-rejected.jpg)
+  * Ảnh chụp kiểm thử tự động HTTP Supertest: ![TEST A - Bộ kiểm thử HTTP Security](./test-a-security-suite-pass.jpg)
   * Cấu hình Validation: [`apps/api/src/main.ts`](../../apps/api/src/main.ts)
   * Logic tính giá Server: [`apps/api/src/orders/orders.service.ts`](../../apps/api/src/orders/orders.service.ts)
+  * Kiểm thử HTTP tích hợp: [`apps/api/src/orders/orders.security.spec.ts`](../../apps/api/src/orders/orders.security.spec.ts)
   * Unit test: [`apps/api/src/orders/orders.service.spec.ts`](../../apps/api/src/orders/orders.service.spec.ts) (L104–L135)
 * **Người thực hiện:** C (Phạm Minh Duy) & A (Tech Lead review).
 
