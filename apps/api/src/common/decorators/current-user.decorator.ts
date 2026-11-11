@@ -12,11 +12,6 @@ export const CurrentUser = createParamDecorator(
       return user.userId || user.id || user.sub;
     }
 
-    const headerUserId = req.headers['x-user-id'];
-    if (headerUserId && typeof headerUserId === 'string') {
-      return headerUserId;
-    }
-
     throw new UnauthorizedException(
       'Yêu cầu xác thực người dùng để thực hiện thao tác',
     );

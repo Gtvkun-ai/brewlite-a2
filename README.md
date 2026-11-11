@@ -10,6 +10,16 @@
 ## 1. Giới thiệu dự án (Project Overview)
 **BrewLite** là hệ thống gọi món và thanh toán đồ uống trực tuyến cho chuỗi quán cà phê hiện đại. Dự án tập trung giải quyết bài toán ách tắc tại quầy thanh toán vào giờ cao điểm, giảm thiểu sai sót order và mang lại trải nghiệm mượt mà, tiện lợi cho khách hàng thông qua mô hình **Mobile-first PWA** kết hợp dịch vụ thanh toán trực tuyến mô phỏng.
 
+### 🌐 Môi trường Triển khai Trực tuyến (Production / Staging Live)
+Hệ thống đã được đóng gói và triển khai trực tuyến trên Cloud với đầy đủ chứng chỉ bảo mật HTTPS (SSL/TLS 1.3):
+* 🚀 **Frontend Web Application (Next.js PWA):** [https://brewlite-a2.vercel.app](https://brewlite-a2.vercel.app)
+* ☕ **Backend API (NestJS Modular):** [https://brewlite-a2.onrender.com](https://brewlite-a2.onrender.com)
+* 💓 **Health Check Endpoint:** [https://brewlite-a2.onrender.com/health](https://brewlite-a2.onrender.com/health)
+* 📊 **Tài khoản Demo trải nghiệm:**
+  * **Khách hàng (Customer):** `customer@brewlite.test` / `Customer@123456` *(hoặc `customer@brewlite.vn` / `Password123!`)*
+  * **Nhân viên Pha chế (Barista):** `barista@brewlite.vn` / `Password123!`
+  * **Quản trị viên (Admin):** `admin@brewlite.vn` / `Password123!`
+
 Dự án Assignment 2 thực hiện quy trình kỹ nghệ phần mềm hoàn chỉnh theo 5 Task tuần tự:
 1. **Task 1 – Khai thác và đặc tả yêu cầu**: Bối cảnh, Stakeholders, Phạm vi (MVP, In-scope, Out-of-scope), SRS rút gọn (FR, NFR, MoSCoW, Acceptance Criteria) và Đặc tả Use-case trọng tâm.
 2. **Task 2 – Mô hình hóa hệ thống**: Activity Diagram, Sequence Diagram và Domain Class Diagram (PlantUML & SVG).

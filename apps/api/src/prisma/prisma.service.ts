@@ -109,6 +109,7 @@ export class PrismaService
 
       const hash1 = await bcrypt.hash('Password123!', 10);
       const hash2 = await bcrypt.hash('Customer@123456', 10);
+      const hashE2E = await bcrypt.hash('E2e-Only-Password1!', 10);
 
       const demoUsers = [
         {
@@ -123,6 +124,13 @@ export class PrismaService
           fullName: 'Khách hàng Test',
           phone: '0901234568',
           passwordHash: hash2,
+          role: Role.CUSTOMER,
+        },
+        {
+          email: 'e2e.customer@brewlite.test',
+          fullName: 'Khách hàng E2E Automation',
+          phone: '0901234569',
+          passwordHash: hashE2E,
           role: Role.CUSTOMER,
         },
         {

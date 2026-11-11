@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -78,6 +79,28 @@ export class OrdersService {
             message: 'Bạn không có quyền truy cập đơn hàng này',
           });
         }
+
+        // Kiểm tra payload có khớp với đơn hàng đã tạo hay không (Chống đổi payload cùng key)
+        const isSameItemCount = existingOrder.items.length === dto.items.length;
+        const isPayloadMatch =
+          isSameItemCount &&
+          dto.items.every((reqItem) => {
+            const matched = existingOrder.items.find(
+              (dbItem) =>
+                dbItem.productId === reqItem.productId &&
+                dbItem.quantity === reqItem.quantity &&
+                (dbItem.selectedSize || 'REGULAR') === reqItem.selectedSize,
+            );
+            return !!matched;
+          });
+
+        if (!isPayloadMatch) {
+          throw new ConflictException({
+            errorCode: 'IDEMPOTENCY_KEY_PAYLOAD_MISMATCH',
+            message: 'Idempotency-Key đã được sử dụng với thông tin đặt hàng khác',
+          });
+        }
+
         return this.mapToResponse(existingOrder);
       }
     }
@@ -232,6 +255,27 @@ export class OrdersService {
               message: 'Bạn không có quyền truy cập đơn hàng này',
             });
           }
+
+          const isSameItemCount = raceOrder.items.length === dto.items.length;
+          const isPayloadMatch =
+            isSameItemCount &&
+            dto.items.every((reqItem) => {
+              const matched = raceOrder.items.find(
+                (dbItem) =>
+                  dbItem.productId === reqItem.productId &&
+                  dbItem.quantity === reqItem.quantity &&
+                  (dbItem.selectedSize || 'REGULAR') === reqItem.selectedSize,
+              );
+              return !!matched;
+            });
+
+          if (!isPayloadMatch) {
+            throw new ConflictException({
+              errorCode: 'IDEMPOTENCY_KEY_PAYLOAD_MISMATCH',
+              message: 'Idempotency-Key đã được sử dụng với thông tin đặt hàng khác',
+            });
+          }
+
           return this.mapToResponse(raceOrder);
         }
       }
@@ -369,6 +413,65 @@ export class OrdersService {
 
       return this.mapToResponse(updatedOrder);
     });
+  }
+
+  /**
+   * Nhân viên cập nhật trạng thái chế biến đơn hàng (FR-07)
+   * State Machine: PAID -> PREPARING -> READY -> COMPLETED
+   */
+  async updateOrderStatus(
+    orderId: string,
+    newStatus: OrderStatus,
+  ): Promise<OrderResponseDto> {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Không tìm thấy đơn hàng với mã #${orderId}`);
+    }
+
+    const currentStatus = order.status as OrderStatus;
+
+    // Định nghĩa bảng chuyển trạng thái hợp lệ
+    const validTransitions: Record<OrderStatus, OrderStatus[]> = {
+      PENDING: ['PAID', 'CANCELLED', 'PAYMENT_FAILED'],
+      PAID: ['PREPARING', 'CANCELLED'],
+      PREPARING: ['READY'],
+      READY: ['COMPLETED'],
+      COMPLETED: [],
+      CANCELLED: [],
+      PAYMENT_FAILED: [],
+    };
+
+    const allowedNext = validTransitions[currentStatus] || [];
+    if (!allowedNext.includes(newStatus)) {
+      throw new BadRequestException({
+        errorCode: 'INVALID_STATE_TRANSITION',
+        message: `Không thể chuyển trạng thái từ ${currentStatus} sang ${newStatus}`,
+      });
+    }
+
+    const updatedOrder = await this.prisma.order.update({
+      where: { id: orderId },
+      data: { status: newStatus },
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    return this.mapToResponse(updatedOrder);
   }
 
   /**

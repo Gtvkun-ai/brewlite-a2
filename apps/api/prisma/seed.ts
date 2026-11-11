@@ -91,6 +91,7 @@ async function main() {
 
   // 2. Seed Demo Accounts
   const defaultPasswordHash = await bcrypt.hash('Password123!', 10);
+  const e2ePasswordHash = await bcrypt.hash('E2e-Only-Password1!', 10);
 
   const demoUsers = [
     {
@@ -98,6 +99,20 @@ async function main() {
       fullName: 'Khách hàng Demo',
       phone: '0901234567',
       passwordHash: defaultPasswordHash,
+      role: Role.CUSTOMER,
+    },
+    {
+      email: 'customer@brewlite.test',
+      fullName: 'Khách hàng Test',
+      phone: '0901234568',
+      passwordHash: defaultPasswordHash,
+      role: Role.CUSTOMER,
+    },
+    {
+      email: 'e2e.customer@brewlite.test',
+      fullName: 'Khách hàng E2E Automation',
+      phone: '0901234569',
+      passwordHash: e2ePasswordHash,
       role: Role.CUSTOMER,
     },
     {

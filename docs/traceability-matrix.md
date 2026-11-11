@@ -18,6 +18,7 @@ Ma trận truy vết liên kết hai chiều giữa **Yêu cầu chức năng (F
 
 | Mã yêu cầu | Use-case / User Story | Thiết kế / Sơ đồ tham chiếu | Thành phần mã nguồn / Code / API | Mã kiểm thử | Trạng thái hiện thực |
 | :---: | :--- | :--- | :--- | :--- | :---: |
+
 | **FR-01** | **US-01: Xem menu đồ uống**<br>_Khách hàng duyệt danh mục món._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/use-case-system.puml` | • **API:** `GET /products`, `GET /products/:id`<br>• **Web:** `apps/web/app/page.tsx`, `ProductCard.tsx` | • `API-T01`<br>• `WEB-T01` | ✅ **Sprint 1** |
 | **FR-02** | **US-02: Tùy biến món & Size/Topping**<br>_Chọn size (REGULAR/LARGE) và topping (TRAN_CHAU, KEM_CHEESE, THACH_DAO)._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/use-case-checkout.puml` | • **Web:** `apps/web/app/products/[id]/page.tsx`, `apps/web/components/ProductOptionSelector.tsx` | • `WEB-T02` (`cart.test.tsx`) | ✅ **UI (E) + unit test; chưa có E2E** |
 | **FR-03** | **US-03: Quản lý giỏ hàng**<br>_Thêm, sửa số lượng, xóa, tổng tiền._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/use-case-checkout.puml` | • **Web:** `apps/web/context/CartContext.tsx`, `apps/web/app/cart/page.tsx`, `apps/web/components/CartDrawer.tsx` | • `WEB-T03` (`cart.test.tsx`) | ✅ **UI (E, F) + unit test; chưa có E2E** |
@@ -26,6 +27,7 @@ Ma trận truy vết liên kết hai chiều giữa **Yêu cầu chức năng (F
 | **FR-06** | **US-05: Theo dõi trạng thái & Lịch sử đơn**<br>_Xem trạng thái đơn và danh sách đơn đã đặt (tải khi mở trang, chưa có polling)._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/sequence-checkout.puml`<br>• `docs/diagrams/class-domain.puml` (enum `OrderStatus`)<br>• Contract: `docs/architecture/api-contracts.md` mục 2.3 | • **Web (G):** `apps/web/app/orders/page.tsx`, `apps/web/app/orders/[id]/page.tsx`, `apps/web/components/OrderStepper.tsx`, `apps/web/lib/orders-api.ts`, `apps/web/lib/orders-fixtures.ts`<br>• **API (C):** `GET /orders`, `GET /orders/:id` (`ORDER_ACCESS_DENIED`) | • `WEB-T06-ORDERS`<br>• `API-T03` (`orders.service.spec.ts`) | 🟡 **UI và 16 unit test pass; E2E Fixture có 5 test pass, 0 failed; 6 test API thật đang `fixme`. Đã thử đặt hàng mô phỏng thành công trên Vercel, nhưng trang chi tiết đơn hàng báo `Order not found` và lịch sử đơn vẫn hiển thị Fixture. Chưa xác nhận tích hợp Orders UI với API thật.** |
 | **FR-07** | **US-06: Cập nhật trạng thái đơn (Staff)**<br>_PAID -> PREPARING -> READY -> COMPLETED._ | • `docs/diagrams/class-domain.puml` (Role: BARISTA/MANAGER/ADMIN)<br>• `docs/diagrams/use-case-system.puml` | • **API:** `PATCH /orders/:id/status` theo contract; **trên main chỉ có `PATCH /orders/:id/cancel`** | • `API-T04` (chưa có file) | ⏳ **Chưa có route đổi trạng thái (C-20)** |
 | **FR-08** | **US-07: Áp dụng mã ưu đãi (Promotion)** | • `docs/diagrams/class-domain.puml` | • **API:** `POST /promotions/validate` _(không có trong api-contracts.md)_ | • `API-T05` (hoãn) | ⛔ **DEFERRED** (api-contracts.md mục 1.2) |
+
 
 ---
 
@@ -45,6 +47,7 @@ Ma trận truy vết liên kết hai chiều giữa **Yêu cầu chức năng (F
 
 | Mã Test | Loại | Đường dẫn file Test | Mục tiêu kiểm thử | Trạng thái |
 | :---: | :---: | :--- | :--- | :---: |
+
 | `API-T01` | Unit | `apps/api/src/catalog/products.service.spec.ts`<br>`apps/api/src/catalog/products.controller.spec.ts` | Danh mục món và chi tiết sản phẩm. | ✅ pass (6) |
 | `WEB-T01` | Unit | `apps/web/__tests__/menu.test.tsx` | Menu: Loading, Empty, Error + Retry. | ✅ pass (4) |
 | `WEB-T02` | Unit | `apps/web/__tests__/cart.test.tsx` | Tính giá size/topping, trang chi tiết món. | ✅ pass |
@@ -60,4 +63,3 @@ Ma trận truy vết liên kết hai chiều giữa **Yêu cầu chức năng (F
 | `E2E-T01` | E2E | `tests/e2e/checkout-flow.spec.ts` | Luồng từ xem menu đến thanh toán và lịch sử đơn. | 🟡 5 test pass, 0 failed trên Fixture; 6 test API thật đang fixme. Đã thử luồng checkout trên Vercel với mock payment nhưng chưa xác nhận Orders API thật. Báo cáo: `docs/evidence/e2e-fixture-report-2026-11-10/` . |
 | `SMOKE-01` | Smoke | `apps/api/src/health/health.controller.spec.ts` | `/health` và kết nối DB. | 🟡 file có trên main; chưa xác nhận kết quả |
 | `API-T04` | Unit | (dự kiến) `apps/api/src/orders/` | Phân quyền RBAC và chuyển trạng thái hợp lệ (FR-07). | ⏳ chưa có file |
-| `API-T05` | Unit | (dự kiến) | Voucher (FR-08). | ⛔ hoãn |

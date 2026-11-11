@@ -67,8 +67,8 @@ Hệ thống được thiết kế để triển khai nhanh chóng, bảo mật 
    * `JWT_SECRET`: Chuỗi ngẫu nhiên tối thiểu 32 ký tự (ví dụ: `brewlite-production-secret-jwt-key-2026-sgu`).
    * `PORT`: `3001`
    * `CORS_ORIGIN`: `https://brewlite-web.vercel.app` (hoặc domain frontend tương ứng).
-4. Bấm **Create Web Service**. Sau 2–3 phút, Render sẽ cấp một URL HTTPS công khai:
-   👉 `https://brewlite-api.onrender.com` (Kiểm tra `/health` trả về `{ status: "ok", info: { database: { status: "up" } } }`).
+4. Bấm **Create Web Service**. Render tự động build và cấp URL HTTPS công khai:
+   👉 **`https://brewlite-a2.onrender.com`** (Kiểm tra `/health` trả về `{ status: "ok", uptime: ..., database: { status: "up" } }`).
 
 ### 3.3. Bước 3: Triển khai Frontend Next.js lên Vercel (Edge CDN có HTTPS)
 1. Đăng nhập vào [Vercel.com](https://vercel.com) bằng tài khoản GitHub.
@@ -77,9 +77,9 @@ Hệ thống được thiết kế để triển khai nhanh chóng, bảo mật 
    * **Framework Preset:** `Next.js`
    * **Root Directory:** Bấm Edit ➔ Chọn `apps/web`.
 4. Thiết lập biến môi trường:
-   * `NEXT_PUBLIC_API_URL`: `https://brewlite-api.onrender.com` (URL Backend từ Bước 2).
+   * `NEXT_PUBLIC_API_URL`: `https://brewlite-a2.onrender.com` (URL Backend từ Bước 2).
 5. Bấm **Deploy**. Vercel tự động build và phân phối qua mạng lưới Edge CDN toàn cầu với HTTPS tự động:
-   👉 `https://brewlite-web.vercel.app`.
+   👉 **`https://brewlite-a2.vercel.app`**.
 
 ---
 
@@ -117,15 +117,15 @@ docker compose down
 Sau khi hoàn tất cập nhật phiên bản mới trên Production, thực hiện kiểm tra nhanh 3 bước:
 1. **Kiểm tra liveness & DB connection:**
    ```bash
-   curl -i https://brewlite-api.onrender.com/health
-   # Kỳ vọng: HTTP 200 OK, {"status":"ok","info":{"database":{"status":"up"}}}
+   curl -i https://brewlite-a2.onrender.com/health
+   # Kỳ vọng: HTTP 200 OK, {"status":"ok","database":{"status":"up"}}
    ```
 2. **Kiểm tra truy vấn Menu:**
    ```bash
-   curl -i https://brewlite-api.onrender.com/products
+   curl -i https://brewlite-a2.onrender.com/products
    # Kỳ vọng: HTTP 200 OK, danh sách sản phẩm mẫu hiển thị đầy đủ.
    ```
-3. **Kiểm tra giao diện người dùng:** Mở trình duyệt truy cập `https://brewlite-web.vercel.app`, kiểm tra menu tải nhanh dưới 1.5 giây, thêm món vào giỏ hàng và mở giỏ hàng không bị lỗi mạng.
+3. **Kiểm tra giao diện người dùng:** Mở trình duyệt truy cập `https://brewlite-a2.vercel.app`, kiểm tra menu tải nhanh dưới 1.5 giây, thêm món vào giỏ hàng và mở giỏ hàng không bị lỗi mạng.
 
 ### 5.2. Quy trình Quay lui khi gặp sự cố (Rollback Procedure)
 Khi phiên bản mới gặp lỗi nghiêm trọng (crash, hỏng database migration, lỗi thanh toán):
