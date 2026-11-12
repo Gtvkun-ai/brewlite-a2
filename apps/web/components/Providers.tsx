@@ -6,12 +6,14 @@ import { CartProvider } from '../context/CartContext';
 import { CartDrawer } from './CartDrawer';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
+import { PwaRegister } from './PwaRegister';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
       <CartProvider>
         <div className="app-shell">
+          <PwaRegister />
           <Navbar />
           <CartDrawer />
           <div className="app-content">{children}</div>
