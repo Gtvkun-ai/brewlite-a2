@@ -15,10 +15,7 @@ Hệ thống đã được đóng gói và triển khai trực tuyến trên Clo
 * 🚀 **Frontend Web Application (Next.js PWA):** [https://brewlite-a2.vercel.app](https://brewlite-a2.vercel.app)
 * ☕ **Backend API (NestJS Modular):** [https://brewlite-a2.onrender.com](https://brewlite-a2.onrender.com)
 * 💓 **Health Check Endpoint:** [https://brewlite-a2.onrender.com/health](https://brewlite-a2.onrender.com/health)
-* 📊 **Tài khoản Demo trải nghiệm:**
-  * **Khách hàng (Customer):** `customer@brewlite.test` / `Customer@123456` *(hoặc `customer@brewlite.vn` / `Password123!`)*
-  * **Nhân viên Pha chế (Barista):** `barista@brewlite.vn` / `Password123!`
-  * **Quản trị viên (Admin):** `admin@brewlite.vn` / `Password123!`
+* Tài khoản seeded phục vụ demo local được mô tả trong [`docs/auth-api.md`](docs/auth-api.md); không dùng credential mẫu với dịch vụ live.
 
 Dự án Assignment 2 thực hiện quy trình kỹ nghệ phần mềm hoàn chỉnh theo 5 Task tuần tự:
 1. **Task 1 – Khai thác và đặc tả yêu cầu**: Bối cảnh, Stakeholders, Phạm vi (MVP, In-scope, Out-of-scope), SRS rút gọn (FR, NFR, MoSCoW, Acceptance Criteria) và Đặc tả Use-case trọng tâm.
@@ -97,3 +94,7 @@ Nhóm triển khai quản lý dự án linh hoạt (Agile/Scrum) với sự đ�
 ## 4. Authentication API
 
 API đăng ký/đăng nhập, định dạng request/response và cách dùng JWT Bearer guard được mô tả tại [`docs/auth-api.md`](docs/auth-api.md). Cấu hình `JWT_SECRET` bằng chuỗi ngẫu nhiên tối thiểu 32 ký tự trước khi chạy API.
+
+### Chạy local bằng Docker Compose
+
+Sao chép `.env.example` thành `.env`, sau đó đặt `POSTGRES_PASSWORD` (chỉ chữ/số hoặc URL-encode), cập nhật `DATABASE_URL` với cùng mật khẩu và đặt `JWT_SECRET` riêng tối thiểu 32 ký tự (có thể tạo bằng `openssl rand -hex 32`). Nếu cần tài khoản demo local, đặt thêm `DEMO_ACCOUNT_PASSWORD` và `E2E_ACCOUNT_PASSWORD`; seed sẽ bỏ qua demo users nếu thiếu hai giá trị này. Compose không chứa secret mặc định; đặt `NODE_ENV=production` khi triển khai và không dùng giá trị local ở staging/production.

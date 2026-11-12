@@ -1,5 +1,8 @@
 ﻿$api = "http://localhost:3001"
-$pw = "E2e-Only-Password1!"
+$pw = $env:B30_REGRESSION_PASSWORD
+if ([string]::IsNullOrWhiteSpace($pw)) {
+    throw "Set B30_REGRESSION_PASSWORD in the local process environment before running this local-only repro."
+}
 $stamp = Get-Date -Format yyyyMMddHHmmss
 
 function Register($email, $withPhone) {
@@ -14,16 +17,16 @@ function Register($email, $withPhone) {
     }
 
     try {
-        Invoke-RestMethod -Method Post `
+        $response = Invoke-WebRequest -Method Post `
             -Uri "$api/auth/register" `
             -ContentType "application/json" `
-            -Body ($body | ConvertTo-Json) | Out-Null
+            -Body ($body | ConvertTo-Json)
 
-        "HTTP 200 | Registration succeeded"
+        "HTTP $([int]$response.StatusCode) | Registration succeeded"
     }
     catch {
-        $status = $_.Exception.Response.StatusCode.value__
-        "HTTP $status | $($_.ErrorDetails.Message)"
+        $status = if ($_.Exception.Response) { [int]$_.Exception.Response.StatusCode } else { "request-failed" }
+        "HTTP $status | Registration rejected"
     }
 }
 

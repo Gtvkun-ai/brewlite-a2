@@ -89,9 +89,33 @@ async function main() {
   }
   console.log(`Seeded ${products.length} products with VND pricing.`);
 
+  // Demo accounts are for local development and automated tests only.
+  // Never create known-password accounts in a production database.
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Skipped demo-account seeding in production.');
+    return;
+  }
+
+  const demoPassword = process.env.DEMO_ACCOUNT_PASSWORD;
+  const e2ePassword = process.env.E2E_ACCOUNT_PASSWORD;
+  if (!demoPassword || !e2ePassword) {
+    console.log(
+      'Skipped demo-account seeding; set local demo password environment variables to enable it.',
+    );
+    return;
+  }
+  if (
+    demoPassword.length < 8 ||
+    e2ePassword.length < 8 ||
+    Buffer.byteLength(demoPassword, 'utf8') > 72 ||
+    Buffer.byteLength(e2ePassword, 'utf8') > 72
+  ) {
+    throw new Error('Local demo passwords must be 8–72 UTF-8 bytes.');
+  }
+
   // 2. Seed Demo Accounts
-  const defaultPasswordHash = await bcrypt.hash('Password123!', 10);
-  const e2ePasswordHash = await bcrypt.hash('E2e-Only-Password1!', 10);
+  const defaultPasswordHash = await bcrypt.hash(demoPassword, 10);
+  const e2ePasswordHash = await bcrypt.hash(e2ePassword, 10);
 
   const demoUsers = [
     {
@@ -143,7 +167,7 @@ async function main() {
       create: user,
     });
   }
-  console.log(`Seeded ${demoUsers.length} demo accounts (Password: Password123!).`);
+  console.log(`Seeded ${demoUsers.length} local demo accounts.`);
 }
 
 main()

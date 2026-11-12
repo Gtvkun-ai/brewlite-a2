@@ -5,15 +5,15 @@ services:
     container_name: brewlite-db
     restart: always
     environment:
-      POSTGRES_USER: brew
-      POSTGRES_PASSWORD: brewpassword123
-      POSTGRES_DB: brewlite
+      POSTGRES_USER: ${POSTGRES_USER:-brew}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-brewlite}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - dbdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U brew -d brewlite"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-brew} -d ${POSTGRES_DB:-brewlite}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -25,10 +25,13 @@ services:
     container_name: brewlite-api
     restart: always
     environment:
-      DATABASE_URL: postgresql://brew:brewpassword123@db:5432/brewlite
+      DATABASE_URL: postgresql://${POSTGRES_USER:-brew}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-brewlite}
       PORT: 3001
       CORS_ORIGIN: http://localhost:3000
-      JWT_SECRET: brewlite-super-secret-jwt-key-2026-production
+      NODE_ENV: ${NODE_ENV:-development}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env (at least 32 random characters)}
+      DEMO_ACCOUNT_PASSWORD: ${DEMO_ACCOUNT_PASSWORD:-}
+      E2E_ACCOUNT_PASSWORD: ${E2E_ACCOUNT_PASSWORD:-}
     ports:
       - "3001:3001"
     depends_on:

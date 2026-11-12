@@ -69,8 +69,8 @@ Kết quả gọi kiểm tra tự động trực tiếp trên môi trường Clo
    - Mở trình duyệt truy cập: `https://brewlite-a2.vercel.app`
    - Chụp toàn màn hình trang Menu thấy rõ thanh điều hướng (Logo BrewLite, Giỏ hàng, Nút Đăng nhập).
 2. **Ảnh chụp Đăng nhập thành công:**
-   - Đăng nhập bằng tài khoản: `customer@brewlite.test` / `Customer@123456`
-   - Chụp màn hình khi đăng nhập xong, Navbar chuyển sang hiển thị tên khách hàng và avatar.
+   - Dùng tài khoản test local tạm thời đã được tạo bằng biến môi trường; không dùng credential demo đã công khai trước đây trên dịch vụ live.
+   - Chụp màn hình khi đăng nhập xong, Navbar chuyển sang hiển thị tên khách hàng và avatar. Không đưa mật khẩu hoặc JWT vào ảnh/log.
 3. **Ảnh chụp Giỏ hàng & Thanh toán:**
    - Bấm thêm 1 ly cà phê sữa đá (chọn Size L, thêm Trân châu).
    - Mở Giỏ hàng chụp Drawer giỏ hàng và màn hình Checkout.
