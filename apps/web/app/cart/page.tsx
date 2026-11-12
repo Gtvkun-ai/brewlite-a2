@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   sanitizeToppings,
   SIZE_OPTIONS,
   TOPPING_OPTIONS,
   useCart,
 } from '../../context/CartContext';
+import { fetchProducts } from '../../lib/api';
 import { formatVnd } from '../../lib/format';
 import type { ItemSize, ToppingCode } from '../../lib/types';
 
@@ -31,7 +32,44 @@ export default function CartPage() {
     loadFixtureCart,
     deliveryNote,
     setDeliveryNote,
+    syncWithCatalog,
   } = useCart();
+
+  const [syncNotice, setSyncNotice] = useState<string | null>(null);
+
+  // E-20: Tự động đối chiếu giỏ hàng với máy chủ khi vào giỏ để xử lý giá đổi hoặc hết hàng
+  useEffect(() => {
+    let isMounted = true;
+    if (items.length === 0) return;
+
+    void (async () => {
+      try {
+        const catalog = await fetchProducts();
+        if (!isMounted) return;
+        const res = syncWithCatalog(catalog);
+        if (res.updated) {
+          const notices: string[] = [];
+          if (res.priceChangedItems.length > 0) {
+            notices.push(
+              `Đã cập nhật đơn giá theo bảng giá mới nhất cho ${res.priceChangedItems.length} món.`,
+            );
+          }
+          if (res.outOfStockItems.length > 0) {
+            notices.push(
+              `Đã tự động loại bỏ ${res.outOfStockItems.length} món hiện hết hàng hoặc ngưng phục vụ.`,
+            );
+          }
+          setSyncNotice(notices.join(' '));
+        }
+      } catch {
+        // Bỏ qua khi offline hoặc trong môi trường test không có API
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [items.length, syncWithCatalog]);
 
   const handleToggleItemTopping = (
     idx: number,
@@ -94,6 +132,12 @@ export default function CartPage() {
           Cùng cấu hình tự động gộp dòng • Khác size/topping tự động tách dòng.
         </p>
       </header>
+
+      {syncNotice && (
+        <div className="alert alert--info mb-3" data-testid="cart-sync-notice">
+          ℹ️ {syncNotice}
+        </div>
+      )}
 
       <div className="checkout-layout">
         {/* Cột trái: Danh sách món trong giỏ */}

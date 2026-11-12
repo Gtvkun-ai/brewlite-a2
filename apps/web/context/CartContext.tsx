@@ -206,6 +206,12 @@ export const CART_FIXTURES: CartItem[] = [
   },
 ];
 
+export interface CatalogSyncResult {
+  updated: boolean;
+  priceChangedItems: { name: string; oldPrice: string; newPrice: string }[];
+  outOfStockItems: { name: string; reason: string }[];
+}
+
 export interface CartContextType {
   items: CartItem[];
   addItem: (item: CartItem) => void;
@@ -224,6 +230,16 @@ export interface CartContextType {
   setDeliveryNote: (note: string) => void;
   getOrderItemsPayload: () => CreateOrderItemDto[];
   toCreateOrderRequest: (noteOverride?: string) => CreateOrderRequest;
+  syncWithCatalog: (
+    catalog: {
+      id: string;
+      code?: string;
+      name?: string;
+      basePrice: string | number;
+      isAvailable?: boolean;
+      stockQuantity?: number;
+    }[],
+  ) => CatalogSyncResult;
   isDrawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
@@ -459,6 +475,106 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [deliveryNote, getOrderItemsPayload],
   );
 
+  /**
+   * Đồng bộ giỏ hàng với dữ liệu catalog mới nhất từ máy chủ (E-20):
+   * - Cập nhật giá gốc (basePrice) và tính lại đơn giá / thành tiền nếu server đổi giá.
+   * - Phát hiện và loại bỏ các món hết hàng hoặc tạm ngưng phục vụ khỏi giỏ.
+   */
+  const syncWithCatalog = useCallback(
+    (
+      catalog: {
+        id: string;
+        code?: string;
+        name?: string;
+        basePrice: string | number;
+        isAvailable?: boolean;
+        stockQuantity?: number;
+      }[],
+    ): CatalogSyncResult => {
+      const priceChangedItems: {
+        name: string;
+        oldPrice: string;
+        newPrice: string;
+      }[] = [];
+      const outOfStockItems: { name: string; reason: string }[] = [];
+
+      let hasChanges = false;
+      const catalogMap = new Map<string, (typeof catalog)[0]>();
+      for (const prod of catalog) {
+        if (prod.id) catalogMap.set(prod.id, prod);
+        if (prod.code) catalogMap.set(prod.code, prod);
+      }
+
+      const nextItems: CartItem[] = [];
+
+      for (const item of items) {
+        const matched = catalogMap.get(item.productId);
+        if (!matched) {
+          outOfStockItems.push({
+            name: item.name,
+            reason: 'Sản phẩm không còn kinh doanh',
+          });
+          hasChanges = true;
+          continue;
+        }
+
+        if (
+          matched.isAvailable === false ||
+          (matched.stockQuantity !== undefined && matched.stockQuantity <= 0)
+        ) {
+          outOfStockItems.push({
+            name: item.name,
+            reason: 'Sản phẩm hiện đã hết hàng',
+          });
+          hasChanges = true;
+          continue;
+        }
+
+        const currentBase = parseInt(String(item.basePrice), 10);
+        const serverBase = parseInt(String(matched.basePrice), 10);
+
+        if (
+          Number.isFinite(serverBase) &&
+          serverBase >= 0 &&
+          serverBase !== currentBase
+        ) {
+          priceChangedItems.push({
+            name: item.name,
+            oldPrice: String(currentBase),
+            newPrice: String(serverBase),
+          });
+          hasChanges = true;
+
+          const newUnit = calculateUnitPrice(
+            serverBase,
+            item.size,
+            item.toppings,
+          );
+          const newTotal = calculateItemTotal(newUnit, item.quantity);
+          nextItems.push({
+            ...item,
+            basePrice: String(serverBase),
+            unitPrice: String(newUnit),
+            itemTotal: String(newTotal),
+          });
+        } else {
+          nextItems.push(item);
+        }
+      }
+
+      if (hasChanges) {
+        setItems(nextItems);
+      }
+
+      return {
+        updated: hasChanges,
+        priceChangedItems,
+        outOfStockItems,
+      };
+    },
+    [items],
+  );
+
   const totalCount = items.reduce((acc, it) => acc + (it.quantity || 0), 0);
   const subTotal = items.reduce(
     (acc, it) => acc + (parseInt(it.itemTotal, 10) || 0),
@@ -481,6 +597,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setDeliveryNote,
         getOrderItemsPayload,
         toCreateOrderRequest,
+        syncWithCatalog,
         isDrawerOpen,
         openDrawer,
         closeDrawer,

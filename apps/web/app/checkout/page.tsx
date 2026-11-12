@@ -42,10 +42,25 @@ const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string; desc: s
 export default function CheckoutPage() {
   const router = useRouter();
   const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { items, totalCount, subTotal, clearCart, loadFixtureCart } = useCart();
+  const {
+    items,
+    totalCount,
+    subTotal,
+    clearCart,
+    loadFixtureCart,
+    deliveryNote: initialDeliveryNote,
+    setDeliveryNote: setCartDeliveryNote,
+  } = useCart();
 
-  // Checkout transaction state
-  const [deliveryNote, setDeliveryNote] = useState('');
+  // Checkout transaction state - prefill with note from cart if available (E-20 integration)
+  const [deliveryNote, setDeliveryNote] = useState(initialDeliveryNote || '');
+
+  // Sync deliveryNote from CartContext when note is added/updated in Cart or Product page
+  useEffect(() => {
+    if (initialDeliveryNote && initialDeliveryNote !== deliveryNote) {
+      setDeliveryNote(initialDeliveryNote);
+    }
+  }, [initialDeliveryNote, deliveryNote]);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('E_WALLET');
   const [accountRef, setAccountRef] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -334,7 +349,10 @@ export default function CheckoutPage() {
               className="form-input form-textarea"
               placeholder="VD: Ít đá, nhiều sữa, giao lúc 10h..."
               value={deliveryNote}
-              onChange={(e) => setDeliveryNote(e.target.value)}
+              onChange={(e) => {
+                setDeliveryNote(e.target.value);
+                setCartDeliveryNote(e.target.value);
+              }}
               disabled={isSubmitting}
               data-testid="delivery-note"
             />
