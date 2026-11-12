@@ -27,10 +27,17 @@ enum OrderStatus {
   PAYMENT_FAILED
 }
 
+// enum PaymentStatus {
+//   PENDING
+//   SUCCESS
+//   FAILED
+//   REFUNDED
+// }
 enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
+  REFUND_PENDING
   REFUNDED
 }
 

@@ -1,36 +1,33 @@
-# Bảng Ma trận Truy vết Yêu cầu (Traceability Matrix)
+﻿# Bảng Ma trận Truy vết Yêu cầu (Traceability Matrix)
 
 > **Môn học:** Công nghệ Phần mềm  
 > **Dự án:** BrewLite – Assignment 2 (Requirements to Deployment)  
 > **Tài liệu tham chiếu:** Đề bài Assignment 2 – Mục 8.1 (Truy vết bắt buộc)  
-> **Cập nhật:** Sprint 2 (Tích hợp thành phần từ Tech Lead A, Backend B, Frontend F và QA G)
+> **Cập nhật:** Sprint 2 (Tích hợp thành phần từ Tech Lead A, Backend B, C, D, Frontend E, F và QA G)
 
 ---
 
 ## 1. Mục đích
-Ma trận truy vết (Traceability Matrix) liên kết hai chiều giữa các **Yêu cầu chức năng (FR)**, **Yêu cầu phi chức năng (NFR)** được đặc tả trong SRS với **Use-case / User Story**, **Sơ đồ thiết kế (Activity, Sequence, Class, Deployment Diagrams)**, **Thành phần mã nguồn / API Endpoints** và các **Bộ kiểm thử tự động (Unit, Integration, E2E Tests)**.
-
-Tài liệu này đảm bảo:
-* Mọi yêu cầu nghiệp vụ đều được mô hình hóa và hiện thực đầy đủ.
-* Mọi API và chức năng đều có bài test kiểm chứng tương ứng.
-* Không có tính năng thừa thãi hoặc yêu cầu bị bỏ sót trong suốt hai Sprint.
+Ma trận truy vết liên kết hai chiều giữa **Yêu cầu chức năng (FR)**, **Yêu cầu phi chức năng (NFR)** trong SRS với **Use-case / User Story**, **Sơ đồ thiết kế**, **Thành phần mã nguồn / API** và **Bộ kiểm thử**. Trạng thái chỉ ghi theo bằng chứng đã chạy được.
 
 ---
 
 ## 2. Bảng Ma trận Truy vết Chức năng (Functional Requirements Matrix)
 
-**Chú giải trạng thái:** ✅ Đã kiểm chứng (code trên nhánh + test pass) · 🟡 Đang tích hợp (code hoàn tất, chờ backend live) · ⏳ Kế hoạch tiếp theo · ⛔ Hoãn (Deferred theo `api-contracts.md`).
+**Chú giải trạng thái:** ✅ đã kiểm chứng (code trên `main` + test pass) · 🟡 có code nhưng đang dùng fixture, chưa có test tích hợp hoặc chưa kiểm chứng đủ · ⏳ kế hoạch (chưa có file) · ⛔ hoãn theo `docs/architecture/api-contracts.md`.
 
-| Mã yêu cầu | Use-case / User Story | Thiết kế / Sơ đồ tham chiếu | Thành phần mã nguồn / Code / API | Mã kiểm thử (Test Cases) | Trạng thái hiện thực |
+| Mã yêu cầu | Use-case / User Story | Thiết kế / Sơ đồ tham chiếu | Thành phần mã nguồn / Code / API | Mã kiểm thử | Trạng thái hiện thực |
 | :---: | :--- | :--- | :--- | :--- | :---: |
-| **FR-01** | **US-01: Xem menu đồ uống**<br>_Khách hàng duyệt danh mục món và lọc theo loại đồ uống._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/use-case-system.puml` | • **API:** `GET /products`, `GET /products/:id`<br>• **Web:** `apps/web/app/page.tsx`, `ProductCard.tsx` | • `API-T01` (`products.service.spec.ts`, `products.controller.spec.ts`)<br>• `WEB-T01` (`menu.test.tsx` - kiểm tra hiển thị món) | ✅ **Sprint 1 (Hoàn thành)** |
-| **FR-02** | **US-02: Tùy biến món & Size/Topping**<br>_Khách hàng chọn size (REGULAR/LARGE) và topping (TRAN_CHAU, KEM_CHEESE, THACH_DAO)._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/use-case-checkout.puml` | • **Web:** `apps/web/app/products/[id]/page.tsx`, `apps/web/components/ProductOptionSelector.tsx` | • `WEB-T02` (`apps/web/__tests__/cart.test.tsx` - 7 unit tests chọn size, tính phụ thu topping, estados Loading/Error/Retry/404) | ✅ **Sprint 1–2 (E-10 Hoàn thành)** |
-| **FR-03** | **US-03: Quản lý giỏ hàng**<br>_Thêm món, cập nhật số lượng, xóa món, hiển thị tổng tiền._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/use-case-checkout.puml` | • **Web:** `apps/web/context/CartContext.tsx`, `apps/web/app/cart/page.tsx`, `apps/web/components/CartDrawer.tsx`, `apps/web/components/Navbar.tsx` | • `WEB-T03` (`apps/web/__tests__/cart.test.tsx`, `checkout.test.tsx`, `auth.test.tsx` - gộp/tách dòng, tăng/giảm/xóa/clear, payload handoff) | ✅ **Sprint 1–2 (E + F Hoàn thành)** |
-| **FR-04** | **US-04: Xác thực & Đăng nhập JWT**<br>_Đăng ký, đăng nhập tài khoản và lưu access token JWT._ | • `docs/diagrams/sequence-checkout.puml`<br>• `docs/diagrams/class-domain.puml` | • **API:** `POST /auth/register`, `POST /auth/login`<br>• **Auth Module:** `apps/api/src/auth/`<br>• **Web:** `apps/web/app/login/page.tsx`, `register/page.tsx`, `AuthContext.tsx` | • `API-T02` (`auth.service.spec.ts`)<br>• `WEB-T04-AUTH` (`auth.test.tsx` - 10 unit tests pass) | ✅ **Sprint 2 (B + F Hoàn thành)** |
-| **FR-05** | **UC-01: Đặt đơn & Thanh toán mô phỏng**<br>_Tạo đơn hàng kèm transaction, thanh toán qua Ví MoMo/VNPay/Thẻ có Idempotency._ | • `docs/diagrams/sequence-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/activity-checkout.puml` | • **API (C+D):** `POST /orders`, `POST /payments`<br>• **Web:** `apps/web/app/checkout/page.tsx`, `apps/web/lib/checkout-api.ts` | • `WEB-T05-CHECKOUT` (`checkout.test.tsx` - 9 unit tests pass)<br>• `INT-T01` & `INT-T02` (`orders.service.spec.ts`, `payments.service.spec.ts` - 17 unit tests pass) | ✅ **Sprint 2 (C + D + F Hoàn thành, Live Staging)** |
-| **FR-06** | **US-05: Theo dõi trạng thái & Lịch sử đơn**<br>_Xem trạng thái đơn hàng thời gian thực và danh sách đơn đã đặt._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/sequence-checkout.puml`<br>• `docs/diagrams/class-domain.puml` | • **Web:** `apps/web/app/orders/page.tsx`, `apps/web/app/orders/[id]/page.tsx`, `OrderStepper.tsx`<br>• **API Client:** `apps/web/lib/orders-api.ts` | • `WEB-T06-ORDERS` (`orders.test.tsx`, `order-detail.test.tsx`, `order-stepper.test.tsx` - 16 unit tests pass) | ✅ **Sprint 2 (G Hoàn thành UI)** |
-| **FR-07** | **US-06: Cập nhật trạng thái đơn (Staff)**<br>_Nhân viên quầy cập nhật trạng thái PREPARING -> READY -> COMPLETED._ | • `docs/diagrams/class-domain.puml` (Role: BARISTA, OrderStatus)<br>• `docs/diagrams/use-case-system.puml` | • **API:** `PATCH /orders/:id/status` (Yêu cầu role BARISTA/ADMIN) | • `API-T04` (Test phân quyền RBAC và chuyển trạng thái hợp lệ) | ⏳ **Kế hoạch Sprint 2 (C-20)** |
-| **FR-08** | **US-07: Áp dụng mã ưu đãi (Promotion)**<br>_Khách nhập voucher giảm giá trừ trực tiếp vào đơn hàng._ | • `docs/diagrams/class-domain.puml` (Promotion) | • **API:** `POST /promotions/validate` | • `API-T05` (Test voucher hợp lệ) | ⛔ **Hoãn (Deferred ngoài 13/11)** |
+
+| **FR-01** | **US-01: Xem menu đồ uống**<br>_Khách hàng duyệt danh mục món._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/use-case-system.puml` | • **API:** `GET /products`, `GET /products/:id`<br>• **Web:** `apps/web/app/page.tsx`, `ProductCard.tsx` | • `API-T01`<br>• `WEB-T01` | ✅ **Sprint 1** |
+| **FR-02** | **US-02: Tùy biến món & Size/Topping**<br>_Chọn size (REGULAR/LARGE) và topping (TRAN_CHAU, KEM_CHEESE, THACH_DAO)._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/use-case-checkout.puml` | • **Web:** `apps/web/app/products/[id]/page.tsx`, `apps/web/components/ProductOptionSelector.tsx` | • `WEB-T02` (`cart.test.tsx`) | ✅ **UI (E) + unit test; chưa có E2E** |
+| **FR-03** | **US-03: Quản lý giỏ hàng**<br>_Thêm, sửa số lượng, xóa, tổng tiền._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/use-case-checkout.puml` | • **Web:** `apps/web/context/CartContext.tsx`, `apps/web/app/cart/page.tsx`, `apps/web/components/CartDrawer.tsx` | • `WEB-T03` (`cart.test.tsx`) | ✅ **UI (E, F) + unit test; chưa có E2E** |
+| **FR-04** | **US-04: Xác thực & Đăng nhập JWT**<br>_Đăng ký, đăng nhập, lưu access token._ | • `docs/diagrams/sequence-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/auth-api.md` | • **API (B):** `POST /auth/register`, `POST /auth/login`; `apps/api/src/auth/` (`auth.service.ts`, `jwt.strategy.ts`, `jwt-auth.guard.ts`, `roles.guard.ts`)<br>• **Web (F):** `apps/web/app/login/page.tsx`, `register/page.tsx`, `context/AuthContext.tsx` | • `API-T02` (`auth.security.spec.ts`)<br>• `WEB-T04-AUTH` (`auth.test.tsx`) | ✅ **Unit test pass; chưa có E2E đăng nhập** |
+| **FR-05** | **UC-01: Đặt đơn & Thanh toán mô phỏng**<br>_Tạo đơn trong transaction, thanh toán có Idempotency._ | • `docs/diagrams/sequence-checkout.puml`<br>• `docs/diagrams/class-domain.puml`<br>• `docs/diagrams/activity-checkout.puml` | • **API:** `POST /orders` (C), `POST /payments` (D); `apps/api/src/orders/`, `apps/api/src/payments/`<br>• **Web (F):** `apps/web/app/checkout/page.tsx`, `apps/web/lib/checkout-api.ts` | • `WEB-T05-CHECKOUT`<br>• `API-T03`, `API-T06` (unit test C, D)<br>• `INT-T01`, `INT-T02` (chưa có file) | 🟡 **Code C, D, F đã có trên main; unit test đã có. Đã thực hiện một luồng đặt hàng và thanh toán mô phỏng thành công trên Vercel (đơn BL-20261110-GIV6, trạng thái PAID). Chưa xác nhận tích hợp DB thật và chưa có kết quả Integration Test INT-T01, INT-T02.** |
+| **FR-06** | **US-05: Theo dõi trạng thái & Lịch sử đơn**<br>_Xem trạng thái đơn và danh sách đơn đã đặt (tải khi mở trang, chưa có polling)._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/diagrams/sequence-checkout.puml`<br>• `docs/diagrams/class-domain.puml` (enum `OrderStatus`)<br>• Contract: `docs/architecture/api-contracts.md` mục 2.3 | • **Web (G):** `apps/web/app/orders/page.tsx`, `apps/web/app/orders/[id]/page.tsx`, `apps/web/components/OrderStepper.tsx`, `apps/web/lib/orders-api.ts`, `apps/web/lib/orders-fixtures.ts`<br>• **API (C):** `GET /orders`, `GET /orders/:id` (`ORDER_ACCESS_DENIED`) | • `WEB-T06-ORDERS`<br>• `API-T03` (`orders.service.spec.ts`) | 🟡 **UI và 16 unit test pass; E2E Fixture có 5 test pass, 0 failed; 6 test API thật đang `fixme`. Đã thử đặt hàng mô phỏng thành công trên Vercel, nhưng trang chi tiết đơn hàng báo `Order not found` và lịch sử đơn vẫn hiển thị Fixture. Chưa xác nhận tích hợp Orders UI với API thật.** |
+| **FR-07** | **US-06: Cập nhật trạng thái đơn (Staff)**<br>_PAID -> PREPARING -> READY -> COMPLETED._ | • `docs/diagrams/class-domain.puml` (Role: BARISTA/MANAGER/ADMIN)<br>• `docs/diagrams/use-case-system.puml` | • **API:** `PATCH /orders/:id/status` theo contract; **trên main chỉ có `PATCH /orders/:id/cancel`** | • `API-T04` (chưa có file) | ⏳ **Chưa có route đổi trạng thái (C-20)** |
+| **FR-08** | **US-07: Áp dụng mã ưu đãi (Promotion)** | • `docs/diagrams/class-domain.puml` | • **API:** `POST /promotions/validate` _(không có trong api-contracts.md)_ | • `API-T05` (hoãn) | ⛔ **DEFERRED** (api-contracts.md mục 1.2) |
+
 
 ---
 
@@ -38,27 +35,54 @@ Tài liệu này đảm bảo:
 
 | Mã NFR | Nhóm yêu cầu | Thiết kế kiến trúc & Sơ đồ | Hiện thực kỹ thuật | Phương thức kiểm chứng & Test | Kết quả / Đánh giá |
 | :---: | :--- | :--- | :--- | :--- | :---: |
-| **NFR-01** | **Hiệu năng (Performance)**<br>_API response $\le 500\text{ms}$; Web tải nhanh._ | • `ADR-001` (Monorepo caching)<br>• `Deployment-01` (CDN Next.js) | • NestJS Fastify/Express tối ưu Prisma query với index.<br>• Next.js Server Components & Image Optimization. | • Đo benchmark phản hồi API trong unit/integration test.<br>• Đo Lighthouse Performance $\ge 80$. |  Đạt yêu cầu |
-| **NFR-02** | **Bảo mật (Security)**<br>_Băm mật khẩu, JWT Auth, chống lộ Secret._ | • `Sequence-01` (JWT check & validate)<br>• `ADR-003` (Modular Backend) | • Băm password bằng Bcrypt (salt = 10).<br>• `JwtAuthGuard` & `ValidationPipe` với class-validator.<br>• `.gitignore` chặn toàn bộ file `.env`. | • Test đăng nhập sai pass bị từ chối 401 (`auth.test.tsx`, `auth.service.spec.ts`).<br>• Quét Git repository không có secret hardcode. |  Đạt yêu cầu |
-| **NFR-03** | **Tính khả dụng & Mobile-first**<br>_3 trạng thái Loading, Empty, Error._ | • `Activity-01`<br>• `ADR-002` (Next.js PWA) | • CSS mobile-first (viewport 375px/430px và desktop).<br>• Các component chuẩn hóa: `Loading`, `Empty`, `Error` có nút Retry trên Menu, Product Detail, Cart, Orders và Checkout. | • Unit test `menu.test.tsx`, `cart.test.tsx`, `orders.test.tsx`, `order-detail.test.tsx`, `checkout.test.tsx` giả lập cả 3 trạng thái. |  Đạt yêu cầu |
-| **NFR-04** | **Khả năng triển khai & Tin cậy**<br>_Docker compose local, Health check, CI/CD._ | • `Deployment-01` (Production deployment diagram)<br>• `ADR-004` (PostgreSQL & Prisma) | • `docker-compose.yml` (Web, API, Postgres).<br>• Endpoint `GET /health` trả về trạng thái service + DB.<br>• GitHub Actions Pipeline (`.github/workflows/ci.yml`). | • Chạy `docker compose up` không lỗi.<br>• Test pipeline CI 4 bước: Install, Lint, Test, Build. |  Đạt yêu cầu |
-| **NFR-05** | **Toàn vẹn dữ liệu (Data Integrity)**<br>_ACID Transaction & Idempotency._ | • `Sequence-01` (Transaction & Idempotency)<br>• `ADR-005` (Mock Payment) | • Client sinh Idempotency-Key UUID v4 cố định cho lần bấm, giữ nguyên key khi retry.<br>• Server-authoritative: không gửi giá/amount từ client.<br>• Backend dùng transaction cập nhật kho và lưu `idempotencyKey` trong `Payment`. | • Unit test `checkout.test.tsx` (kiểm tra Idempotency UUID, chống double-click, giữ orderId khi retry, clear giỏ sau PAID). |  Đạt yêu cầu Frontend |
+| **NFR-01** | **Hiệu năng (Performance)**<br>_API p95 ≤ 500ms; Lighthouse ≥ 80._ | • `docs/architecture/adr/001-monorepo.md`<br>• `docs/diagrams/deployment-production.puml` | • Prisma query với index.<br>• Next.js Server Components. | • Đo p95 API GET /products: 50/50 requests thành công, P95 = 420,05 ms đạt yêu cầu ≤ 500 ms. `docs/evidence/api-latency-2026-11-10`.<br>• Lighthouse trên Vercel, trang /checkout, viewport 400 × 812: Performance 96, Accessibility 95, Best Practices 96, SEO 100. `docs/evidence/lighthouse-2026-11-10` | ✅ Đạt theo phạm vi đo ngày 10/11/2026 |
+| **NFR-02** | **Bảo mật (Security)**<br>_Băm mật khẩu, JWT, chống lộ secret, ownership._ | • `docs/diagrams/sequence-checkout.puml`<br>• `docs/architecture/adr/003-backend-nestjs-modular.md` | • `bcryptjs` 12 vòng, giới hạn 72 byte (`auth.service.ts`).<br>• `JwtAuthGuard`, `RolesGuard`, `ValidationPipe`.<br>• `OrdersController`, `PaymentsController` dùng `JwtAuthGuard`; `ORDER_ACCESS_DENIED` ở `orders.service.ts`, `payments.service.ts`. | • `API-T02` (8 ca).<br>• Quét secret trong repo (chưa làm).<br>• Ca ownership E2E (chưa chạy). | 🟡 **Unit test pass; kiểm tra ownership/IDOR bằng hai tài khoản trên API local đã PASS. Chưa chạy E2E ownership bằng Playwright và chưa quét secret trong repo.** |
+| **NFR-03** | **Tính khả dụng & Mobile-first**<br>_Loading, Empty, Error; 375–430px._ | • `docs/diagrams/activity-checkout.puml`<br>• `docs/architecture/adr/002-frontend-nextjs-pwa.md` | • `apps/web/components/States.tsx` (`Loading`, `Empty`, `Error` + Retry).<br>• CSS mobile-first trong `apps/web/app/globals.css`. | • Unit test `menu`, `cart`, `orders`, `order-detail`, `checkout`.<br>• Ảnh responsive `docs/evidence/orders-responsive-2026-11-09/` (375px, 400px). | 🟡 **3 trạng thái đã unit test; responsive mới kiểm tra thủ công ở 375px và 400px (trang Orders); chưa kiểm tra 430px** |
+| **NFR-04** | **Khả năng triển khai & Tin cậy**<br>_Docker Compose, Health check, CI/CD._ | • `docs/diagrams/deployment-production.puml`<br>• `docs/architecture/adr/004-postgresql-and-prisma.md` | • `docker-compose.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile`.<br>• `apps/api/prisma/migrations/20261109164000_init/`.<br>• `apps/api/src/health/health.controller.ts`.<br>• `.github/workflows/ci.yml`. | • `SMOKE-01` (`health.controller.spec.ts`).<br>• CI: Install, Lint, Test, Build.<br>• `docker compose up` và `GET /health` (chưa xác nhận trong báo cáo). | ✅ **CI, migration, Docker Compose và API container đã được kiểm tra. GET /health trả HTTP 200, status=ok, database=up ngày 11/11/2026.** |
+| **NFR-05** | **Toàn vẹn dữ liệu**<br>_ACID Transaction, Idempotency._ | • `docs/diagrams/sequence-checkout.puml`<br>• `docs/architecture/adr/005-mock-payment-service.md` | • Trừ kho có điều kiện trong transaction (`orders.service.ts`).<br>• `Idempotency-Key` ở `payments.service.ts`; client giữ key khi retry (`checkout-api.ts`). | • `orders.service.spec.ts`, `payments.service.spec.ts`, `checkout.test.tsx` (unit).<br>• `INT-T02` (chưa có). | 🟡 **Unit test pass; đã xác minh trên API + PostgreSQL thật: hủy đơn PAID phục hồi tồn kho và chuyển Payment sang REFUND_PENDING; kiểm thử hai yêu cầu đồng thời không gây overselling. Chưa có Integration Test INT-T01/INT-T02 độc lập; Test C chưa chạy đúng kịch bản 2/2 của giảng viên.** |
 
 ---
 
 ## 4. Danh mục Mã Kiểm thử Đối soát (Test Suite Mapping)
 
-| Mã Test | Loại kiểm thử | Đường dẫn file Test | Số lượng & Mục tiêu kiểm thử | Trạng thái |
+| Mã Test | Loại | Đường dẫn file Test | Mục tiêu kiểm thử | Trạng thái |
 | :---: | :---: | :--- | :--- | :---: |
-| `API-T01` | Unit Test | `apps/api/src/catalog/products.service.spec.ts`<br>`apps/api/src/catalog/products.controller.spec.ts` | 6 tests: Kiểm thử tìm kiếm danh mục món và chi tiết sản phẩm. | ✅ PASS |
-| `WEB-T01` | Unit Test | `apps/web/__tests__/menu.test.tsx` | 4 tests: Menu mobile-first, Loading, Empty và Error fallback + Retry. | ✅ PASS |
-| `WEB-T02` | Unit Test | `apps/web/__tests__/cart.test.tsx` | 7 tests: Công thức tính giá Regular/Large (+10.000đ) & Topping, lọc dữ liệu sai, trang chi tiết món (Loading/Error/Retry/404, hết hàng, đổi cấu hình tính lại giá tức thời). | ✅ PASS |
-| `WEB-T03` | Unit Test | `apps/web/__tests__/cart.test.tsx` | 3 tests: Quản lý giỏ hàng (cùng cấu hình gộp dòng, khác cấu hình tách dòng, tăng/giảm/xóa/clear, empty cart, CartDrawer, và bàn giao payload cho F không kèm giá client). | ✅ PASS |
-| `API-T02` | Unit Test | `apps/api/src/auth/auth.security.spec.ts` | 10 tests: Kiểm thử đăng ký, băm mật khẩu, đăng nhập, cấp phát token JWT và phân quyền RBAC. | ✅ PASS |
-| `WEB-T04-AUTH` | Unit Test | `apps/web/__tests__/auth.test.tsx` | 10 tests: Form đăng nhập/đăng ký có validate, mã lỗi 401/409, quản lý JWT token và trạng thái Navbar / cart badge. | ✅ PASS |
-| `WEB-T05-CHECKOUT` | Unit Test | `apps/web/__tests__/checkout.test.tsx` | 9 tests: Bảo vệ checkout, chặn giỏ rỗng, Idempotency-Key UUID, chống double-click, server-authoritative pricing, giữ giỏ & orderId khi retry, và clear giỏ sau PAID. | ✅ PASS |
-| `WEB-T06-ORDERS` | Unit Test | `apps/web/__tests__/orders.test.tsx`<br>`apps/web/__tests__/order-detail.test.tsx`<br>`apps/web/__tests__/order-stepper.test.tsx` | 16 tests: Danh sách lịch sử đơn hàng, chi tiết đơn hàng, stepper trạng thái đơn và xử lý lỗi mạng. | ✅ PASS |
-| `INT-T01` | Integration | `apps/api/src/orders/orders.service.spec.ts` | 10 tests: Kiểm thử luồng tạo đơn hàng, tính tiền, và gọi transaction cập nhật tồn kho. | ✅ PASS |
-| `INT-T02` | Integration | `apps/api/src/payments/payments.service.spec.ts`<br>`apps/api/src/payments/mock-gateway.service.spec.ts` | 7 tests: Kiểm thử cơ chế thanh toán mô phỏng (MoMo/VNPay/Card) và xử lý Idempotency-Key. | ✅ PASS |
-| `E2E-T01` | End-to-End | `tests/e2e/checkout-flow.spec.ts` | Kịch bản kiểm thử luồng hoàn chỉnh từ xem menu -> giỏ hàng -> đặt đơn -> thanh toán trên Staging (`https://brewlite-a2.vercel.app`). | 🟡 Chuyển giao Role G (Issue #24) |
-| `SMOKE-01` | Smoke Test | `apps/api/src/health/health.controller.spec.ts` | Kiểm tra tính sẵn sàng của backend và kết nối DB qua `/health` (Live Staging: `https://brewlite-a2.onrender.com/health` HTTP 200 OK). | ✅ PASS |
+
+| `API-T01` | Unit | `apps/api/src/catalog/products.service.spec.ts`<br>`apps/api/src/catalog/products.controller.spec.ts` | Danh mục món và chi tiết sản phẩm. | ✅ pass (6) |
+| `WEB-T01` | Unit | `apps/web/__tests__/menu.test.tsx` | Menu: Loading, Empty, Error + Retry. | ✅ pass (4) |
+| `WEB-T02` | Unit | `apps/web/__tests__/cart.test.tsx` | Tính giá size/topping, trang chi tiết món. | ✅ pass |
+| `WEB-T03` | Unit | `apps/web/__tests__/cart.test.tsx` | Giỏ hàng: gộp/tách dòng, tăng/giảm/xóa, payload không kèm giá client. | ✅ pass |
+| `API-T02` | Unit | `apps/api/src/auth/auth.security.spec.ts` | 8 ca bảo mật auth: băm mật khẩu và không trả hash, từ chối role do client gửi, trùng email 409, đăng nhập đúng/sai, JWT hết hạn, JWT sai chữ ký, đọc profile không lộ hash, phân quyền staff/customer. | ✅ pass (8) |
+| `WEB-T04-AUTH` | Unit | `apps/web/__tests__/auth.test.tsx` | Form đăng nhập/đăng ký, lỗi 401/409, Navbar. | ✅ pass |
+| `WEB-T05-CHECKOUT` | Unit | `apps/web/__tests__/checkout.test.tsx` | Chặn giỏ rỗng, Idempotency-Key, chống double-click, giữ orderId khi retry, xóa giỏ sau PAID. | ✅ pass |
+| `WEB-T06-ORDERS` | Unit | `apps/web/__tests__/orders.test.tsx`<br>`apps/web/__tests__/order-detail.test.tsx`<br>`apps/web/__tests__/order-stepper.test.tsx` | Lịch sử đơn, chi tiết đơn, stepper, lỗi 401/403/404, Retry. | ✅ pass (16) |
+| `API-T03` | Unit | `apps/api/src/orders/orders.service.spec.ts`<br>`apps/api/src/orders/orders.controller.spec.ts` | Tạo đơn, trừ kho, hết hàng, lịch sử đơn. | 🟡 `orders.service.spec.ts`: 19/19 unit test pass. Kiểm thử API + PostgreSQL thật cho hủy đơn PAID và tranh chấp tồn kho được ghi nhận riêng tại Test B và Test C; chưa có Integration Test độc lập. |
+| `API-T06` | Unit | `apps/api/src/payments/payments.service.spec.ts`<br>`apps/api/src/payments/mock-gateway.service.spec.ts` | Thanh toán mô phỏng, Idempotency. | 🟡 file có trên main; chưa xác nhận số ca |
+| `INT-T01` | Integration | `tests/integration/orders.spec.ts` | Tạo đơn kèm transaction trừ kho với DB thật. | ⏳ chưa có file |
+| `INT-T02` | Integration | `tests/integration/payments.spec.ts` | Thanh toán và Idempotency-Key với DB thật. | ⏳ chưa có file |
+| `E2E-T01` | E2E | `tests/e2e/checkout-flow.spec.ts` | Luồng từ xem menu đến thanh toán và lịch sử đơn. | 🟡 5 test pass, 0 failed trên Fixture; 6 test API thật đang fixme. Đã thử luồng checkout trên Vercel với mock payment nhưng chưa xác nhận Orders API thật. Báo cáo: `docs/evidence/e2e-fixture-report-2026-11-09/` . |
+| `SMOKE-01` | Smoke | `apps/api/src/health/health.controller.spec.ts` | `/health` và kết nối DB. | ✅ GET /health trả HTTP 200; API status=ok, database=up ngày 11/11/2026. |
+| `API-T04` | Unit | (dự kiến) `apps/api/src/orders/` | Phân quyền RBAC và chuyển trạng thái hợp lệ (FR-07). | ⏳ chưa có file |
+---
+
+## 5. Đối soát kiểm thử nghiệm thu theo yêu cầu giảng viên (11/11/2026)
+
+| Mã | Nội dung | Phương pháp | Kết quả | Bằng chứng |
+| :---: | :--- | :--- | :---: | :--- |
+| Test A | Chống sửa giá từ client | HTTP security test + kiểm tra code | ✅ PASS | `docs/evidence/test-a-price-tampering-2026-11-11/` và `apps/api/src/orders/orders.security.spec.ts` |
+| Test B | Hủy đơn đã thanh toán, hoàn kho, chuyển trạng thái hoàn tiền | API + PostgreSQL thật | ✅ PASS | `docs/evidence/test-b-paid-cancel-2026-11-11/` |
+| Test C | Hai yêu cầu đồng thời tranh chấp tồn kho | Hai tài khoản gọi API đồng thời, mỗi yêu cầu 40 sản phẩm khi kho có 40 | 🟡 PASS có giới hạn | `docs/evidence/test-c-concurrency-2026-11-11/` |
+| Test D | Tính số lượng thành phẩm theo BOM nguyên liệu | Kiểm tra phép tính lý thuyết | ⛔ NOT EXECUTED | `docs/evidence/test-d-bom-2026-11-11/` |
+
+### Kiểm tra bảo mật bổ sung – IDOR
+
+Hai tài khoản khách hàng sử dụng token khác nhau. Tài khoản thứ hai không xem được đơn hàng của tài khoản thứ nhất qua lịch sử và truy cập chi tiết đơn hàng.
+
+Kết quả: PASS trên API local. Đây là kiểm tra API thực tế, không phải E2E Playwright.
+
+### Giới hạn nghiệm thu
+
+- Test C chưa chạy đúng kịch bản giảng viên yêu cầu: tồn kho 2, hai khách cùng đặt 2.
+- Test D chưa được kiểm thử tích hợp vì schema hiện tại chưa có mô hình nguyên liệu và BOM.
+- Test B xác nhận trạng thái `REFUND_PENDING`, không chứng minh tiền đã được hoàn về ngân hàng.
+

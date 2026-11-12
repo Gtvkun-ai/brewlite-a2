@@ -4,18 +4,18 @@ import {
   BadRequestException,
   ForbiddenException,
   ConflictException,
-} from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { OrderResponseDto } from './dto/order-response.dto';
+} from "@nestjs/common";
+import { PaymentStatus, Prisma } from "@prisma/client";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { OrderResponseDto } from "./dto/order-response.dto";
 import {
   ItemSize,
   ToppingCode,
   SIZE_SURCHARGE,
   TOPPING_SURCHARGE,
   OrderStatus,
-} from '../common/types';
+} from "../common/types";
 
 @Injectable()
 export class OrdersService {
@@ -26,7 +26,7 @@ export class OrdersService {
    */
   private generateOrderCode(): string {
     const now = new Date();
-    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");
     const randomHex = Math.random().toString(36).substring(2, 6).toUpperCase();
     return `BL-${dateStr}-${randomHex}`;
   }
@@ -75,8 +75,8 @@ export class OrdersService {
       if (existingOrder) {
         if (existingOrder.userId !== userId) {
           throw new ForbiddenException({
-            errorCode: 'ORDER_ACCESS_DENIED',
-            message: 'Bạn không có quyền truy cập đơn hàng này',
+            errorCode: "ORDER_ACCESS_DENIED",
+            message: "Bạn không có quyền truy cập đơn hàng này",
           });
         }
 
@@ -89,15 +89,16 @@ export class OrdersService {
               (dbItem) =>
                 dbItem.productId === reqItem.productId &&
                 dbItem.quantity === reqItem.quantity &&
-                (dbItem.selectedSize || 'REGULAR') === reqItem.selectedSize,
+                (dbItem.selectedSize || "REGULAR") === reqItem.selectedSize,
             );
             return !!matched;
           });
 
         if (!isPayloadMatch) {
           throw new ConflictException({
-            errorCode: 'IDEMPOTENCY_KEY_PAYLOAD_MISMATCH',
-            message: 'Idempotency-Key đã được sử dụng với thông tin đặt hàng khác',
+            errorCode: "IDEMPOTENCY_KEY_PAYLOAD_MISMATCH",
+            message:
+              "Idempotency-Key đã được sử dụng với thông tin đặt hàng khác",
           });
         }
 
@@ -123,8 +124,8 @@ export class OrdersService {
         });
         if (!user) {
           throw new NotFoundException({
-            errorCode: 'USER_NOT_FOUND',
-            message: 'Không tìm thấy thông tin người dùng',
+            errorCode: "USER_NOT_FOUND",
+            message: "Không tìm thấy thông tin người dùng",
           });
         }
 
@@ -137,8 +138,8 @@ export class OrdersService {
         const missingIds = uniqueProductIds.filter((id) => !foundIds.has(id));
         if (missingIds.length > 0) {
           throw new NotFoundException({
-            errorCode: 'PRODUCT_NOT_FOUND',
-            message: `Sản phẩm với ID ${missingIds.join(', ')} không tồn tại`,
+            errorCode: "PRODUCT_NOT_FOUND",
+            message: `Sản phẩm với ID ${missingIds.join(", ")} không tồn tại`,
           });
         }
 
@@ -148,7 +149,7 @@ export class OrdersService {
         for (const product of products) {
           if (!product.isAvailable) {
             throw new BadRequestException({
-              errorCode: 'PRODUCT_UNAVAILABLE',
+              errorCode: "PRODUCT_UNAVAILABLE",
               message: `Sản phẩm "${product.name}" hiện đang tạm ngưng phục vụ`,
             });
           }
@@ -171,7 +172,7 @@ export class OrdersService {
 
           if (updateResult.count === 0) {
             throw new BadRequestException({
-              errorCode: 'OUT_OF_STOCK',
+              errorCode: "OUT_OF_STOCK",
               message: `Sản phẩm "${product.name}" không đủ tồn kho`,
             });
           }
@@ -208,7 +209,7 @@ export class OrdersService {
           data: {
             code: this.generateOrderCode(),
             userId,
-            status: 'PENDING',
+            status: "PENDING",
             subTotal: new Prisma.Decimal(subTotal),
             discountAmount: new Prisma.Decimal(discountAmount),
             totalAmount: new Prisma.Decimal(totalAmount),
@@ -235,7 +236,7 @@ export class OrdersService {
       // Bắt trường hợp vi phạm Unique Constraint trên idempotencyKey khi có race condition
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002' &&
+        error.code === "P2002" &&
         idempotencyKey
       ) {
         const raceOrder = await this.prisma.order.findUnique({
@@ -251,8 +252,8 @@ export class OrdersService {
         if (raceOrder) {
           if (raceOrder.userId !== userId) {
             throw new ForbiddenException({
-              errorCode: 'ORDER_ACCESS_DENIED',
-              message: 'Bạn không có quyền truy cập đơn hàng này',
+              errorCode: "ORDER_ACCESS_DENIED",
+              message: "Bạn không có quyền truy cập đơn hàng này",
             });
           }
 
@@ -264,15 +265,16 @@ export class OrdersService {
                 (dbItem) =>
                   dbItem.productId === reqItem.productId &&
                   dbItem.quantity === reqItem.quantity &&
-                  (dbItem.selectedSize || 'REGULAR') === reqItem.selectedSize,
+                  (dbItem.selectedSize || "REGULAR") === reqItem.selectedSize,
               );
               return !!matched;
             });
 
           if (!isPayloadMatch) {
             throw new ConflictException({
-              errorCode: 'IDEMPOTENCY_KEY_PAYLOAD_MISMATCH',
-              message: 'Idempotency-Key đã được sử dụng với thông tin đặt hàng khác',
+              errorCode: "IDEMPOTENCY_KEY_PAYLOAD_MISMATCH",
+              message:
+                "Idempotency-Key đã được sử dụng với thông tin đặt hàng khác",
             });
           }
 
@@ -290,7 +292,7 @@ export class OrdersService {
   async findUserOrders(userId: string): Promise<OrderResponseDto[]> {
     const orders = await this.prisma.order.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         items: {
           include: {
@@ -328,12 +330,12 @@ export class OrdersService {
 
     if (
       order.userId !== userId &&
-      role !== 'BARISTA' &&
-      role !== 'ADMIN' &&
-      role !== 'MANAGER'
+      role !== "BARISTA" &&
+      role !== "ADMIN" &&
+      role !== "MANAGER"
     ) {
       throw new ForbiddenException(
-        'Bạn không có quyền truy cập đơn hàng của người khác',
+        "Bạn không có quyền truy cập đơn hàng của người khác",
       );
     }
 
@@ -354,25 +356,24 @@ export class OrdersService {
       });
 
       if (!order) {
-        throw new NotFoundException(`Không tìm thấy đơn hàng với mã #${orderId}`);
+        throw new NotFoundException(
+          `Không tìm thấy đơn hàng với mã #${orderId}`,
+        );
       }
 
       if (order.userId !== userId) {
         throw new ForbiddenException(
-          'Bạn không có quyền hủy đơn hàng của người khác',
+          "Bạn không có quyền hủy đơn hàng của người khác",
         );
       }
 
-      if (order.status === 'CANCELLED') {
-        throw new BadRequestException('Đơn hàng này đã bị hủy trước đó');
+      if (order.status === "CANCELLED") {
+        throw new BadRequestException("Đơn hàng này đã bị hủy trước đó");
       }
 
-      if (
-        order.status !== 'PENDING' &&
-        order.status !== 'PAID'
-      ) {
+      if (order.status !== "PENDING" && order.status !== "PAID") {
         throw new BadRequestException(
-          'Không thể hủy đơn hàng đang được chế biến hoặc đã hoàn thành',
+          "Không thể hủy đơn hàng đang được chế biến hoặc đã hoàn thành",
         );
       }
 
@@ -390,7 +391,7 @@ export class OrdersService {
       const updatedOrder = await tx.order.update({
         where: { id: orderId },
         data: {
-          status: 'CANCELLED',
+          status: "CANCELLED",
         },
         include: {
           items: {
@@ -402,11 +403,11 @@ export class OrdersService {
       });
 
       // Nếu đã thanh toán, ghi nhận hoàn tiền REFUND_PENDING
-      if (order.status === 'PAID') {
+      if (order.status === "PAID") {
         await tx.payment.updateMany({
-          where: { orderId, status: 'SUCCESS' },
+          where: { orderId, status: "SUCCESS" },
           data: {
-            status: 'REFUND_PENDING' as any,
+            status: PaymentStatus.REFUND_PENDING,
           },
         });
       }
@@ -442,10 +443,10 @@ export class OrdersService {
 
     // Định nghĩa bảng chuyển trạng thái hợp lệ
     const validTransitions: Record<OrderStatus, OrderStatus[]> = {
-      PENDING: ['PAID', 'CANCELLED', 'PAYMENT_FAILED'],
-      PAID: ['PREPARING', 'CANCELLED'],
-      PREPARING: ['READY'],
-      READY: ['COMPLETED'],
+      PENDING: ["PAID", "CANCELLED", "PAYMENT_FAILED"],
+      PAID: ["PREPARING", "CANCELLED"],
+      PREPARING: ["READY"],
+      READY: ["COMPLETED"],
       COMPLETED: [],
       CANCELLED: [],
       PAYMENT_FAILED: [],
@@ -454,7 +455,7 @@ export class OrdersService {
     const allowedNext = validTransitions[currentStatus] || [];
     if (!allowedNext.includes(newStatus)) {
       throw new BadRequestException({
-        errorCode: 'INVALID_STATE_TRANSITION',
+        errorCode: "INVALID_STATE_TRANSITION",
         message: `Không thể chuyển trạng thái từ ${currentStatus} sang ${newStatus}`,
       });
     }
@@ -499,10 +500,10 @@ export class OrdersService {
       items: (order.items || []).map((item: any) => ({
         id: item.id,
         productId: item.productId,
-        productName: item.product?.name ?? '',
+        productName: item.product?.name ?? "",
         quantity: item.quantity,
         unitPrice: item.unitPrice.toString(),
-        selectedSize: item.selectedSize ?? 'REGULAR',
+        selectedSize: item.selectedSize ?? "REGULAR",
         selectedToppings: item.selectedToppings ?? [],
         itemTotal: item.itemTotal.toString(),
       })),
