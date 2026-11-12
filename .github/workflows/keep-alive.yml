@@ -2,8 +2,9 @@ name: Production Keep-Alive & Smoke Health
 
 on:
   schedule:
-    # Run every 10 minutes to prevent Render Free Tier container from spinning down
-    - cron: '*/10 * * * *'
+    # Chạy mỗi 14 phút trong khung giờ 00:00 - 16:59 UTC (tương đương 07:00 - 23:59 Giờ Việt Nam UTC+7)
+    # Giữ ấm ban ngày khi giảng viên chấm bài, ban đêm 23h-7h tự ngủ để tiết kiệm 100% quota Render
+    - cron: '*/14 0-16 * * *'
   workflow_dispatch:
 
 jobs:
