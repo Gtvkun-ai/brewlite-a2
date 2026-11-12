@@ -130,6 +130,28 @@ describe('Auth security integration', () => {
     expect(tokenPayload).not.toHaveProperty('passwordHash');
   });
 
+  it('accepts optional phone number during registration and saves it to user record', async () => {
+    prisma.user.create.mockImplementation(async ({ data }) => ({
+      id: 'user-phone-1',
+      email: data.email,
+      role: Role.CUSTOMER,
+    }));
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        fullName: 'Phone Customer',
+        email: 'phone@example.com',
+        password: TEST_PASSWORD,
+        phone: '0901234567',
+      })
+      .expect(201);
+
+    const createData = prisma.user.create.mock.calls[0][0].data;
+    expect(createData.phone).toBe('0901234567');
+    expect(response.body).toHaveProperty('accessToken');
+  });
+
   it('rejects a client-supplied role instead of allowing privilege escalation', async () => {
     await request(app.getHttpServer())
       .post('/auth/register')

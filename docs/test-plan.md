@@ -42,6 +42,7 @@ Phạm vi và nguồn dữ liệu:
 | TC-20 | FR-08 | Unit | Áp mã ưu đãi | Giảm tiền theo voucher | Không áp dụng | ⛔ Hoãn | `api-contracts.md` mục 1.2 |
 | TC-21 | FR-02, NFR-03 | Unit | `/products/[id]` chọn Size Regular/Large (+10.000đ), Topping và các trạng thái Loading/Error/Retry/404/Out of stock | Giá tính lại tức thời đúng công thức; nút Retry hoạt động; món hết hàng khóa nút thêm | Khớp Expected | ✅ Pass | `apps/web/__tests__/cart.test.tsx` (`WEB-T02`) |
 | TC-22 | FR-03 | Unit | Quản lý giỏ hàng (`CartContext`, `/cart`, `CartDrawer`): thêm/tăng/giảm/xóa/clear, gộp dòng cùng cấu hình, tách dòng khác cấu hình, xuất payload cho F | Cùng cấu hình gộp số lượng; khác cấu hình tách dòng; payload chỉ gửi `productId/quantity/selectedSize/selectedToppings` | Khớp Expected | ✅ Pass | `apps/web/__tests__/cart.test.tsx` (`WEB-T03`) |
+| TC-23 | FR-03, FR-05, NFR-03 | Integration | E-20 Regression: Chọn Large+topping -> checkout có cùng cấu hình; thanh toán thất bại giữ giỏ & retry; thanh toán thành công xóa giỏ đúng 1 lần; đối soát sync giá và tồn kho với server | Giữ nguyên cấu hình món và ghi chú sang checkout; lỗi thanh toán bảo toàn giỏ 100%; thành công clear giỏ; tự động cập nhật giá và loại bỏ món hết hàng | Khớp Expected | ✅ Pass | `apps/web/__tests__/cart.test.tsx` (`WEB-T03`), `checkout.test.tsx` |
 
 ## 3. Ghi chú
 

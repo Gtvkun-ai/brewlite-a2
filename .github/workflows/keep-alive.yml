@@ -1,0 +1,34 @@
+name: Production Keep-Alive & Smoke Health
+
+on:
+  schedule:
+    # Chạy mỗi 14 phút trong khung giờ 00:00 - 16:59 UTC (tương đương 07:00 - 23:59 Giờ Việt Nam UTC+7)
+    # Giữ ấm ban ngày khi giảng viên chấm bài, ban đêm 23h-7h tự ngủ để tiết kiệm 100% quota Render
+    - cron: '*/14 0-16 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping Staging Services
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping Render Backend Health
+        run: |
+          echo "Pinging https://brewlite-a2.onrender.com/health ..."
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\nTIME_TOTAL:%{time_total}s" --max-time 60 https://brewlite-a2.onrender.com/health)
+          echo "$RESPONSE"
+          if echo "$RESPONSE" | grep -q "HTTP_STATUS:200"; then
+            echo "✅ Render Backend is UP and Healthy"
+          else
+            echo "⚠️ Render Backend returned non-200 status, waking up..."
+          fi
+
+      - name: Ping Vercel Frontend
+        run: |
+          echo "Pinging https://brewlite-a2.vercel.app ..."
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\nTIME_TOTAL:%{time_total}s" --max-time 30 https://brewlite-a2.vercel.app)
+          echo "$RESPONSE" | tail -n 2
+          echo "✅ Vercel Frontend is UP"
+

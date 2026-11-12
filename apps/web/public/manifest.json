@@ -1,0 +1,32 @@
+{
+  "name": "BrewLite Coffee & Tea",
+  "short_name": "BrewLite",
+  "description": "Ứng dụng đặt đồ uống cà phê, trà và bánh ngọt trực tuyến BrewLite",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#FCF9F5",
+  "theme_color": "#8B4513",
+  "orientation": "portrait-primary",
+  "categories": ["food", "shopping", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
+
