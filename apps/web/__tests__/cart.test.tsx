@@ -10,6 +10,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import CartPage from '../app/cart/page';
 import ProductDetailPage from '../app/products/[id]/page';
 import CartDrawer from '../components/CartDrawer';
+import CheckoutPage from '../app/checkout/page';
+import * as checkoutApi from '../lib/checkout-api';
+import { AuthProvider } from '../context/AuthContext';
 import {
   calculateItemTotal,
   calculateUnitPrice,
@@ -477,6 +480,213 @@ describe('Role E — Product Options & Cart Management (WEB-T02 & WEB-T03)', () 
       await waitFor(() => {
         expect(screen.queryByTestId('cart-drawer')).not.toBeInTheDocument();
       });
+    });
+  });
+
+  describe('E-20 (Sprint 2): Cart-Checkout Integration, Stale Price/Stock Sync & Regression Flow', () => {
+    it('syncWithCatalog updates stale prices and removes out-of-stock items', () => {
+      let syncResult: ReturnType<ReturnType<typeof useCart>['syncWithCatalog']> | undefined;
+
+      function SyncHarness() {
+        const { addItem, items, syncWithCatalog } = useCart();
+
+        React.useEffect(() => {
+          addItem({
+            productId: 'p_coffee',
+            name: 'Cà phê sữa',
+            basePrice: '30000',
+            size: 'LARGE',
+            toppings: ['TRAN_CHAU'],
+            quantity: 2,
+            unitPrice: '45000', // 30000 + 10000 + 5000
+            itemTotal: '90000',
+          });
+
+          addItem({
+            productId: 'p_discontinued',
+            name: 'Món ngừng bán',
+            basePrice: '20000',
+            size: 'REGULAR',
+            toppings: [],
+            quantity: 1,
+            unitPrice: '20000',
+            itemTotal: '20000',
+          });
+        }, [addItem]);
+
+        return (
+          <div>
+            <button
+              data-testid="btn-sync"
+              onClick={() => {
+                syncResult = syncWithCatalog([
+                  {
+                    id: 'p_coffee',
+                    basePrice: '35000', // Price increased from 30000 -> 35000
+                    isAvailable: true,
+                    stockQuantity: 50,
+                  },
+                  {
+                    id: 'p_discontinued',
+                    basePrice: '20000',
+                    isAvailable: false, // Out of stock
+                    stockQuantity: 0,
+                  },
+                ]);
+              }}
+            >
+              Sync
+            </button>
+            <span data-testid="sync-items-count">{items.length}</span>
+            {items.map((it, i) => (
+              <span key={i} data-testid={`sync-item-total-${i}`}>
+                {it.itemTotal}
+              </span>
+            ))}
+          </div>
+        );
+      }
+
+      render(
+        <CartProvider>
+          <SyncHarness />
+        </CartProvider>,
+      );
+
+      expect(screen.getByTestId('sync-items-count')).toHaveTextContent('2');
+
+      fireEvent.click(screen.getByTestId('btn-sync'));
+
+      // Out of stock item removed: length is now 1
+      expect(screen.getByTestId('sync-items-count')).toHaveTextContent('1');
+      expect(syncResult?.updated).toBe(true);
+      expect(syncResult?.priceChangedItems).toHaveLength(1);
+      expect(syncResult?.outOfStockItems).toHaveLength(1);
+
+      // Price recalculated: 35000 (new base) + 10000 (LARGE) + 5000 (TRAN_CHAU) = 50000 * 2 = 100000
+      expect(screen.getByTestId('sync-item-total-0')).toHaveTextContent('100000');
+    });
+
+    it('E-20 Acceptance: chọn Large+topping → checkout có cùng cấu hình, lỗi payment giữ giỏ, success clear đúng một lần', async () => {
+      // Mock authenticated customer
+      localStorage.setItem('brewlite_access_token', 'jwt-e20-token');
+      localStorage.setItem(
+        'brewlite_user',
+        JSON.stringify({
+          id: 'usr_e20',
+          email: 'customer@brewlite.vn',
+          fullName: 'Khách hàng E20',
+          role: 'CUSTOMER',
+        }),
+      );
+
+      vi.spyOn(api, 'fetchProduct').mockResolvedValueOnce(sampleProduct);
+
+      function FullFlowApp() {
+        return (
+          <AuthProvider>
+            <CartProvider>
+              <ProductDetailPage params={mockParams('prod_cf_milk')} />
+              <CartPage />
+              <CheckoutPage />
+            </CartProvider>
+          </AuthProvider>
+        );
+      }
+
+      render(<FullFlowApp />);
+
+      // 1. User configures product on Detail Page: LARGE + TRAN_CHAU, Qty 2, Note "Giao cổng 2"
+      expect(await screen.findByText('Cà phê sữa đá')).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('size-LARGE'));
+      fireEvent.click(screen.getByTestId('topping-TRAN_CHAU'));
+      fireEvent.click(screen.getByTestId('qty-increase')); // 1 -> 2
+      fireEvent.change(screen.getByTestId('product-note'), {
+        target: { value: 'Giao cổng 2' },
+      });
+
+      // Add to cart
+      fireEvent.click(screen.getByTestId('add-to-cart-btn'));
+      expect(await screen.findByTestId('added-to-cart-feedback')).toBeInTheDocument();
+
+      // 2. Verify Cart Page displays the item with exact configuration
+      expect(screen.getByTestId('cart-total-count')).toHaveTextContent('2');
+      expect(screen.getByTestId('cart-subtotal-preview')).toHaveTextContent('100.000');
+      expect(screen.getByTestId('cart-delivery-note')).toHaveValue('Giao cổng 2');
+
+      // 3. Verify Checkout Page receives the identical configuration and note
+      expect(screen.getByTestId('delivery-note')).toHaveValue('Giao cổng 2');
+      expect(screen.getByTestId('cart-subtotal')).toHaveTextContent('100.000');
+      const checkoutItem = screen.getByTestId('checkout-item');
+      expect(checkoutItem).toHaveTextContent('Cà phê sữa đá');
+      expect(checkoutItem).toHaveTextContent('Size: LARGE');
+      expect(checkoutItem).toHaveTextContent('TRAN_CHAU');
+
+      // 4. STEP 4: First attempt fails (e.g. payment error)
+      const mockCreateOrder = vi
+        .spyOn(checkoutApi, 'createOrderApi')
+        .mockResolvedValueOnce({
+          id: 'ord_e20_01',
+          code: 'BL-E20-FAIL',
+          status: 'PENDING',
+          subTotal: '100000',
+          discountAmount: '0',
+          totalAmount: '100000',
+          createdAt: new Date().toISOString(),
+          items: [],
+        });
+
+      const mockSubmitPayment = vi
+        .spyOn(checkoutApi, 'submitPaymentApi')
+        .mockResolvedValueOnce({
+          paymentId: 'pay_fail_e20',
+          orderId: 'ord_e20_01',
+          status: 'FAILED',
+          orderStatus: 'PAYMENT_FAILED',
+          amount: '100000',
+          method: 'E_WALLET',
+          message: 'Tài khoản không đủ số dư để thanh toán.',
+        });
+
+      const submitBtn = screen.getByTestId('checkout-submit-btn');
+      fireEvent.click(submitBtn);
+
+      // Verify payment error banner is shown
+      expect(await screen.findByTestId('checkout-error')).toHaveTextContent(
+        'Tài khoản không đủ số dư',
+      );
+
+      // CRITICAL ACCEPTANCE: Cart is KEPT!
+      expect(screen.getByTestId('cart-summary')).toBeInTheDocument();
+      expect(screen.getByTestId('checkout-submit-btn')).toHaveTextContent(
+        'Thử lại thanh toán',
+      );
+
+      // 5. STEP 5: Second attempt succeeds (Retry payment)
+      mockSubmitPayment.mockResolvedValueOnce({
+        paymentId: 'pay_success_e20',
+        orderId: 'ord_e20_01',
+        status: 'SUCCESS',
+        orderStatus: 'PAID',
+        amount: '100000',
+        method: 'CREDIT_CARD',
+        transactionRef: 'TX_E20_SUCCESS',
+      });
+
+      // Switch payment method and click retry
+      fireEvent.click(screen.getByTestId('payment-option-CREDIT_CARD'));
+      fireEvent.click(screen.getByTestId('checkout-submit-btn'));
+
+      // Verify success screen is displayed
+      expect(await screen.findByTestId('checkout-success-view')).toBeInTheDocument();
+      expect(screen.getByTestId('order-code')).toHaveTextContent('#BL-E20-FAIL');
+
+      // CRITICAL ACCEPTANCE: Cart is CLEARED after successful payment!
+      await waitFor(() => {
+        expect(localStorage.getItem(CART_KEY)).toBe('[]');
+      });
+      expect(mockCreateOrder).toHaveBeenCalledTimes(1); // Never recreated order on retry
+      expect(mockSubmitPayment).toHaveBeenCalledTimes(2);
     });
   });
 });
