@@ -39,6 +39,7 @@ export class AuthService {
         data: {
           email,
           fullName,
+          phone: dto.phone ? dto.phone.trim() : null,
           passwordHash: await hash(dto.password, BCRYPT_ROUNDS),
         },
         select: { id: true, email: true, role: true },

@@ -2,6 +2,7 @@ import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -18,6 +19,12 @@ export class RegisterDto {
   @IsEmail()
   @MaxLength(254)
   email: string;
+
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  phone?: string;
 
   @IsString()
   @MinLength(8)
