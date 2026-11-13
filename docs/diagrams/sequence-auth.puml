@@ -1,0 +1,50 @@
+@startuml
+title BrewLite Authentication and RBAC
+autonumber
+
+actor Customer
+participant "Web Client" as Web
+participant "AuthController" as Controller
+participant "AuthService" as Auth
+database "PostgreSQL / Prisma" as DB
+participant "JwtService" as JWT
+participant "JwtStrategy" as Strategy
+participant "RolesGuard" as Roles
+
+alt Register
+  Customer -> Web: Submit name, email, password
+  Web -> Controller: POST /auth/register
+  Controller -> Auth: register(dto)
+  Auth -> Auth: Normalize email; reject >72 UTF-8 password bytes
+  Auth -> Auth: bcrypt hash (12 rounds)
+  Auth -> DB: Create user without client role
+  DB --> Auth: id, normalized email, default CUSTOMER role
+  Auth -> JWT: Sign HS256 token (sub, email, role)
+  JWT --> Auth: access token
+  Auth --> Web: 201 { accessToken }
+else Login
+  Customer -> Web: Submit email and password
+  Web -> Controller: POST /auth/login
+  Controller -> Auth: login(dto)
+  Auth -> DB: Find by normalized email
+  DB --> Auth: User and password hash
+  Auth -> Auth: bcrypt compare; generic 401 on mismatch
+  Auth -> JWT: Sign HS256 token
+  JWT --> Auth: access token
+  Auth --> Web: 200 { accessToken }
+end
+
+Customer -> Web: Request protected resource
+Web -> Controller: Bearer access token
+Controller -> Strategy: Verify signature, algorithm, expiry and claims
+Strategy --> Controller: Authenticated user
+Controller -> Roles: Check required role (staff route)
+alt Missing/invalid token
+  Controller --> Web: 401 Unauthorized
+else Valid token, insufficient role
+  Roles --> Web: 403 Forbidden
+else Valid token and allowed role
+  Roles --> Controller: Allow
+  Controller --> Web: Protected response
+end
+@enduml

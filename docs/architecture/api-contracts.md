@@ -76,24 +76,22 @@
 ### 2.2. Module Auth (Xác thực & Bảo mật - FR-04 - Owner: Người B)
 
 #### `POST /auth/register`
-* **Mô tả:** Đăng ký tài khoản khách hàng mới. Mật khẩu được băm bằng `bcrypt` (salt rounds = 10).
+* **Mô tả:** Đăng ký tài khoản khách hàng mới. Mật khẩu được băm bằng `bcryptjs` (12 rounds).
 * **Auth:** Public.
 * **Request Body:**
   ```json
   {
-    "email": "customer@brewlite.vn",
-    "password": "Password123!",
+    "email": "an@example.com",
+    "password": "replace-with-a-test-password",
     "fullName": "Nguyễn Văn A",
     "phone": "0901234567"
   }
   ```
+  `phone` là tùy chọn; API chuẩn hóa số điện thoại, chấp nhận 8–15 chữ số và dấu `+` ở đầu.
 * **Response 201 Created:**
   ```json
   {
-    "id": "usr_cly123",
-    "email": "customer@brewlite.vn",
-    "fullName": "Nguyễn Văn A",
-    "role": "CUSTOMER"
+    "accessToken": "<signed-access-token>"
   }
   ```
   *(Lưu ý bảo mật: Tuyệt đối KHÔNG trả về `passwordHash`).*
@@ -105,20 +103,14 @@
 * **Request Body:**
   ```json
   {
-    "email": "customer@brewlite.vn",
-    "password": "Password123!"
+    "email": "an@example.com",
+    "password": "replace-with-a-test-password"
   }
   ```
 * **Response 200 OK:**
   ```json
   {
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "user": {
-      "id": "usr_cly123",
-      "email": "customer@brewlite.vn",
-      "fullName": "Nguyễn Văn A",
-      "role": "CUSTOMER"
-    }
+    "accessToken": "<signed-access-token>"
   }
   ```
 * **JWT Payload Specification (`UserPayload`):**
@@ -126,13 +118,12 @@
   {
     "sub": "usr_cly123",
     "email": "customer@brewlite.vn",
-    "fullName": "Nguyễn Văn A",
     "role": "CUSTOMER",
     "iat": 1730700000,
     "exp": 1730786400
   }
   ```
-* **Response 401 Unauthorized:** `{"statusCode": 401, "errorCode": "INVALID_CREDENTIALS", "message": "Sai email hoặc mật khẩu"}`.
+* **Response 401 Unauthorized:** `{"statusCode": 401, "message": "Email hoặc mật khẩu không đúng"}`.
 
 ---
 

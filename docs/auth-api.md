@@ -4,6 +4,8 @@ The API uses bcrypt password hashes and signed JWT Bearer access tokens.
 
 Configure `JWT_SECRET` with a random secret of at least 32 characters before starting the API. `JWT_EXPIRATION` is optional and defaults to `7d`.
 
+For local Docker Compose, copy `.env.example` to `.env`, set a unique alphanumeric `POSTGRES_PASSWORD`, update `DATABASE_URL` to use the same password, and set `JWT_SECRET` (for example, `openssl rand -hex 32`). Compose fails fast when either required secret is missing. Set `NODE_ENV=production` in production deployments. Do not reuse local values in staging or production. Demo accounts are seeded only when `NODE_ENV` is not `production` and both `DEMO_ACCOUNT_PASSWORD` and `E2E_ACCOUNT_PASSWORD` are configured; the seed command does not print passwords.
+
 ## Register
 
 `POST /auth/register`
@@ -12,11 +14,12 @@ Configure `JWT_SECRET` with a random secret of at least 32 characters before sta
 {
   "fullName": "Nguyen Van An",
   "email": "an@example.com",
-  "password": "at-least-8-characters"
+  "password": "at-least-8-characters",
+  "phone": "0901234567"
 }
 ```
 
-Returns `201` with `{ "accessToken": "..." }`. Email is trimmed and lowercased. A duplicate email returns `409`; invalid input returns `400`.
+`phone` is optional; spaces, parentheses, and hyphens are removed before storing an 8–15 digit value (optional leading `+`). Returns `201` with `{ "accessToken": "..." }`. Email is trimmed and lowercased. A duplicate email returns `409`; invalid input returns `400`.
 
 ## Login
 
@@ -43,4 +46,15 @@ Registration does not accept a role. Unknown request fields are rejected by the 
 
 ## Security tests
 
-Run from the repository root with `npm --workspace @brewlite/api test -- --runInBand auth.security.spec.ts`. The integration suite covers bcrypt hashing, role-injection rejection, duplicate email, invalid credentials, missing/malformed/expired JWTs, and customer-versus-staff access (`401`/`403`).
+Run from the repository root with `npm --workspace @brewlite/api test -- --runInBand auth.security.spec.ts jwt.config.spec.ts`. The API-level suite uses a mocked Prisma service, so it verifies the HTTP contract and guards but is not a PostgreSQL integration test. It covers bcrypt hashing, email/phone normalization, role-injection rejection, duplicate email, invalid credentials, bcrypt's 72-byte boundary, missing/malformed/expired JWTs, invalid signatures/claims, and customer-versus-staff access (`401`/`403`). `jwt.config.spec.ts` checks that a missing or short secret fails closed.
+
+### Local demo accounts
+
+These accounts can be seeded into a local database in development/test only. Set both password environment variables in the ignored local `.env` file; production seeding skips demo users. Never try these accounts against the live URLs.
+
+| Role | Email | Local seeded password |
+| --- | --- | --- |
+| Customer | `customer@brewlite.vn` | `DEMO_ACCOUNT_PASSWORD` |
+| Barista | `barista@brewlite.vn` | `DEMO_ACCOUNT_PASSWORD` |
+| Admin | `admin@brewlite.vn` | `DEMO_ACCOUNT_PASSWORD` |
+| E2E customer | `e2e.customer@brewlite.test` | `E2E_ACCOUNT_PASSWORD` |

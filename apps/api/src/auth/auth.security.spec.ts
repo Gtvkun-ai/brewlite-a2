@@ -166,6 +166,71 @@ describe('Auth security integration', () => {
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 
+  it('normalizes registration email and optional phone, and login email', async () => {
+    prisma.user.create.mockImplementation(async ({ data }) => ({
+      id: 'user-new-1',
+      email: data.email,
+      role: Role.CUSTOMER,
+    }));
+
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        fullName: 'New Customer',
+        email: '  New.User@Example.com  ',
+        password: TEST_PASSWORD,
+        phone: ' (090) 123-4567 ',
+      })
+      .expect(201);
+    expect(prisma.user.create.mock.calls[0][0].data).toMatchObject({
+      email: 'new.user@example.com',
+      phone: '0901234567',
+    });
+
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: '  CUSTOMER@EXAMPLE.COM  ', password: TEST_PASSWORD })
+      .expect(200);
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      where: { email: 'customer@example.com' },
+      select: { id: true, email: true, role: true, passwordHash: true },
+    });
+  });
+
+  it('rejects malformed optional phone values before database access', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        fullName: 'New Customer',
+        email: 'bad-phone@example.com',
+        password: TEST_PASSWORD,
+        phone: '090abc1234',
+      })
+      .expect(400);
+
+    expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects passwords over bcrypt’s 72-byte limit before database access', async () => {
+    const overlongUtf8Password = '密'.repeat(25); // 25 characters, 75 UTF-8 bytes
+
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        fullName: 'New Customer',
+        email: 'long-password@example.com',
+        password: overlongUtf8Password,
+      })
+      .expect(400);
+    expect(prisma.user.create).not.toHaveBeenCalled();
+
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: existingUser.email, password: overlongUtf8Password })
+      .expect(400);
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+  });
+
   it('returns 409 when registration races with an existing email', async () => {
     prisma.user.create.mockRejectedValue({ code: 'P2002' });
 

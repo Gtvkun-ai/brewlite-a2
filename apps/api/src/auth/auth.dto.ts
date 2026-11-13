@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -15,16 +16,21 @@ export class RegisterDto {
   @MaxLength(100)
   fullName: string;
 
+  @Transform(({ value }) =>
+    typeof value === 'string'
+      ? value.replace(/[()\s-]/g, '').trim() || undefined
+      : value,
+  )
+  @IsOptional()
+  @IsString()
+  @MaxLength(16)
+  @Matches(/^\+?[0-9]{8,15}$/)
+  phone?: string;
+
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsEmail()
   @MaxLength(254)
   email: string;
-
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  phone?: string;
 
   @IsString()
   @MinLength(8)
