@@ -1,6 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Coffee,
+  CupSoda,
+  Croissant,
+  LayoutGrid,
+  Search,
+  X,
+  Sparkles,
+  Zap,
+  Sprout,
+  Truck,
+} from 'lucide-react';
 import { fetchProducts } from '../lib/api';
 import type { Product } from '../lib/types';
 import ProductCard from '../components/ProductCard';
@@ -9,10 +21,10 @@ import { Empty, Error, Loading } from '../components/States';
 type Status = 'loading' | 'success' | 'error';
 
 const CATEGORIES = [
-  { key: 'ALL', label: 'Tất cả món', icon: '✨' },
-  { key: 'Coffee', label: 'Cà phê', icon: '☕' },
-  { key: 'Tea', label: 'Trà & Trà sữa', icon: '🍵' },
-  { key: 'Pastry', label: 'Bánh ngọt', icon: '🥐' },
+  { key: 'ALL', label: 'Tất cả món', icon: LayoutGrid },
+  { key: 'Coffee', label: 'Cà phê', icon: Coffee },
+  { key: 'Tea', label: 'Trà & Trà sữa', icon: CupSoda },
+  { key: 'Pastry', label: 'Bánh ngọt', icon: Croissant },
 ];
 
 export default function MenuPage() {
@@ -52,19 +64,35 @@ export default function MenuPage() {
 
   return (
     <main className="page menu-page">
-      {/* Hero Banner */}
+      {/* Hero Banner Specialty Style */}
       <section className="hero-banner">
+        <div className="hero-banner__glow-1" />
+        <div className="hero-banner__glow-2" />
         <div className="hero-banner__overlay">
           <div className="hero-banner__content">
-            <span className="hero-banner__badge">☕ Rang xay mộc nguyên bản 100%</span>
-            <h1 className="hero-banner__title">BrewLite Coffee & Tea</h1>
+            <div className="hero-banner__badge">
+              <Sparkles size={14} className="hero-banner__badge-icon" />
+              <span>Rang xay mộc nguyên bản 100% Arabica & Robusta</span>
+            </div>
+            <h1 className="hero-banner__title">
+              BrewLite Coffee <span className="hero-banner__title-accent">& Tea</span>
+            </h1>
             <p className="hero-banner__subtitle">
               Đánh thức mọi giác quan với hương vị cà phê Robusta tuyển chọn và các dòng trà trái cây thanh nhiệt. Đặt món nhanh, nhận đồ uống chuẩn gu trong 15 phút!
             </p>
             <div className="hero-banner__features">
-              <span className="hero-feature">⚡ Pha chế tại quầy</span>
-              <span className="hero-feature">🌱 Nguyên liệu tươi mới</span>
-              <span className="hero-feature">🛵 Giao hàng tận nơi</span>
+              <span className="hero-feature">
+                <Zap size={14} className="hero-feature__icon" />
+                <span>Pha chế tại quầy</span>
+              </span>
+              <span className="hero-feature">
+                <Sprout size={14} className="hero-feature__icon" />
+                <span>Nguyên liệu tươi mới</span>
+              </span>
+              <span className="hero-feature">
+                <Truck size={14} className="hero-feature__icon" />
+                <span>Giao hàng tận nơi</span>
+              </span>
             </div>
           </div>
         </div>
@@ -72,14 +100,14 @@ export default function MenuPage() {
 
       {/* Menu Filters & Search Header */}
       <header className="page__header menu-header">
-        <div>
+        <div className="menu-header__titles">
           <h2 className="page__title">Thực đơn hôm nay</h2>
           <p className="page__subtitle">Chọn thức uống và món bánh yêu thích của bạn</p>
         </div>
 
-        {/* Live Search */}
+        {/* Live Search Bar */}
         <div className="search-bar">
-          <span className="search-bar__icon" aria-hidden="true">🔍</span>
+          <Search size={18} className="search-bar__icon" aria-hidden="true" />
           <input
             type="text"
             className="search-bar__input"
@@ -95,68 +123,62 @@ export default function MenuPage() {
               onClick={() => setSearchQuery('')}
               aria-label="Xóa tìm kiếm"
             >
-              ✕
+              <X size={15} />
             </button>
           )}
         </div>
       </header>
 
       {/* Category Pills */}
-      <div className="category-tabs" role="tablist">
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat.key}
-            type="button"
-            role="tab"
-            aria-selected={selectedCategory === cat.key}
-            className={`category-tab ${selectedCategory === cat.key ? 'category-tab--active' : ''}`}
-            onClick={() => setSelectedCategory(cat.key)}
-          >
-            <span className="category-tab__icon">{cat.icon}</span>
-            <span className="category-tab__label">{cat.label}</span>
-          </button>
-        ))}
-      </div>
+      <nav className="category-tabs" aria-label="Bộ lọc danh mục món">
+        {CATEGORIES.map((cat) => {
+          const Icon = cat.icon;
+          const isActive = selectedCategory === cat.key;
+          return (
+            <button
+              key={cat.key}
+              type="button"
+              className={`category-tab ${isActive ? 'category-tab--active' : ''}`}
+              onClick={() => setSelectedCategory(cat.key)}
+            >
+              <Icon size={16} className="category-tab__icon" />
+              <span>{cat.label}</span>
+              {cat.key !== 'ALL' && (
+                <span className="category-tab__count">
+                  {products.filter((p) => p.category.toLowerCase() === cat.key.toLowerCase()).length}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
 
+      {/* States or Catalog Grid */}
       {status === 'loading' && <Loading label="Loading menu…" />}
-
       {status === 'error' && (
-        <Error message="We couldn't load the menu." onRetry={load} />
+        <Error
+          message="Không thể kết nối với máy chủ API. Vui lòng kiểm tra mạng hoặc thử lại."
+          onRetry={load}
+        />
       )}
-
       {status === 'success' && products.length === 0 && (
         <Empty
           title="Menu is empty"
-          message="No products are available right now. Check back soon."
+          message="Hiện chưa có món nào trong thực đơn. Vui lòng quay lại sau."
         />
       )}
-
       {status === 'success' && products.length > 0 && filteredProducts.length === 0 && (
-        <div className="state empty-filter-state">
-          <div className="state__icon">🔍</div>
-          <h3 className="state__title">Không tìm thấy món phù hợp</h3>
-          <p className="page__subtitle">
-            Không có kết quả nào cho từ khóa &quot;{searchQuery}&quot;. Thử tìm món khác hoặc bấm xem tất cả!
-          </p>
-          <button
-            type="button"
-            className="btn btn--primary mt-3"
-            onClick={() => {
-              setSelectedCategory('ALL');
-              setSearchQuery('');
-            }}
-          >
-            Xem tất cả thực đơn
-          </button>
-        </div>
+        <Empty
+          title="Không tìm thấy món phù hợp"
+          message={`Không có kết quả nào cho "${searchQuery}". Hãy thử tìm tên khác hoặc chọn lại danh mục.`}
+        />
       )}
-
       {status === 'success' && filteredProducts.length > 0 && (
-        <div className="grid">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+        <section className="product-grid" data-testid="product-grid">
+          {filteredProducts.map((p) => (
+            <ProductCard key={p.id} product={p} />
           ))}
-        </div>
+        </section>
       )}
     </main>
   );

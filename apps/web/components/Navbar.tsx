@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Coffee, ShoppingBag, User, LogOut, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
@@ -15,7 +16,12 @@ export function Navbar() {
       <div className="navbar__container">
         <div className="navbar__brand">
           <Link href="/" className="navbar__logo">
-            ☕ BrewLite
+            <span className="navbar__logo-icon-wrap">
+              <Coffee className="navbar__logo-icon" size={22} />
+            </span>
+            <span className="navbar__logo-text">
+              Brew<span className="navbar__logo-accent">Lite</span>
+            </span>
           </Link>
         </div>
 
@@ -24,31 +30,33 @@ export function Navbar() {
             href="/"
             className={`navbar__link ${pathname === '/' ? 'navbar__link--active' : ''}`}
           >
-            Menu
+            <span>Menu</span>
           </Link>
           <Link
             href="/cart"
             className={`navbar__link ${pathname === '/cart' ? 'navbar__link--active' : ''}`}
           >
-            Giỏ hàng
+            <span>Giỏ hàng</span>
           </Link>
           <Link
             href="/orders"
             className={`navbar__link ${pathname?.startsWith('/orders') ? 'navbar__link--active' : ''}`}
           >
-            Đơn hàng
+            <span>Đơn hàng</span>
           </Link>
         </div>
 
         <div className="navbar__actions">
-          {/* Cart Badge */}
+          {/* Cart Badge Button */}
           <Link
             href="/checkout"
             className="navbar__cart-btn"
             data-testid="cart-link"
             aria-label="Giỏ hàng"
           >
-            <span className="navbar__cart-icon">🛒</span>
+            <span className="navbar__cart-icon">
+              <ShoppingBag size={20} />
+            </span>
             <span className="navbar__cart-badge" data-testid="cart-badge">
               {totalCount}
             </span>
@@ -58,7 +66,8 @@ export function Navbar() {
           {isAuthenticated && user ? (
             <div className="navbar__user" data-testid="user-info">
               <span className="navbar__username" title={user.email}>
-                👤 {user.fullName || user.email.split('@')[0]}
+                <User size={15} className="navbar__user-icon" />
+                <span>{user.fullName || user.email.split('@')[0]}</span>
               </span>
               <button
                 type="button"
@@ -66,7 +75,8 @@ export function Navbar() {
                 className="navbar__logout-btn"
                 data-testid="logout-btn"
               >
-                Đăng xuất
+                <LogOut size={14} className="navbar__logout-icon" />
+                <span>Đăng xuất</span>
               </button>
             </div>
           ) : (
@@ -83,7 +93,8 @@ export function Navbar() {
                 className="navbar__auth-link navbar__auth-link--register"
                 data-testid="register-link"
               >
-                Đăng ký
+                <Sparkles size={14} />
+                <span>Đăng ký</span>
               </Link>
             </div>
           )}

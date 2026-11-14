@@ -6,22 +6,23 @@
 }
 
 :root {
-  --bg: #fcf9f5;
+  --bg: #faf7f2;
   --surface: #ffffff;
-  --text: #2b2320;
-  --muted: #7a6f68;
-  --accent: #8b4513;
-  --accent-hover: #5c2c09;
-  --accent-light: #f5ebe1;
-  --border: #e7ded4;
+  --surface-glass: rgba(255, 255, 255, 0.85);
+  --text: #241a15;
+  --muted: #786b62;
+  --accent: #c27847;
+  --accent-hover: #9e5a2c;
+  --accent-light: #f7ede5;
+  --border: #e8ded4;
   --danger: #b3261e;
   --success: #2e7d32;
-  --shadow-sm: 0 2px 8px rgba(43, 35, 32, 0.06);
-  --shadow-md: 0 6px 20px rgba(43, 35, 32, 0.1);
-  --shadow-lg: 0 12px 30px rgba(43, 35, 32, 0.15);
+  --shadow-sm: 0 2px 10px rgba(36, 26, 21, 0.05);
+  --shadow-md: 0 8px 24px rgba(36, 26, 21, 0.08);
+  --shadow-lg: 0 16px 36px rgba(36, 26, 21, 0.12);
   --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
 }
 
 html,
@@ -1953,3 +1954,374 @@ body {
   margin: 0;
   font-family: monospace;
 }
+
+/* ==========================================================================
+   Specialty Coffee Modern UI Enhancements (Lucide + Glassmorphism + Shimmer)
+   ========================================================================== */
+
+/* Navbar Brand & Icons */
+.navbar__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+}
+
+.navbar__logo-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #c27847, #7c3f1b);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(194, 120, 71, 0.35);
+  transition: transform 0.25s ease;
+}
+
+.navbar__logo:hover .navbar__logo-icon-wrap {
+  transform: rotate(-6deg) scale(1.08);
+}
+
+.navbar__logo-text {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #241a15;
+  letter-spacing: -0.02em;
+}
+
+.navbar__logo-accent {
+  color: var(--accent);
+}
+
+.navbar__cart-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #241a15;
+  transition: color 0.2s ease;
+}
+
+.navbar__cart-btn:hover .navbar__cart-icon {
+  color: var(--accent);
+}
+
+.navbar__user-icon,
+.navbar__logout-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.25rem;
+}
+
+/* Hero Banner Glow */
+.hero-banner {
+  position: relative;
+  overflow: hidden;
+  background-color: #1f140e;
+  background-image: radial-gradient(circle at 80% 20%, rgba(194, 120, 71, 0.35) 0%, transparent 50%),
+                    radial-gradient(circle at 15% 85%, rgba(124, 63, 27, 0.4) 0%, transparent 45%),
+                    linear-gradient(rgba(26, 17, 12, 0.82), rgba(26, 17, 12, 0.94)),
+                    url('/img/hero-coffee.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-banner__glow-1 {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 163, 115, 0.25), transparent 70%);
+  pointer-events: none;
+  filter: blur(25px);
+}
+
+.hero-banner__glow-2 {
+  position: absolute;
+  bottom: -30px;
+  left: 20%;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(194, 120, 71, 0.2), transparent 70%);
+  pointer-events: none;
+  filter: blur(30px);
+}
+
+.hero-banner__badge-icon,
+.hero-feature__icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+
+.hero-banner__title-accent {
+  color: #e5a975;
+}
+
+/* Category Tabs Enhancements */
+.category-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.category-tab__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(36, 26, 21, 0.08);
+  color: var(--muted);
+  margin-left: 0.2rem;
+}
+
+.category-tab--active .category-tab__count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Product Card Specialty Styling */
+.card {
+  border-radius: 18px;
+  border: 1px solid rgba(232, 222, 212, 0.9);
+  background: #ffffff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 16px rgba(36, 26, 21, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  border-color: #d8c4b2;
+  box-shadow: 0 16px 32px rgba(36, 26, 21, 0.1);
+}
+
+.card__gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(20, 13, 9, 0.5) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.card__stock-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2e7d32;
+  margin-right: 0.35rem;
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.card__price-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.card__price-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.card__action-icon {
+  margin-left: 0.3rem;
+  transition: transform 0.2s ease;
+}
+
+.card:hover .card__action-icon {
+  transform: rotate(90deg);
+}
+
+/* Order Stepper Modern Timeline */
+.order-stepper-container {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.5rem 1rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.order-stepper {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+.order-stepper::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  right: 20px;
+  height: 3px;
+  background: #ede3d8;
+  z-index: 1;
+}
+
+.order-stepper__step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+}
+
+.order-stepper__node {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #ede3d8;
+  color: #a39589;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.order-stepper__step--done .order-stepper__node {
+  background: #2e7d32;
+  border-color: #2e7d32;
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(46, 125, 50, 0.3);
+}
+
+.order-stepper__step--current .order-stepper__node {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(194, 120, 71, 0.45);
+}
+
+.order-stepper__pulse {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  animation: pulse-ring 1.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+.order-stepper__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #8c7e75;
+}
+
+.order-stepper__step--current .order-stepper__label {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.order-stepper__step--done .order-stepper__label {
+  color: #2e7d32;
+}
+
+/* Terminal State Badges */
+.order-terminal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.order-terminal-badge--cancelled {
+  background: #fdf2f2;
+  color: #b3261e;
+  border: 1px solid #f9d2d0;
+}
+
+.order-terminal-badge--payment-failed {
+  background: #fff8f0;
+  color: #c25e00;
+  border: 1px solid #fed8b3;
+}
+
+/* Footer Inline Icons */
+.footer__icon-inline {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+  color: #e5a975;
+}
+
+/* Shimmer Loading Animation */
+.state--loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.state__spinner-ring {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(194, 120, 71, 0.2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 0.75rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+

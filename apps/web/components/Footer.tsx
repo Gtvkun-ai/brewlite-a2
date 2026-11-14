@@ -1,6 +1,17 @@
 'use client';
 
 import Link from 'next/link';
+import {
+  Coffee,
+  Leaf,
+  Zap,
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  ShieldCheck,
+  CheckCircle,
+} from 'lucide-react';
 
 export function Footer() {
   return (
@@ -10,15 +21,23 @@ export function Footer() {
           {/* Brand Col */}
           <div className="footer__col footer__col--brand">
             <div className="footer__brand">
-              <span className="footer__logo-icon">☕</span>
+              <span className="footer__logo-icon">
+                <Coffee size={24} className="text-amber-500" />
+              </span>
               <span className="footer__logo-text">BrewLite Coffee & Tea</span>
             </div>
             <p className="footer__tagline">
               Đánh thức mọi giác quan với những hạt cà phê Robusta & Arabica nguyên chất Cầu Đất, kết hợp cùng các dòng trà thanh nhiệt tươi mới mỗi ngày.
             </p>
             <div className="footer__badges">
-              <span className="footer__badge">🌱 100% Cà phê sạch</span>
-              <span className="footer__badge">⚡ Giao siêu tốc 15p</span>
+              <span className="footer__badge">
+                <Leaf size={13} className="text-emerald-400" />
+                <span>100% Cà phê sạch</span>
+              </span>
+              <span className="footer__badge">
+                <Zap size={13} className="text-amber-400" />
+                <span>Giao siêu tốc 15p</span>
+              </span>
             </div>
           </div>
 
@@ -54,16 +73,28 @@ export function Footer() {
             <h3 className="footer__heading">Chính sách & Hỗ trợ</h3>
             <ul className="footer__list">
               <li>
-                <span className="footer__text">Cam kết chất lượng đồ uống</span>
+                <span className="footer__text">
+                  <CheckCircle size={14} className="footer__icon-inline" />
+                  <span>Cam kết chất lượng đồ uống</span>
+                </span>
               </li>
               <li>
-                <span className="footer__text">Chính sách hủy đơn & hoàn tiền</span>
+                <span className="footer__text">
+                  <CheckCircle size={14} className="footer__icon-inline" />
+                  <span>Chính sách hủy đơn & hoàn tiền</span>
+                </span>
               </li>
               <li>
-                <span className="footer__text">Bảo mật thông tin khách hàng</span>
+                <span className="footer__text">
+                  <ShieldCheck size={14} className="footer__icon-inline" />
+                  <span>Bảo mật thông tin khách hàng</span>
+                </span>
               </li>
               <li>
-                <span className="footer__text">Giao hàng & Đóng gói vệ sinh</span>
+                <span className="footer__text">
+                  <CheckCircle size={14} className="footer__icon-inline" />
+                  <span>Giao hàng & Đóng gói vệ sinh</span>
+                </span>
               </li>
             </ul>
           </div>
@@ -73,19 +104,27 @@ export function Footer() {
             <h3 className="footer__heading">Cửa hàng BrewLite</h3>
             <ul className="footer__list">
               <li className="footer__info-item">
-                <span className="footer__info-icon">📍</span>
+                <span className="footer__info-icon">
+                  <MapPin size={16} />
+                </span>
                 <span className="footer__text">273 An Dương Vương, P.3, Quận 5, TP.HCM</span>
               </li>
               <li className="footer__info-item">
-                <span className="footer__info-icon">📞</span>
+                <span className="footer__info-icon">
+                  <Phone size={16} />
+                </span>
                 <span className="footer__text">Hotline: 1900 6868 (07:00 - 22:30)</span>
               </li>
               <li className="footer__info-item">
-                <span className="footer__info-icon">✉️</span>
+                <span className="footer__info-icon">
+                  <Mail size={16} />
+                </span>
                 <span className="footer__text">contact@brewlite.vn</span>
               </li>
               <li className="footer__info-item">
-                <span className="footer__info-icon">⏰</span>
+                <span className="footer__info-icon">
+                  <Clock size={16} />
+                </span>
                 <span className="footer__text">Mở cửa: 07:00 - 22:30 (Cả tuần)</span>
               </li>
             </ul>
@@ -107,4 +146,3 @@ export function Footer() {
 }
 
 export default Footer;
-
