@@ -21,7 +21,7 @@ export class ApiError extends Error {
 
 /** Fetch the full product catalog via GET /products. */
 export async function fetchProducts(): Promise<Product[]> {
-  const res = await fetch(`${API_BASE_URL}/products`);
+  const res = await fetch(`${API_BASE_URL}/products`, { cache: 'no-store' });
   if (!res.ok) {
     throw new ApiError(res.status, `Failed to load products (${res.status})`);
   }
@@ -34,5 +34,100 @@ export async function fetchProduct(id: string): Promise<Product> {
   if (!res.ok) {
     throw new ApiError(res.status, `Failed to load product (${res.status})`);
   }
+  return (await res.json()) as Product;
+}
+
+export interface CreateProductInput {
+  code: string;
+  name: string;
+  description?: string;
+  basePrice: number | string;
+  imageUrl: string;
+  category: string;
+  stockQuantity?: number;
+  isAvailable?: boolean;
+}
+
+export interface UpdateProductInput {
+  name?: string;
+  description?: string;
+  basePrice?: number | string;
+  imageUrl?: string;
+  category?: string;
+  stockQuantity?: number;
+  isAvailable?: boolean;
+}
+
+/** Admin: Tạo món mới via POST /products */
+export async function createProduct(
+  dto: CreateProductInput,
+  token: string,
+): Promise<Product> {
+  const res = await fetch(`${API_BASE_URL}/products`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(dto),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new ApiError(
+      res.status,
+      errorData.message || `Không thể tạo sản phẩm (${res.status})`,
+    );
+  }
+
+  return (await res.json()) as Product;
+}
+
+/** Admin: Cập nhật món via PATCH /products/:id */
+export async function updateProduct(
+  id: string,
+  dto: UpdateProductInput,
+  token: string,
+): Promise<Product> {
+  const res = await fetch(`${API_BASE_URL}/products/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(dto),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new ApiError(
+      res.status,
+      errorData.message || `Không thể cập nhật sản phẩm (${res.status})`,
+    );
+  }
+
+  return (await res.json()) as Product;
+}
+
+/** Admin: Xóa món via DELETE /products/:id */
+export async function deleteProduct(
+  id: string,
+  token: string,
+): Promise<Product> {
+  const res = await fetch(`${API_BASE_URL}/products/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new ApiError(
+      res.status,
+      errorData.message || `Không thể xóa sản phẩm (${res.status})`,
+    );
+  }
+
   return (await res.json()) as Product;
 }
