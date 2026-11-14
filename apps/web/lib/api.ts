@@ -101,7 +101,9 @@ export const FALLBACK_PRODUCTS: Product[] = [
 ];
 
 /** Fetch the full product catalog via GET /products. */
-export async function fetchProducts(): Promise<Product[]> {
+export async function fetchProducts(
+  options: { fallbackOnNetworkError?: boolean } = {},
+): Promise<Product[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/products`, { cache: 'no-store' });
     if (!res.ok) {
@@ -109,7 +111,7 @@ export async function fetchProducts(): Promise<Product[]> {
     }
     return (await res.json()) as Product[];
   } catch (error) {
-    if (error instanceof ApiError) {
+    if (error instanceof ApiError || options.fallbackOnNetworkError === false) {
       throw error;
     }
     // Fallback to offline catalog if backend is not running
