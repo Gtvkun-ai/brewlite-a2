@@ -1,0 +1,8 @@
+{
+  "command": "npx playwright test -c playwright.config.ts",
+  "passed": 5,
+  "skipped": 6,
+  "failed": 0,
+  "note": "Legacy fixture suite; skipped placeholders are NOT counted as passes. Real API scenarios run separately.",
+  "durationSeconds": 9.2
+}

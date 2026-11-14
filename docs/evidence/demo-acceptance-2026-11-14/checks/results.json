@@ -1,0 +1,37 @@
+[
+  {
+    "name": "lint",
+    "command": "npm run lint",
+    "startedAt": "2026-11-14T14:47:30.518Z",
+    "finishedAt": "2026-11-14T14:47:32.714Z",
+    "exitCode": 0
+  },
+  {
+    "name": "api-tests",
+    "command": "npm run test --workspace @brewlite/api -- --runInBand --watchman=false",
+    "startedAt": "2026-11-14T14:47:32.715Z",
+    "finishedAt": "2026-11-14T14:47:36.965Z",
+    "exitCode": 0
+  },
+  {
+    "name": "web-tests",
+    "command": "npm run test --workspace @brewlite/web",
+    "startedAt": "2026-11-14T14:47:36.965Z",
+    "finishedAt": "2026-11-14T14:47:40.021Z",
+    "exitCode": 0
+  },
+  {
+    "name": "build",
+    "command": "/opt/homebrew/Cellar/node/26.7.0/bin/node scripts/demo.cjs build",
+    "startedAt": "2026-11-14T14:47:40.021Z",
+    "finishedAt": "2026-11-14T14:47:48.688Z",
+    "exitCode": 0
+  },
+  {
+    "name": "diff-check",
+    "command": "git diff --check",
+    "startedAt": "2026-11-14T14:47:48.688Z",
+    "finishedAt": "2026-11-14T14:47:48.704Z",
+    "exitCode": 0
+  }
+]

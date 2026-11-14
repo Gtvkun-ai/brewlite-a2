@@ -1,0 +1,20 @@
+{
+  "payment": {
+    "paymentId": "cmwgiwarv0012ex8kggqx3itp",
+    "orderId": "cmwgiwarm000yex8kbevq6d64",
+    "status": "SUCCESS",
+    "orderStatus": "PAID",
+    "amount": "54000",
+    "method": "DOMESTIC_ATM",
+    "transactionRef": "MOCK-1794667843723-DOMESTIC_ATM",
+    "createdAt": "2026-11-14T14:50:43.723Z"
+  },
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "overflow": {
+    "width": 390,
+    "scroll": 390
+  }
+}

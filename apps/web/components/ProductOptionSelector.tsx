@@ -5,13 +5,15 @@ import React, { useState } from 'react';
 import {
   calculateItemTotal,
   calculateUnitPrice,
-   sanitizeToppings,
+  sanitizeToppings,
+  SUGAR_OPTIONS,
+  ICE_OPTIONS,
   SIZE_OPTIONS,
   TOPPING_OPTIONS,
   useCart,
 } from '../context/CartContext';
 import { formatVnd } from '../lib/format';
-import type { CartItem, ItemSize, Product, ToppingCode } from '../lib/types';
+import type { CartItem, IceLevel, ItemSize, Product, SugarLevel, ToppingCode } from '../lib/types';
 
 export interface ProductOptionSelectorProps {
   product: Product;
@@ -32,8 +34,8 @@ export function ProductOptionSelector({
 
   // Thức uống: Tùy biến đá và đường (Theo công thức chuẩn)
   const isBeverage = product.category !== 'Pastry';
-  const [selectedSugar, setSelectedSugar] = useState<string>('100% Chuẩn vị');
-  const [selectedIce, setSelectedIce] = useState<string>('100% Đá');
+  const [selectedSugar, setSelectedSugar] = useState<SugarLevel>(100);
+  const [selectedIce, setSelectedIce] = useState<IceLevel>('NORMAL');
 
   const isOutOfStock = !product.isAvailable || product.stockQuantity <= 0;
   const maxStock = product.stockQuantity > 0 ? product.stockQuantity : 99;
@@ -79,26 +81,18 @@ export function ProductOptionSelector({
       basePrice: String(product.basePrice),
       size: selectedSize,
       toppings: cleanToppings,
+      sugar: isBeverage ? selectedSugar : 100,
+      ice: isBeverage ? selectedIce : 'NORMAL',
       quantity,
       unitPrice: String(unitPrice),
       itemTotal: String(itemTotal),
       imageUrl: product.imageUrl,
+      category: product.category,
     };
 
     addItem(cartItem);
 
-    // Ghép ghi chú pha chế nếu khách tùy chỉnh đường hoặc đá khác chuẩn
-    let finalNote = noteInput.trim();
-    if (isBeverage && (selectedSugar !== '100% Chuẩn vị' || selectedIce !== '100% Đá')) {
-      const customPrefix = `${selectedSugar}, ${selectedIce}`;
-      if (!finalNote.includes(selectedSugar) && !finalNote.includes(selectedIce)) {
-        finalNote = finalNote ? `${customPrefix} · ${finalNote}` : customPrefix;
-      }
-    }
-
-    if (finalNote) {
-      setDeliveryNote(finalNote);
-    }
+    setDeliveryNote(noteInput.trim());
 
     setAddedSuccess(true);
     onAdded?.(cartItem);
@@ -179,7 +173,7 @@ export function ProductOptionSelector({
         <div className="customization-section" data-testid="customization-sugar-ice">
           <div className="customization-section__header">
             <span className="customization-section__title">Tùy biến pha chế</span>
-            {selectedSugar === '100% Chuẩn vị' && selectedIce === '100% Đá' ? (
+            {selectedSugar === 100 && selectedIce === 'NORMAL' ? (
               <span className="badge badge--accent">Theo công thức chuẩn</span>
             ) : (
               <span className="badge badge--neutral">Đã tùy chỉnh gu riêng</span>
@@ -189,18 +183,15 @@ export function ProductOptionSelector({
           {/* Chọn mức đường */}
           <div className="mb-2">
             <div className="text-xs font-semibold text-muted mb-1">Độ ngọt (Mức đường):</div>
-            <div className="pill-group">
-              {[
-                { val: '100% Chuẩn vị', label: '100% (Chuẩn)' },
-                { val: '70% Ít ngọt', label: '70% (Ít ngọt)' },
-                { val: '50% Ngọt vừa', label: '50% (Vừa)' },
-                { val: '0% Không đường', label: '0% (Không đường)' },
-              ].map((opt) => (
+            <div className="pill-group" role="group" aria-label="Mức đường">
+              {SUGAR_OPTIONS.map((opt) => (
                 <button
-                  key={opt.val}
+                  key={opt.code}
                   type="button"
-                  className={`pill-btn ${selectedSugar === opt.val ? 'pill-btn--active' : ''}`}
-                  onClick={() => setSelectedSugar(opt.val)}
+                  className={`pill-btn ${selectedSugar === opt.code ? 'pill-btn--active' : ''}`}
+                  aria-pressed={selectedSugar === opt.code}
+                  data-testid={`sugar-${opt.code}`}
+                  onClick={() => { setSelectedSugar(opt.code); setAddedSuccess(false); }}
                   disabled={isOutOfStock}
                 >
                   {opt.label}
@@ -212,18 +203,15 @@ export function ProductOptionSelector({
           {/* Chọn mức đá */}
           <div>
             <div className="text-xs font-semibold text-muted mb-1">Lượng đá:</div>
-            <div className="pill-group">
-              {[
-                { val: '100% Đá', label: '100% (Chuẩn)' },
-                { val: '50% Ít đá', label: '50% (Ít đá)' },
-                { val: 'Đá riêng', label: 'Để đá riêng' },
-                { val: 'Không đá', label: 'Không đá' },
-              ].map((opt) => (
+            <div className="pill-group" role="group" aria-label="Lượng đá">
+              {ICE_OPTIONS.map((opt) => (
                 <button
-                  key={opt.val}
+                  key={opt.code}
                   type="button"
-                  className={`pill-btn ${selectedIce === opt.val ? 'pill-btn--active' : ''}`}
-                  onClick={() => setSelectedIce(opt.val)}
+                  className={`pill-btn ${selectedIce === opt.code ? 'pill-btn--active' : ''}`}
+                  aria-pressed={selectedIce === opt.code}
+                  data-testid={`ice-${opt.code}`}
+                  onClick={() => { setSelectedIce(opt.code); setAddedSuccess(false); }}
                   disabled={isOutOfStock}
                 >
                   {opt.label}
@@ -237,13 +225,13 @@ export function ProductOptionSelector({
       {/* 4. Ghi chú cấp đơn (Contract Mục 5.1: deliveryNote cấp đơn, không nhét vào selectedToppings) */}
       <div className="option-group">
         <label className="form-label" htmlFor="product-delivery-note">
-          Ghi chú đơn hàng / Pha chế (tùy chọn)
+          Ghi chú đơn hàng (tùy chọn)
         </label>
         <input
           id="product-delivery-note"
           type="text"
           className="form-input"
-          placeholder="VD: Ít đá, 50% đường, giao tại bàn..."
+          placeholder="VD: Giao tại bàn số 4..."
           value={noteInput}
           onChange={(e) => {
             setNoteInput(e.target.value);
@@ -253,7 +241,7 @@ export function ProductOptionSelector({
           data-testid="product-note"
         />
         <p className="form-hint">
-          Ghi chú sẽ được đính kèm vào đơn hàng (`deliveryNote`) khi thanh toán.
+          Ghi chú áp dụng cho toàn bộ đơn hàng. Mức đường và đá được lưu riêng cho từng món.
         </p>
       </div>
 

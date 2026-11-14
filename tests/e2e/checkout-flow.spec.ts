@@ -5,11 +5,11 @@ import { E2E_FAIL_ACCOUNT_REF, E2E_USER } from './test-data';
 test.describe('Orders UI (fixture mode)', () => {
   // Next dev biên dịch từng trang ở lần truy cập đầu tiên.
   // Truy cập trước để các test bên dưới không phụ thuộc tốc độ biên dịch.
-  test.beforeAll(async ({ browser }) => {
+  test.beforeAll(async ({ browser, baseURL }) => {
     test.setTimeout(180_000);
     const page = await browser.newPage();
-    await page.goto('http://localhost:3100/orders', { timeout: 120_000 });
-    await page.goto('http://localhost:3100/orders/fx-1001', { timeout: 120_000 });
+    await page.goto(`${baseURL}/orders`, { timeout: 120_000 });
+    await page.goto(`${baseURL}/orders/fx-1001`, { timeout: 120_000 });
     await page.close();
   });
 
@@ -24,19 +24,24 @@ test.describe('Orders UI (fixture mode)', () => {
     await page.goto('/orders');
     await page.getByRole('link', { name: '#FX-20261106-001' }).click();
     await expect(page).toHaveURL(/\/orders\/fx-1001$/);
+    await expect(page.getByRole('heading', { name: 'Chi tiết đơn hàng #FX-20261106-001' })).toBeVisible();
     await expect(page.getByTestId('step-PREPARING')).toHaveAttribute('data-state', 'current');
+    await expect(page.getByTestId('step-PREPARING')).toHaveAttribute('aria-current', 'step');
+    await expect(page.getByTestId('step-PREPARING')).toHaveText('Đang pha chế');
     await expect(page.getByTestId('step-PAID')).toHaveAttribute('data-state', 'done');
+    await expect(page.getByTestId('step-PAID')).toHaveText('Đã thanh toán');
   });
 
   test('TC-05: PAYMENT_FAILED order shows a terminal state', async ({ page }) => {
     await page.goto('/orders/fx-1003');
     await expect(page.getByTestId('order-terminal-state')).toBeVisible();
+    await expect(page.getByTestId('order-terminal-state')).toHaveText('Thanh toán thất bại');
     await expect(page.getByTestId('step-PAID')).toHaveCount(0);
   });
 
   test('unknown order shows not-found with Retry', async ({ page }) => {
     await page.goto('/orders/abc');
-    await expect(page.getByText('Order not found.')).toBeVisible();
+    await expect(page.getByText('Không tìm thấy đơn hàng.')).toBeVisible();
     await expect(page.getByRole('button', { name: /retry/i })).toBeVisible();
   });
 });

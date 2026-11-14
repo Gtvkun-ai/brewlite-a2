@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="vi">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>BrewLite — Audit nghiệm thu 14/11/2026</title
+  ><style>
+    body {
+      margin: 0;
+      background: #f6f3ee;
+      color: #28211c;
+      font: 16px/1.6 system-ui;
+    }
+    main {
+      max-width: 1120px;
+      margin: auto;
+      padding: 36px 24px;
+    }
+    h1 {
+      font-size: 36px;
+      line-height: 1.2;
+    }
+    a {
+      color: #8b4f2d;
+    }
+    .pill {
+      display: inline-block;
+      background: #e0f0de;
+      color: #235b29;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 700;
+    }
+    .stats {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .stats p {
+      background: white;
+      padding: 18px 24px;
+      border-radius: 14px;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 20px;
+    }
+    .gallery a {
+      display: block;
+      background: white;
+      padding: 14px;
+      border-radius: 12px;
+      overflow: hidden;
+      word-break: break-word;
+    }
+    .gallery img {
+      width: 100%;
+      height: 260px;
+      object-fit: contain;
+      background: #eee8e0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    td,
+    th {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    code {
+      background: #eae3da;
+      padding: 3px 6px;
+      border-radius: 4px;
+    }
+    .notice {
+      padding: 18px;
+      background: #fff1d5;
+      border-radius: 12px;
+    }
+    footer {
+      margin-top: 36px;
+    }
+  </style>
+  <main>
+    <span class="pill">6/6 Chrome thật PASS</span>
+    <h1>BrewLite · Audit nghiệm thu demo</h1>
+    <p>14/11/2026 · Chrome có cửa sổ · Next.js / NestJS / PostgreSQL thật</p>
+    <div class="stats">
+      <p><strong>110</strong> test API PASS</p>
+      <p><strong>95</strong> test frontend PASS</p>
+      <p><strong>Lint + Build</strong> PASS</p>
+      <p><strong>390px mobile</strong> PASS</p>
+    </div>
+    <p>
+      Đơn <strong>BL-20261114-Q2TW</strong>: Cà phê muối, 70% đường, 50% đá,
+      Large, trân châu. Tổng tiền <strong>54.000đ</strong>. Đã thanh toán → Đang
+      pha chế → Sẵn sàng → Hoàn tất từ trạng thái DB.
+    </p>
+    <p>
+      <a href="AUDIT.md">Báo cáo chi tiết</a> ·
+      <a href="playwright-report/index.html">Playwright report</a> ·
+      <a href="database-verification.json">Đối chiếu database</a> ·
+      <a href="checks/results.json">Log kiểm chứng</a>
+    </p>
+    <p class="notice">
+      Dependency audit: 12 cảnh báo (6 high). Xem
+      <a href="dependency-audit.json">chi tiết</a>. Mobile là viewport Chrome
+      desktop. Menu khách kiểm tra sau reload; realtime đơn dùng polling3s và
+      worker demo cập nhật DB.
+    </p>
+    <h2>Video và trace</h2>
+    <table>
+      <tr>
+        <th>Kịch bản</th>
+        <th>Giây</th>
+        <th>Evidence</th>
+      </tr>
+      <tr>
+        <td>
+          Desktop: menu, 70/50 Large topping, drawer, wallet, live order
+          progression
+        </td>
+        <td>38.2</td>
+        <td>
+          <a
+            href="browser-artifacts/demo-acceptance-Desktop-me-5ee6c-llet-live-order-progression/video.webm"
+            >Video</a
+          >
+          ·
+          <a
+            href="browser-artifacts/demo-acceptance-Desktop-me-5ee6c-llet-live-order-progression/trace.zip"
+            >Trace</a
+          >
+        </td>
+      </tr>
+      <tr>
+        <td>Mobile 390px: customized drink and simulated card checkout</td>
+        <td>2.9</td>
+        <td>
+          <a
+            href="browser-artifacts/demo-acceptance-Mobile-390-3b020-and-simulated-card-checkout/video.webm"
+            >Video</a
+          >
+          ·
+          <a
+            href="browser-artifacts/demo-acceptance-Mobile-390-3b020-and-simulated-card-checkout/trace.zip"
+            >Trace</a
+          >
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Payment failure and retry: same order, fresh attempt, inventory
+          deducted once
+        </td>
+        <td>3.6</td>
+        <td>
+          <a
+            href="browser-artifacts/demo-acceptance-Payment-fa-12e0b-mpt-inventory-deducted-once/video.webm"
+            >Video</a
+          >
+          ·
+          <a
+            href="browser-artifacts/demo-acceptance-Payment-fa-12e0b-mpt-inventory-deducted-once/trace.zip"
+            >Trace</a
+          >
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Admin: real login, availability toggle reaches customer, new product
+          persists
+        </td>
+        <td>2.8</td>
+        <td>
+          <a
+            href="browser-artifacts/demo-acceptance-Admin-real-c7ae6-stomer-new-product-persists/video.webm"
+            >Video</a
+          >
+          ·
+          <a
+            href="browser-artifacts/demo-acceptance-Admin-real-c7ae6-stomer-new-product-persists/trace.zip"
+            >Trace</a
+          >
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Real API negatives: unauthenticated/customer admin denied, server
+          price and option validation
+        </td>
+        <td>0.8</td>
+        <td>
+          <a
+            href="browser-artifacts/demo-acceptance-Real-API-n-82422-price-and-option-validation/video.webm"
+            >Video</a
+          >
+          ·
+          <a
+            href="browser-artifacts/demo-acceptance-Real-API-n-82422-price-and-option-validation/trace.zip"
+            >Trace</a
+          >
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Guest cart survives login and offline checkout never fabricates a paid
+          order
+        </td>
+        <td>3.7</td>
+        <td>
+          <a
+            href="browser-artifacts/demo-acceptance-Guest-cart-b06d2-ver-fabricates-a-paid-order/video.webm"
+            >Video</a
+          >
+          ·
+          <a
+            href="browser-artifacts/demo-acceptance-Guest-cart-b06d2-ver-fabricates-a-paid-order/trace.zip"
+            >Trace</a
+          >
+        </td>
+      </tr>
+    </table>
+    <h2>Ảnh nghiệm thu</h2>
+    <div class="gallery">
+      <a href="screenshots/admin-01-products.png"
+        ><img
+          loading="lazy"
+          src="screenshots/admin-01-products.png"
+          alt="admin-01-products.png"
+        /><span>admin-01-products</span></a
+      ><a href="screenshots/admin-02-salt-unavailable.png"
+        ><img
+          loading="lazy"
+          src="screenshots/admin-02-salt-unavailable.png"
+          alt="admin-02-salt-unavailable.png"
+        /><span>admin-02-salt-unavailable</span></a
+      ><a href="screenshots/admin-03-customer-out-of-stock.png"
+        ><img
+          loading="lazy"
+          src="screenshots/admin-03-customer-out-of-stock.png"
+          alt="admin-03-customer-out-of-stock.png"
+        /><span>admin-03-customer-out-of-stock</span></a
+      ><a href="screenshots/admin-04-create-product-form.png"
+        ><img
+          loading="lazy"
+          src="screenshots/admin-04-create-product-form.png"
+          alt="admin-04-create-product-form.png"
+        /><span>admin-04-create-product-form</span></a
+      ><a href="screenshots/admin-05-new-product-persisted.png"
+        ><img
+          loading="lazy"
+          src="screenshots/admin-05-new-product-persisted.png"
+          alt="admin-05-new-product-persisted.png"
+        /><span>admin-05-new-product-persisted</span></a
+      ><a href="screenshots/admin-06-new-product-customer-menu.png"
+        ><img
+          loading="lazy"
+          src="screenshots/admin-06-new-product-customer-menu.png"
+          alt="admin-06-new-product-customer-menu.png"
+        /><span>admin-06-new-product-customer-menu</span></a
+      ><a href="screenshots/desktop-01-menu-Coffee.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-01-menu-Coffee.png"
+          alt="desktop-01-menu-Coffee.png"
+        /><span>desktop-01-menu-Coffee</span></a
+      ><a href="screenshots/desktop-01-menu-Pastry.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-01-menu-Pastry.png"
+          alt="desktop-01-menu-Pastry.png"
+        /><span>desktop-01-menu-Pastry</span></a
+      ><a href="screenshots/desktop-01-menu-Tea.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-01-menu-Tea.png"
+          alt="desktop-01-menu-Tea.png"
+        /><span>desktop-01-menu-Tea</span></a
+      ><a href="screenshots/desktop-02-customization-70-50-large-topping.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-02-customization-70-50-large-topping.png"
+          alt="desktop-02-customization-70-50-large-topping.png"
+        /><span>desktop-02-customization-70-50-large-topping</span></a
+      ><a href="screenshots/desktop-03-cart-drawer-54000.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-03-cart-drawer-54000.png"
+          alt="desktop-03-cart-drawer-54000.png"
+        /><span>desktop-03-cart-drawer-54000</span></a
+      ><a href="screenshots/desktop-04-wallet-checkout.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-04-wallet-checkout.png"
+          alt="desktop-04-wallet-checkout.png"
+        /><span>desktop-04-wallet-checkout</span></a
+      ><a href="screenshots/desktop-05-paid-order.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-05-paid-order.png"
+          alt="desktop-05-paid-order.png"
+        /><span>desktop-05-paid-order</span></a
+      ><a href="screenshots/desktop-06-tracking-offline-retains-order.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-06-tracking-offline-retains-order.png"
+          alt="desktop-06-tracking-offline-retains-order.png"
+        /><span>desktop-06-tracking-offline-retains-order</span></a
+      ><a href="screenshots/desktop-07-status-COMPLETED.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-07-status-COMPLETED.png"
+          alt="desktop-07-status-COMPLETED.png"
+        /><span>desktop-07-status-COMPLETED</span></a
+      ><a href="screenshots/desktop-07-status-PREPARING.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-07-status-PREPARING.png"
+          alt="desktop-07-status-PREPARING.png"
+        /><span>desktop-07-status-PREPARING</span></a
+      ><a href="screenshots/desktop-07-status-READY.png"
+        ><img
+          loading="lazy"
+          src="screenshots/desktop-07-status-READY.png"
+          alt="desktop-07-status-READY.png"
+        /><span>desktop-07-status-READY</span></a
+      ><a href="screenshots/guest-01-offline-checkout-no-fake-payment.png"
+        ><img
+          loading="lazy"
+          src="screenshots/guest-01-offline-checkout-no-fake-payment.png"
+          alt="guest-01-offline-checkout-no-fake-payment.png"
+        /><span>guest-01-offline-checkout-no-fake-payment</span></a
+      ><a href="screenshots/guest-02-reconnected-order-success.png"
+        ><img
+          loading="lazy"
+          src="screenshots/guest-02-reconnected-order-success.png"
+          alt="guest-02-reconnected-order-success.png"
+        /><span>guest-02-reconnected-order-success</span></a
+      ><a href="screenshots/mobile-01-customization.png"
+        ><img
+          loading="lazy"
+          src="screenshots/mobile-01-customization.png"
+          alt="mobile-01-customization.png"
+        /><span>mobile-01-customization</span></a
+      ><a href="screenshots/mobile-02-drawer.png"
+        ><img
+          loading="lazy"
+          src="screenshots/mobile-02-drawer.png"
+          alt="mobile-02-drawer.png"
+        /><span>mobile-02-drawer</span></a
+      ><a href="screenshots/mobile-03-card-checkout.png"
+        ><img
+          loading="lazy"
+          src="screenshots/mobile-03-card-checkout.png"
+          alt="mobile-03-card-checkout.png"
+        /><span>mobile-03-card-checkout</span></a
+      ><a href="screenshots/mobile-04-order-detail.png"
+        ><img
+          loading="lazy"
+          src="screenshots/mobile-04-order-detail.png"
+          alt="mobile-04-order-detail.png"
+        /><span>mobile-04-order-detail</span></a
+      ><a href="screenshots/retry-01-declared-failure.png"
+        ><img
+          loading="lazy"
+          src="screenshots/retry-01-declared-failure.png"
+          alt="retry-01-declared-failure.png"
+        /><span>retry-01-declared-failure</span></a
+      ><a href="screenshots/retry-02-success-same-order.png"
+        ><img
+          loading="lazy"
+          src="screenshots/retry-02-success-same-order.png"
+          alt="retry-02-success-same-order.png"
+        /><span>retry-02-success-same-order</span></a
+      ><a href="screenshots/security-01-customer-denied-admin.png"
+        ><img
+          loading="lazy"
+          src="screenshots/security-01-customer-denied-admin.png"
+          alt="security-01-customer-denied-admin.png"
+        /><span>security-01-customer-denied-admin</span></a
+      >
+    </div>
+    <footer>
+      <p>
+        Web demo: <a href="http://localhost:3100">localhost:3100</a> · Admin:
+        <a href="http://localhost:3100/admin/products">/admin/products</a
+        ><br />Admin/Customer demo: <code>Password123!</code> ·
+        <a href="manifest-sha256.json">SHA-256 manifest</a>
+      </p>
+    </footer>
+  </main>
+</html>

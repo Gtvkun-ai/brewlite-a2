@@ -12,6 +12,8 @@ import type {
   CreateOrderItemDto,
   CreateOrderRequest,
   ItemSize,
+  IceLevel,
+  SugarLevel,
   ToppingCode,
 } from '../lib/types';
 
@@ -64,6 +66,38 @@ export const TOPPING_OPTIONS: {
   { code: 'KEM_CHEESE', label: 'Kem Cheese Macchiato', surcharge: 10000 },
   { code: 'THACH_DAO', label: 'Thạch đào', surcharge: 7000 },
 ];
+
+export const SUGAR_OPTIONS: { code: SugarLevel; label: string }[] = [
+  { code: 100, label: 'Đường 100% (Chuẩn)' },
+  { code: 70, label: 'Đường 70% (Ít ngọt)' },
+  { code: 50, label: 'Đường 50%' },
+  { code: 0, label: 'Không đường' },
+];
+
+export const ICE_OPTIONS: { code: IceLevel; label: string }[] = [
+  { code: 'NORMAL', label: 'Đá 100% (Chuẩn)' },
+  { code: 'LESS', label: 'Đá 50%' },
+  { code: 'SEPARATE', label: 'Để đá riêng' },
+  { code: 'NONE', label: 'Không đá' },
+];
+
+export function sanitizeSugar(value: unknown): SugarLevel {
+  return SUGAR_OPTIONS.some((option) => option.code === value)
+    ? value as SugarLevel
+    : 100;
+}
+
+export function sanitizeIce(value: unknown): IceLevel {
+  return ICE_OPTIONS.some((option) => option.code === value)
+    ? value as IceLevel
+    : 'NORMAL';
+}
+
+export function formatPreparation(sugar: unknown, ice: unknown): string {
+  const sugarLabel = SUGAR_OPTIONS.find((option) => option.code === sanitizeSugar(sugar))!.label;
+  const iceLabel = ICE_OPTIONS.find((option) => option.code === sanitizeIce(ice))!.label;
+  return `${sugarLabel} · ${iceLabel}`;
+}
 
 const VALID_SIZES = new Set<ItemSize>(['REGULAR', 'LARGE']);
 const VALID_TOPPINGS = new Set<ToppingCode>([
@@ -174,10 +208,13 @@ export function sanitizeCartItem(raw: unknown): CartItem | null {
     basePrice: String(parsedBase),
     size: candidate.size,
     toppings,
+    sugar: sanitizeSugar(candidate.sugar),
+    ice: sanitizeIce(candidate.ice),
     quantity,
     unitPrice: String(unitPriceNum),
     itemTotal: String(itemTotalNum),
     ...(candidate.imageUrl ? { imageUrl: candidate.imageUrl } : {}),
+    ...(typeof candidate.category === 'string' ? { category: candidate.category } : {}),
   };
 }
 
@@ -248,10 +285,12 @@ export interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function areConfigsEqual(
-  a: { productId: string; size: ItemSize; toppings: ToppingCode[] },
-  b: { productId: string; size: ItemSize; toppings: ToppingCode[] },
+  a: Pick<CartItem, 'productId' | 'size' | 'toppings' | 'sugar' | 'ice'>,
+  b: Pick<CartItem, 'productId' | 'size' | 'toppings' | 'sugar' | 'ice'>,
 ): boolean {
   if (a.productId !== b.productId || a.size !== b.size) return false;
+  if (sanitizeSugar(a.sugar) !== sanitizeSugar(b.sugar) ||
+      sanitizeIce(a.ice) !== sanitizeIce(b.ice)) return false;
   const sortedA = sanitizeToppings(a.toppings);
   const sortedB = sanitizeToppings(b.toppings);
   if (sortedA.length !== sortedB.length) return false;
@@ -452,7 +491,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Bàn giao payload chuẩn cho Role F (POST /orders):
-   * Chỉ gửi productId, quantity, selectedSize, selectedToppings.
+   * Gửi cấu hình món; đường và đá thuộc từng dòng món, không gộp vào ghi chú đơn.
    * Tuyệt đối KHÔNG gửi giá từ client lên server (Server-authoritative pricing).
    */
   const getOrderItemsPayload = useCallback((): CreateOrderItemDto[] => {
@@ -461,6 +500,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       quantity: it.quantity,
       selectedSize: it.size,
       selectedToppings: sanitizeToppings(it.toppings),
+      selectedSugar: sanitizeSugar(it.sugar),
+      selectedIce: sanitizeIce(it.ice),
     }));
   }, [items]);
 

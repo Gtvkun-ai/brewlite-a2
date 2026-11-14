@@ -60,10 +60,11 @@ export function Navbar() {
               href="/admin/products"
               className="navbar__admin-link"
               title="Quản trị thực đơn"
+              aria-label="Quản trị món"
               data-testid="admin-nav-link"
             >
               <ShieldCheck size={14} />
-              <span>Quản trị món</span>
+              <span className="navbar__admin-text">Quản trị món</span>
             </Link>
           )}
 
@@ -88,16 +89,17 @@ export function Navbar() {
             <div className="navbar__user" data-testid="user-info">
               <span className="navbar__username" title={user.email}>
                 <User size={15} className="navbar__user-icon" />
-                <span>{user.fullName || user.email.split('@')[0]}</span>
+                <span className="navbar__username-text">{user.fullName || user.email.split('@')[0]}</span>
               </span>
               <button
                 type="button"
                 onClick={logout}
                 className="navbar__logout-btn"
                 data-testid="logout-btn"
+                aria-label="Đăng xuất"
               >
                 <LogOut size={14} className="navbar__logout-icon" />
-                <span>Đăng xuất</span>
+                <span className="navbar__logout-text">Đăng xuất</span>
               </button>
             </div>
           ) : (

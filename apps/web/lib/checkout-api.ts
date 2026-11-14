@@ -16,6 +16,7 @@ const API_BASE_URL =
 export async function createOrderApi(
   request: CreateOrderRequest,
   token: string,
+  idempotencyKey?: string,
 ): Promise<OrderResponse> {
   try {
     const res = await fetch(`${API_BASE_URL}/orders`, {
@@ -23,6 +24,7 @@ export async function createOrderApi(
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
+        ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
       },
       body: JSON.stringify(request),
     });
@@ -45,31 +47,6 @@ export async function createOrderApi(
     return (await res.json()) as OrderResponse;
   } catch (err) {
     if (err instanceof ApiError) throw err;
-    if (process.env.NEXT_PUBLIC_USE_FIXTURES !== 'false') {
-      // Offline/Mock fallback for S1 fixture development
-      const orderCode = `BL-${Math.floor(1000 + Math.random() * 9000)}`;
-      const mockOrder: OrderResponse = {
-        id: `ord_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        code: orderCode,
-        status: 'PENDING',
-        subTotal: '100000',
-        discountAmount: '0',
-        totalAmount: '100000',
-        deliveryNote: request.deliveryNote,
-        createdAt: new Date().toISOString(),
-        items: request.items.map((it, idx) => ({
-          id: `item_${idx}`,
-          productId: it.productId,
-          productName: 'Đồ uống BrewLite',
-          quantity: it.quantity,
-          unitPrice: '50000',
-          selectedSize: it.selectedSize,
-          selectedToppings: it.selectedToppings,
-          itemTotal: (50000 * it.quantity).toString(),
-        })),
-      };
-      return mockOrder;
-    }
     throw new ApiError(500, 'Không thể kết nối đến máy chủ để tạo đơn hàng.');
   }
 }
@@ -110,31 +87,6 @@ export async function submitPaymentApi(
     return (await res.json()) as PaymentResponse;
   } catch (err) {
     if (err instanceof ApiError) throw err;
-    if (process.env.NEXT_PUBLIC_USE_FIXTURES !== 'false') {
-      // Simulate failure if accountRef equals 'FAIL'
-      if (request.accountRef === 'FAIL') {
-        return {
-          paymentId: `pay_fail_${Date.now()}`,
-          orderId: request.orderId,
-          status: 'FAILED',
-          orderStatus: 'PAYMENT_FAILED',
-          amount: '100000',
-          method: request.method,
-          message: 'Tài khoản không đủ số dư hoặc giao dịch bị từ chối.',
-        };
-      }
-      // Successful mock payment
-      return {
-        paymentId: `pay_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        orderId: request.orderId,
-        status: 'SUCCESS',
-        orderStatus: 'PAID',
-        amount: '100000',
-        method: request.method,
-        transactionRef: `TX_${Math.floor(100000 + Math.random() * 900000)}`,
-        message: 'Thanh toán thành công qua cổng mô phỏng.',
-      };
-    }
     throw new ApiError(500, 'Không thể kết nối tới cổng thanh toán.');
   }
 }

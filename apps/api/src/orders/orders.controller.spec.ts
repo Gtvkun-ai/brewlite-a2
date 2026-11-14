@@ -36,6 +36,8 @@ describe('OrdersController', () => {
         unitPrice: '50000',
         selectedSize: 'LARGE',
         selectedToppings: ['TRAN_CHAU'],
+        selectedSugar: 100,
+        selectedIce: 'NORMAL',
         itemTotal: '50000',
       },
     ],

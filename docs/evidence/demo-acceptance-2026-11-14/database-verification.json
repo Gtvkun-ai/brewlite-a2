@@ -1,0 +1,141 @@
+{
+  "checkedAt": "2026-11-14T14:51:13.853Z",
+  "result": "PASS",
+  "database": "brewlite_demo@127.0.0.1:55432",
+  "orders": [
+    {
+      "id": "cmwgivhts000sex8k5aqo78vw",
+      "code": "BL-20261114-Q2TW",
+      "status": "COMPLETED",
+      "totalAmount": "54000",
+      "items": [
+        {
+          "productId": "cmwgi54kl0000exwsae7yvs3r",
+          "quantity": 1,
+          "selectedSize": "LARGE",
+          "selectedToppings": [
+            "TRAN_CHAU"
+          ],
+          "selectedSugar": 70,
+          "selectedIce": "LESS",
+          "unitPrice": "54000",
+          "itemTotal": "54000"
+        }
+      ],
+      "payments": [
+        {
+          "id": "cmwgivhu4000wex8kj6mq0zqe",
+          "method": "E_WALLET",
+          "status": "SUCCESS",
+          "amount": "54000"
+        }
+      ]
+    },
+    {
+      "id": "cmwgiwarm000yex8kbevq6d64",
+      "code": "BL-20261114-U0DB",
+      "status": "READY",
+      "totalAmount": "54000",
+      "items": [
+        {
+          "productId": "cmwgi54kl0000exwsae7yvs3r",
+          "quantity": 1,
+          "selectedSize": "LARGE",
+          "selectedToppings": [
+            "TRAN_CHAU"
+          ],
+          "selectedSugar": 70,
+          "selectedIce": "LESS",
+          "unitPrice": "54000",
+          "itemTotal": "54000"
+        }
+      ],
+      "payments": [
+        {
+          "id": "cmwgiwarv0012ex8kggqx3itp",
+          "method": "DOMESTIC_ATM",
+          "status": "SUCCESS",
+          "amount": "54000"
+        }
+      ]
+    },
+    {
+      "id": "cmwgiwjj4001dex8kidi628wc",
+      "code": "BL-20261114-FBH0",
+      "status": "PREPARING",
+      "totalAmount": "39000",
+      "items": [
+        {
+          "productId": "cmwgi54kl0000exwsae7yvs3r",
+          "quantity": 1,
+          "selectedSize": "REGULAR",
+          "selectedToppings": [],
+          "selectedSugar": 100,
+          "selectedIce": "NORMAL",
+          "unitPrice": "39000",
+          "itemTotal": "39000"
+        }
+      ],
+      "payments": [
+        {
+          "id": "cmwgiwjjd001hex8k2xamujnf",
+          "method": "E_WALLET",
+          "status": "SUCCESS",
+          "amount": "39000"
+        }
+      ]
+    },
+    {
+      "id": "cmwgiwdeh0014ex8kucmapons",
+      "code": "BL-20261114-3P4Q",
+      "status": "READY",
+      "totalAmount": "39000",
+      "items": [
+        {
+          "productId": "cmwgi54kl0000exwsae7yvs3r",
+          "quantity": 1,
+          "selectedSize": "REGULAR",
+          "selectedToppings": [],
+          "selectedSugar": 100,
+          "selectedIce": "NORMAL",
+          "unitPrice": "39000",
+          "itemTotal": "39000"
+        }
+      ],
+      "payments": [
+        {
+          "id": "cmwgiwdep0018ex8k1ktwjg7i",
+          "method": "E_WALLET",
+          "status": "FAILED",
+          "amount": "39000"
+        },
+        {
+          "id": "cmwgiwdhy001aex8ktxzfxo17",
+          "method": "E_WALLET",
+          "status": "SUCCESS",
+          "amount": "39000"
+        }
+      ]
+    }
+  ],
+  "products": [
+    {
+      "id": "cmwgiwgf1001bex8kff2jusmn",
+      "code": "AUD-1794667850605",
+      "name": "Trà sen demo 50605",
+      "category": "Tea",
+      "basePrice": "42000",
+      "isAvailable": true,
+      "stockQuantity": 12
+    },
+    {
+      "id": "cmwgi54kl0000exwsae7yvs3r",
+      "code": "CF-SALT",
+      "name": "Cà phê muối",
+      "category": "Coffee",
+      "basePrice": "39000",
+      "isAvailable": true,
+      "stockQuantity": 78
+    }
+  ]
+}
