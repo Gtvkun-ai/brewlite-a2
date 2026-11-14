@@ -1,18 +1,32 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import {
+  Coffee,
+  CupSoda,
+  Croissant,
+  LayoutGrid,
+  Search,
+  X,
+  Zap,
+  Flame,
+  Leaf,
+  Gift,
+} from 'lucide-react';
 import { fetchProducts } from '../lib/api';
 import type { Product } from '../lib/types';
 import ProductCard from '../components/ProductCard';
+import QuickOrderModal from '../components/QuickOrderModal';
 import { Empty, Error, Loading } from '../components/States';
 
 type Status = 'loading' | 'success' | 'error';
 
 const CATEGORIES = [
-  { key: 'ALL', label: 'Tất cả món', icon: '✨' },
-  { key: 'Coffee', label: 'Cà phê', icon: '☕' },
-  { key: 'Tea', label: 'Trà & Trà sữa', icon: '🍵' },
-  { key: 'Pastry', label: 'Bánh ngọt', icon: '🥐' },
+  { key: 'ALL', label: 'Tất cả món', icon: LayoutGrid },
+  { key: 'Coffee', label: 'Cà phê', icon: Coffee },
+  { key: 'Tea', label: 'Trà & Trà sữa', icon: CupSoda },
+  { key: 'Pastry', label: 'Bánh ngọt', icon: Croissant },
 ];
 
 export default function MenuPage() {
@@ -20,6 +34,7 @@ export default function MenuPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const load = useCallback(async () => {
     setStatus('loading');
@@ -52,34 +67,51 @@ export default function MenuPage() {
 
   return (
     <main className="page menu-page">
-      {/* Hero Banner */}
-      <section className="hero-banner">
-        <div className="hero-banner__overlay">
-          <div className="hero-banner__content">
-            <span className="hero-banner__badge">☕ Rang xay mộc nguyên bản 100%</span>
-            <h1 className="hero-banner__title">BrewLite Coffee & Tea</h1>
-            <p className="hero-banner__subtitle">
-              Đánh thức mọi giác quan với hương vị cà phê Robusta tuyển chọn và các dòng trà trái cây thanh nhiệt. Đặt món nhanh, nhận đồ uống chuẩn gu trong 15 phút!
-            </p>
-            <div className="hero-banner__features">
-              <span className="hero-feature">⚡ Pha chế tại quầy</span>
-              <span className="hero-feature">🌱 Nguyên liệu tươi mới</span>
-              <span className="hero-feature">🛵 Giao hàng tận nơi</span>
-            </div>
-          </div>
+      {/* Sleek Specialty Coffee Hero Banner */}
+      <section className="hero-compact" aria-label="Giới thiệu BrewLite">
+        <div className="hero-compact__badge">
+          <Flame size={13} />
+          <span>Hạt Mộc Cầu Đất · Rang Xay Tươi Mới Mỗi Ngày</span>
+        </div>
+
+        <h1 className="hero-compact__title">
+          Ly nước đắng từ gốc, <span>cuộc đời ngọt tại tâm.</span>
+        </h1>
+
+        <p className="hero-compact__desc">
+          Cà phê rang mộc và trà thơm tuyển chọn mỗi ngày. Một chút ấm áp cho ngày làm việc và học tập tràn đầy cảm hứng tại SGU Campus.
+        </p>
+
+        <div className="hero-compact__features">
+          <span className="hero-compact__feature-item">
+            <Coffee size={14} />
+            <span>100% Hạt Mộc Cầu Đất</span>
+          </span>
+          <span className="hero-compact__feature-item">
+            <Zap size={14} />
+            <span>Pha Tươi Tại Quầy</span>
+          </span>
+          <span className="hero-compact__feature-item">
+            <Leaf size={14} />
+            <span>Trà Thơm Tuyển Chọn</span>
+          </span>
+          <Link href="/loyalty" className="hero-compact__feature-item" style={{ background: 'rgba(194, 120, 71, 0.25)', borderColor: 'rgba(194, 120, 71, 0.5)' }}>
+            <Gift size={14} />
+            <span>Tích điểm đổi Voucher</span>
+          </Link>
         </div>
       </section>
 
       {/* Menu Filters & Search Header */}
-      <header className="page__header menu-header">
-        <div>
+      <header id="menu-catalog" className="page__header menu-header">
+        <div className="menu-header__titles">
           <h2 className="page__title">Thực đơn hôm nay</h2>
           <p className="page__subtitle">Chọn thức uống và món bánh yêu thích của bạn</p>
         </div>
 
-        {/* Live Search */}
+        {/* Live Search Bar */}
         <div className="search-bar">
-          <span className="search-bar__icon" aria-hidden="true">🔍</span>
+          <Search size={18} className="search-bar__icon" aria-hidden="true" />
           <input
             type="text"
             className="search-bar__input"
@@ -95,68 +127,74 @@ export default function MenuPage() {
               onClick={() => setSearchQuery('')}
               aria-label="Xóa tìm kiếm"
             >
-              ✕
+              <X size={15} />
             </button>
           )}
         </div>
       </header>
 
       {/* Category Pills */}
-      <div className="category-tabs" role="tablist">
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat.key}
-            type="button"
-            role="tab"
-            aria-selected={selectedCategory === cat.key}
-            className={`category-tab ${selectedCategory === cat.key ? 'category-tab--active' : ''}`}
-            onClick={() => setSelectedCategory(cat.key)}
-          >
-            <span className="category-tab__icon">{cat.icon}</span>
-            <span className="category-tab__label">{cat.label}</span>
-          </button>
-        ))}
-      </div>
+      <nav className="category-tabs" aria-label="Bộ lọc danh mục món">
+        {CATEGORIES.map((cat) => {
+          const Icon = cat.icon;
+          const isActive = selectedCategory === cat.key;
+          return (
+            <button
+              key={cat.key}
+              type="button"
+              className={`category-tab ${isActive ? 'category-tab--active' : ''}`}
+              onClick={() => setSelectedCategory(cat.key)}
+            >
+              <Icon size={16} className="category-tab__icon" />
+              <span className="category-tab__label">{cat.label}</span>
+              {cat.key !== 'ALL' && (
+                <span className="category-tab__count">
+                  {products.filter((p) => p.category.toLowerCase() === cat.key.toLowerCase()).length}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
 
+      {/* States or Catalog Grid */}
       {status === 'loading' && <Loading label="Loading menu…" />}
-
       {status === 'error' && (
-        <Error message="We couldn't load the menu." onRetry={load} />
+        <Error
+          message="Không thể kết nối với máy chủ API. Vui lòng kiểm tra mạng hoặc thử lại."
+          onRetry={load}
+        />
       )}
-
       {status === 'success' && products.length === 0 && (
         <Empty
           title="Menu is empty"
-          message="No products are available right now. Check back soon."
+          message="Hiện chưa có món nào trong thực đơn. Vui lòng quay lại sau."
         />
       )}
-
       {status === 'success' && products.length > 0 && filteredProducts.length === 0 && (
-        <div className="state empty-filter-state">
-          <div className="state__icon">🔍</div>
-          <h3 className="state__title">Không tìm thấy món phù hợp</h3>
-          <p className="page__subtitle">
-            Không có kết quả nào cho từ khóa &quot;{searchQuery}&quot;. Thử tìm món khác hoặc bấm xem tất cả!
-          </p>
-          <button
-            type="button"
-            className="btn btn--primary mt-3"
-            onClick={() => {
-              setSelectedCategory('ALL');
-              setSearchQuery('');
-            }}
-          >
-            Xem tất cả thực đơn
-          </button>
-        </div>
+        <Empty
+          title="Không tìm thấy món phù hợp"
+          message={`Không có kết quả nào cho "${searchQuery}". Hãy thử tìm tên khác hoặc chọn lại danh mục.`}
+        />
+      )}
+      {status === 'success' && filteredProducts.length > 0 && (
+        <section className="grid product-grid" data-testid="product-grid">
+          {filteredProducts.map((p) => (
+            <ProductCard
+              key={p.id}
+              product={p}
+              onSelect={setSelectedProduct}
+            />
+          ))}
+        </section>
       )}
 
-      {status === 'success' && filteredProducts.length > 0 && (
-        <div className="grid">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+      {/* Quick Order Modal (Đặt món trực tiếp trên trang) */}
+      {selectedProduct && (
+        <QuickOrderModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
       )}
     </main>
   );

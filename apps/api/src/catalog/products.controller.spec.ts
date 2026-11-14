@@ -22,12 +22,18 @@ describe('ProductsController', () => {
   let service: {
     findAll: jest.Mock;
     findOne: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    remove: jest.Mock;
   };
 
   beforeEach(async () => {
     service = {
       findAll: jest.fn(),
       findOne: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      remove: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -58,5 +64,38 @@ describe('ProductsController', () => {
     await expect(controller.findOne('missing')).rejects.toBeInstanceOf(
       NotFoundException,
     );
+  });
+
+  it('POST /products delegates to service.create', async () => {
+    service.create.mockResolvedValue(mockProduct);
+
+    await expect(
+      controller.create({
+        code: 'ESP-001',
+        name: 'Classic Espresso',
+        basePrice: 35000,
+        imageUrl: '/img/esp.jpg',
+        category: 'Coffee',
+      }),
+    ).resolves.toEqual(mockProduct);
+    expect(service.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PATCH /products/:id delegates to service.update', async () => {
+    service.update.mockResolvedValue({ ...mockProduct, isAvailable: false });
+
+    await expect(
+      controller.update('prod-1', { isAvailable: false }),
+    ).resolves.toEqual({ ...mockProduct, isAvailable: false });
+    expect(service.update).toHaveBeenCalledWith('prod-1', {
+      isAvailable: false,
+    });
+  });
+
+  it('DELETE /products/:id delegates to service.remove', async () => {
+    service.remove.mockResolvedValue(mockProduct);
+
+    await expect(controller.remove('prod-1')).resolves.toEqual(mockProduct);
+    expect(service.remove).toHaveBeenCalledWith('prod-1');
   });
 });

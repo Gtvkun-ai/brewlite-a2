@@ -30,6 +30,11 @@ export function ProductOptionSelector({
   const [noteInput, setNoteInput] = useState<string>(deliveryNote || '');
   const [addedSuccess, setAddedSuccess] = useState<boolean>(false);
 
+  // Thức uống: Tùy biến đá và đường (Theo công thức chuẩn)
+  const isBeverage = product.category !== 'Pastry';
+  const [selectedSugar, setSelectedSugar] = useState<string>('100% Chuẩn vị');
+  const [selectedIce, setSelectedIce] = useState<string>('100% Đá');
+
   const isOutOfStock = !product.isAvailable || product.stockQuantity <= 0;
   const maxStock = product.stockQuantity > 0 ? product.stockQuantity : 99;
 
@@ -81,9 +86,20 @@ export function ProductOptionSelector({
     };
 
     addItem(cartItem);
-    if (noteInput.trim()) {
-      setDeliveryNote(noteInput.trim());
+
+    // Ghép ghi chú pha chế nếu khách tùy chỉnh đường hoặc đá khác chuẩn
+    let finalNote = noteInput.trim();
+    if (isBeverage && (selectedSugar !== '100% Chuẩn vị' || selectedIce !== '100% Đá')) {
+      const customPrefix = `${selectedSugar}, ${selectedIce}`;
+      if (!finalNote.includes(selectedSugar) && !finalNote.includes(selectedIce)) {
+        finalNote = finalNote ? `${customPrefix} · ${finalNote}` : customPrefix;
+      }
     }
+
+    if (finalNote) {
+      setDeliveryNote(finalNote);
+    }
+
     setAddedSuccess(true);
     onAdded?.(cartItem);
   };
@@ -158,7 +174,67 @@ export function ProductOptionSelector({
         </div>
       </div>
 
-      {/* 3. Ghi chú cấp đơn (Contract Mục 5.1: deliveryNote cấp đơn, không nhét vào selectedToppings) */}
+      {/* 3. Tùy chọn Độ ngọt (Đường) & Mức đá (Theo công thức chuẩn) */}
+      {isBeverage && (
+        <div className="customization-section" data-testid="customization-sugar-ice">
+          <div className="customization-section__header">
+            <span className="customization-section__title">Tùy biến pha chế</span>
+            {selectedSugar === '100% Chuẩn vị' && selectedIce === '100% Đá' ? (
+              <span className="badge badge--accent">Theo công thức chuẩn</span>
+            ) : (
+              <span className="badge badge--neutral">Đã tùy chỉnh gu riêng</span>
+            )}
+          </div>
+
+          {/* Chọn mức đường */}
+          <div className="mb-2">
+            <div className="text-xs font-semibold text-muted mb-1">Độ ngọt (Mức đường):</div>
+            <div className="pill-group">
+              {[
+                { val: '100% Chuẩn vị', label: '100% (Chuẩn)' },
+                { val: '70% Ít ngọt', label: '70% (Ít ngọt)' },
+                { val: '50% Ngọt vừa', label: '50% (Vừa)' },
+                { val: '0% Không đường', label: '0% (Không đường)' },
+              ].map((opt) => (
+                <button
+                  key={opt.val}
+                  type="button"
+                  className={`pill-btn ${selectedSugar === opt.val ? 'pill-btn--active' : ''}`}
+                  onClick={() => setSelectedSugar(opt.val)}
+                  disabled={isOutOfStock}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Chọn mức đá */}
+          <div>
+            <div className="text-xs font-semibold text-muted mb-1">Lượng đá:</div>
+            <div className="pill-group">
+              {[
+                { val: '100% Đá', label: '100% (Chuẩn)' },
+                { val: '50% Ít đá', label: '50% (Ít đá)' },
+                { val: 'Đá riêng', label: 'Để đá riêng' },
+                { val: 'Không đá', label: 'Không đá' },
+              ].map((opt) => (
+                <button
+                  key={opt.val}
+                  type="button"
+                  className={`pill-btn ${selectedIce === opt.val ? 'pill-btn--active' : ''}`}
+                  onClick={() => setSelectedIce(opt.val)}
+                  disabled={isOutOfStock}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Ghi chú cấp đơn (Contract Mục 5.1: deliveryNote cấp đơn, không nhét vào selectedToppings) */}
       <div className="option-group">
         <label className="form-label" htmlFor="product-delivery-note">
           Ghi chú đơn hàng / Pha chế (tùy chọn)

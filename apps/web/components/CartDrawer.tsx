@@ -3,6 +3,16 @@
 import Link from 'next/link';
 import React from 'react';
 import {
+  ShoppingBag,
+  X,
+  Coffee,
+  Trash2,
+  Minus,
+  Plus,
+  ArrowRight,
+  Sparkles,
+} from 'lucide-react';
+import {
   SIZE_OPTIONS,
   TOPPING_OPTIONS,
   useCart,
@@ -60,7 +70,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         <header className="cart-drawer__header">
           <div>
             <h2 className="cart-drawer__title">
-              🛒 Giỏ hàng ({totalCount})
+              <ShoppingBag size={20} className="inline mr-2 text-amber-600" />
+              <span>Giỏ hàng ({totalCount})</span>
             </h2>
             <p className="cart-drawer__subtitle">
               Kiểm tra cấu hình món trước khi đặt hàng
@@ -73,14 +84,16 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             data-testid="cart-drawer-close"
             aria-label="Đóng giỏ hàng"
           >
-            ✕
+            <X size={18} />
           </button>
         </header>
 
         <div className="cart-drawer__body">
           {items.length === 0 ? (
             <div className="state" data-testid="cart-drawer-empty">
-              <div className="state__icon">☕</div>
+              <div className="state__icon">
+                <Coffee size={40} className="text-amber-500" />
+              </div>
               <h3 className="state__title">Giỏ hàng đang trống</h3>
               <p className="page__subtitle">
                 Bạn chưa chọn món nào. Hãy chọn đồ uống yêu thích từ thực đơn nhé!
@@ -99,7 +112,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   onClick={loadFixtureCart}
                   data-testid="drawer-load-fixture-btn"
                 >
-                  Nạp giỏ hàng mẫu
+                  <Sparkles size={14} className="inline mr-1 text-amber-600" />
+                  <span>Nạp giỏ hàng mẫu</span>
                 </button>
               </div>
             </div>
@@ -151,7 +165,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           data-testid={`drawer-remove-${idx}`}
                           aria-label={`Xóa ${item.name}`}
                         >
-                          Xóa
+                          <Trash2 size={13} className="inline mr-1" />
+                          <span>Xóa</span>
                         </button>
                       </div>
                     </div>
@@ -185,7 +200,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           data-testid={`drawer-qty-decrease-${idx}`}
                           aria-label="Giảm số lượng"
                         >
-                          −
+                          <Minus size={13} />
                         </button>
                         <span
                           className="qty-value"
@@ -200,7 +215,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           data-testid={`drawer-qty-increase-${idx}`}
                           aria-label="Tăng số lượng"
                         >
-                          +
+                          <Plus size={13} />
                         </button>
                       </div>
                     </div>
@@ -251,7 +266,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 onClick={clearCart}
                 data-testid="drawer-clear-btn"
               >
-                Xóa tất cả
+                <Trash2 size={14} className="inline mr-1" />
+                <span>Xóa tất cả</span>
               </button>
               <Link
                 href="/cart"
@@ -267,7 +283,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 onClick={handleClose}
                 data-testid="drawer-checkout-link"
               >
-                Thanh toán →
+                <span>Thanh toán</span>
+                <ArrowRight size={14} className="inline ml-1" />
               </Link>
             </div>
           </footer>
@@ -278,4 +295,3 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 }
 
 export default CartDrawer;
-

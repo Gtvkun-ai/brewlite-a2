@@ -105,6 +105,28 @@ export default function CheckoutPage() {
     }));
   }, [paymentReference, qrAmount, qrTransferContent]);
 
+  // Trigger celebration confetti on confirmed payment in browser only
+  useEffect(() => {
+    if (paymentResult && paymentResult.status === 'SUCCESS') {
+      if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'test') {
+        const canvas = document.createElement('canvas');
+        if (typeof canvas.getContext === 'function' && canvas.getContext('2d')) {
+          void import('canvas-confetti')
+            .then((module) => {
+              const confetti = module.default;
+              confetti({
+                particleCount: 110,
+                spread: 75,
+                origin: { y: 0.6 },
+                colors: ['#c67c4e', '#2b1d15', '#f7d9b8', '#2e7d32', '#d4a373'],
+              });
+            })
+            .catch(() => {});
+        }
+      }
+    }
+  }, [paymentResult]);
+
   // 1. Unauthenticated Guard
   if (!authLoading && !isAuthenticated) {
     return (
