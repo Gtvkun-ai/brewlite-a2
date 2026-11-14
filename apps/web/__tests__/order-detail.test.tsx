@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -50,6 +51,7 @@ const sampleOrder: OrderResponse = {
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
 describe("OrderDetailPage", () => {
@@ -58,7 +60,7 @@ describe("OrderDetailPage", () => {
     render(<OrderDetailPage />);
 
     expect(
-      await screen.findByText("Order #BL-20261106-001"),
+      await screen.findByText("Chi tiết đơn hàng #BL-20261106-001"),
     ).toBeInTheDocument();
     expect(screen.getByTestId("step-PREPARING")).toHaveAttribute(
       "data-state",
@@ -66,11 +68,65 @@ describe("OrderDetailPage", () => {
     );
     expect(screen.getByText(/Classic Espresso/)).toBeInTheDocument();
     // expect(screen.getByText(`Total: ${formatVnd('100000')}`)).toBeInTheDocument();
-    const total = screen.getByText(/^Total:/);
+    const total = screen.getByText(/^Tổng thanh toán:/);
     expect(total.textContent?.replace(/\s/g, " ")).toBe(
-      `Total: ${formatVnd("100000").replace(/\s/g, " ")}`,
+      `Tổng thanh toán: ${formatVnd("100000").replace(/\s/g, " ")}`,
     );
     expect(mockedFetchOrder).toHaveBeenCalledWith("o1");
+  });
+
+  it("polls the API and advances only when the server returns a new status", async () => {
+    vi.useFakeTimers();
+    mockedFetchOrder.mockResolvedValueOnce({ ...sampleOrder, status: 'PAID' });
+    mockedFetchOrder.mockResolvedValueOnce({ ...sampleOrder, status: 'PREPARING' });
+    mockedFetchOrder.mockResolvedValueOnce({ ...sampleOrder, status: 'COMPLETED' });
+    render(<OrderDetailPage />);
+    await act(async () => {});
+    expect(screen.getByTestId('step-PAID')).toHaveAttribute('data-state', 'current');
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+    expect(screen.getByTestId('step-PREPARING')).toHaveAttribute('data-state', 'current');
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+    expect(screen.getByTestId('step-COMPLETED')).toHaveAttribute('data-state', 'current');
+    await act(async () => { await vi.advanceTimersByTimeAsync(15000); });
+    expect(mockedFetchOrder).toHaveBeenCalledTimes(3);
+  });
+
+  it("preserves the last order during a network interruption and recovers", async () => {
+    vi.useFakeTimers();
+    mockedFetchOrder.mockResolvedValueOnce(sampleOrder);
+    mockedFetchOrder.mockRejectedValueOnce(new Error('network down'));
+    mockedFetchOrder.mockResolvedValueOnce({ ...sampleOrder, status: 'READY' });
+    render(<OrderDetailPage />);
+    await act(async () => {});
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+    expect(screen.getByText(/Classic Espresso/)).toBeInTheDocument();
+    expect(screen.getByTestId('order-refresh-status')).toHaveTextContent('Mất kết nối tạm thời');
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+    expect(screen.getByTestId('step-READY')).toHaveAttribute('data-state', 'current');
+    expect(screen.getByTestId('order-refresh-status')).not.toHaveTextContent('Mất kết nối');
+  });
+
+  it("hides order data when polling returns an authorization error", async () => {
+    vi.useFakeTimers();
+    mockedFetchOrder.mockResolvedValueOnce(sampleOrder);
+    mockedFetchOrder.mockRejectedValueOnce(new ApiError(401, 'expired'));
+    render(<OrderDetailPage />);
+    await act(async () => {});
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+    expect(screen.queryByText(/Classic Espresso/)).not.toBeInTheDocument();
+    expect(screen.getByText('Vui lòng đăng nhập để xem đơn hàng.')).toBeInTheDocument();
+    await act(async () => { await vi.advanceTimersByTimeAsync(10000); });
+    expect(mockedFetchOrder).toHaveBeenCalledTimes(2);
+  });
+
+  it("clears the polling timer when the order screen unmounts", async () => {
+    vi.useFakeTimers();
+    mockedFetchOrder.mockResolvedValueOnce(sampleOrder);
+    const view = render(<OrderDetailPage />);
+    await act(async () => {});
+    view.unmount();
+    await act(async () => { await vi.advanceTimersByTimeAsync(15000); });
+    expect(mockedFetchOrder).toHaveBeenCalledTimes(1);
   });
 
   it("shows the Loading state before the fetch resolves (NFR-03)", async () => {
@@ -82,11 +138,11 @@ describe("OrderDetailPage", () => {
     );
     render(<OrderDetailPage />);
 
-    expect(screen.getByText("Loading order…")).toBeInTheDocument();
+    expect(screen.getByText("Đang tải đơn hàng…")).toBeInTheDocument();
 
     resolve?.(sampleOrder);
     expect(
-      await screen.findByText("Order #BL-20261106-001"),
+      await screen.findByText("Chi tiết đơn hàng #BL-20261106-001"),
     ).toBeInTheDocument();
   });
 
@@ -94,7 +150,7 @@ describe("OrderDetailPage", () => {
     mockedFetchOrder.mockRejectedValueOnce(new ApiError(404, "Not found"));
     render(<OrderDetailPage />);
 
-    expect(await screen.findByText("Order not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Không tìm thấy đơn hàng.")).toBeInTheDocument();
   });
 
   it("shows a permission message on 403 and no order data (NFR-02)", async () => {
@@ -102,7 +158,7 @@ describe("OrderDetailPage", () => {
     render(<OrderDetailPage />);
 
     expect(
-      await screen.findByText("You do not have permission to view this order."),
+      await screen.findByText("Bạn không có quyền xem đơn hàng này."),
     ).toBeInTheDocument();
     expect(screen.queryByText(/Classic Espresso/)).not.toBeInTheDocument();
   });
@@ -112,7 +168,7 @@ describe("OrderDetailPage", () => {
     render(<OrderDetailPage />);
 
     expect(
-      await screen.findByText("Please sign in to view this order."),
+      await screen.findByText("Vui lòng đăng nhập để xem đơn hàng."),
     ).toBeInTheDocument();
   });
 
@@ -125,7 +181,7 @@ describe("OrderDetailPage", () => {
     fireEvent.click(retry);
 
     expect(
-      await screen.findByText("Order #BL-20261106-001"),
+      await screen.findByText("Chi tiết đơn hàng #BL-20261106-001"),
     ).toBeInTheDocument();
     await waitFor(() => expect(mockedFetchOrder).toHaveBeenCalledTimes(2));
   });

@@ -18,13 +18,13 @@ export const ORDER_STEPS: OrderStatus[] = [
 ];
 
 const LABELS: Record<OrderStatus, string> = {
-  PENDING: 'Pending payment',
-  PAID: 'Paid',
-  PREPARING: 'Preparing',
-  READY: 'Ready',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-  PAYMENT_FAILED: 'Payment failed',
+  PENDING: 'Chờ thanh toán',
+  PAID: 'Đã thanh toán',
+  PREPARING: 'Đang pha chế',
+  READY: 'Sẵn sàng nhận món',
+  COMPLETED: 'Đã hoàn tất',
+  CANCELLED: 'Đã hủy',
+  PAYMENT_FAILED: 'Thanh toán thất bại',
 };
 
 const STEP_ICONS: Record<OrderStatus, React.ElementType> = {
@@ -60,7 +60,7 @@ export function OrderStepper({ status }: { status: OrderStatus }) {
 
   return (
     <div className="order-stepper-container">
-      <ol aria-label="Order progress" className="order-stepper">
+      <ol aria-label="Tiến trình đơn hàng" className="order-stepper">
         {ORDER_STEPS.map((step, i) => {
           const Icon = STEP_ICONS[step];
           const state = i < current ? 'done' : i === current ? 'current' : 'upcoming';

@@ -8,6 +8,8 @@ export class OrderItemResponseDto {
   unitPrice: string;
   selectedSize: string;
   selectedToppings: string[];
+  selectedSugar: number;
+  selectedIce: string;
   itemTotal: string;
 }
 

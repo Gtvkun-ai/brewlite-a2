@@ -1,0 +1,16 @@
+$ npm run lint
+Started: 2026-11-14T14:47:30.518Z
+
+> lint
+> npm run lint --workspaces --if-present
+
+
+> @brewlite/api@0.1.0 lint
+> eslint "src/**/*.ts"
+
+
+> @brewlite/web@0.1.0 lint
+> eslint . --ext .ts,.tsx --max-warnings 0
+
+
+Exit: 0

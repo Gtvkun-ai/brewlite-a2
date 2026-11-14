@@ -68,8 +68,8 @@ describe('OrdersPage', () => {
 
     expect(await screen.findByText('#BL-20261106-001')).toBeInTheDocument();
     expect(screen.getByText('#BL-20261105-001')).toBeInTheDocument();
-    expect(screen.getByText('Preparing')).toBeInTheDocument();
-    expect(screen.getByText('Completed')).toBeInTheDocument();
+    expect(screen.getByText('Đang pha chế')).toBeInTheDocument();
+    expect(screen.getByText('Đã hoàn tất')).toBeInTheDocument();
     // expect(screen.getByText(formatVnd('100000'))).toBeInTheDocument();
     expect(screen.getByText('100.000 ₫')).toBeInTheDocument();
   });

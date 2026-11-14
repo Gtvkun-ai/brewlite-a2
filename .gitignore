@@ -1,5 +1,6 @@
 node_modules
 .next
+.next-fixture
 dist
 .env
 
@@ -7,6 +8,7 @@ coverage/
 *.tsbuildinfo
 apps/api/dist/
 *.log
+!docs/evidence/demo-acceptance-2026-11-14/checks/*.log
 # Prisma generated client (if generated into source)
 apps/api/node_modules/.prisma/
 apps/api/src/generated/

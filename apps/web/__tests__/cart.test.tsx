@@ -459,6 +459,8 @@ describe('Role E — Product Options & Cart Management (WEB-T02 & WEB-T03)', () 
           quantity: 1,
           selectedSize: 'LARGE',
           selectedToppings: ['THACH_DAO', 'TRAN_CHAU'],
+          selectedSugar: 100,
+          selectedIce: 'NORMAL',
         },
       ]);
       // Confirm no client price fields leak into order DTO payload

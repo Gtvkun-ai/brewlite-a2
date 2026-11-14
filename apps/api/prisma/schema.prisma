@@ -112,6 +112,8 @@ model OrderItem {
   unitPrice        Decimal
   selectedSize     String?
   selectedToppings String[]
+  selectedSugar    Int      @default(100)
+  selectedIce      String   @default("NORMAL")
   itemTotal        Decimal
 
   order   Order   @relation(fields: [orderId], references: [id])

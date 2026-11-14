@@ -244,3 +244,34 @@ Hệ thống đáp ứng đầy đủ tính truy vết hai chiều theo quy đ�
   * Sprint 1 Review & Retro: [`docs/sprint1-review-retro.md`](docs/sprint1-review-retro.md)
   * Sprint 2 Review & Delivery: [`docs/review-sprint2-B-F.md`](docs/review-sprint2-B-F.md)
   * Báo cáo nghiệm thu Giảng viên: [`docs/evidence/lecturer-audit-report.md`](docs/evidence/lecturer-audit-report.md)
+
+## 10. Demo luồng gọi món và quản trị — 14/11/2026
+
+Kế hoạch và điều kiện nghiệm thu: [demo-acceptance-plan.md](docs/demo-acceptance-plan.md). Kết quả, lỗi đã sửa và bằng chứng trình duyệt thật: [AUDIT.md](docs/evidence/demo-acceptance-2026-11-14/AUDIT.md).
+
+Môi trường dưới đây dùng database demo riêng ở `127.0.0.1:55432`, web `http://localhost:3100`, API `http://localhost:3101`. Không dùng database hay cấu hình `.env` đang có. Yêu cầu Docker Desktop và Node.js >=22.
+
+```bash
+npm install
+node scripts/demo.cjs prepare
+node scripts/demo.cjs build
+node scripts/demo.cjs start
+```
+
+Đăng nhập khách: `customer@brewlite.vn` / `Password123!`; quản trị: `admin@brewlite.vn` / `Password123!` tại `/admin/products`. Đây là tài khoản của database demo cục bộ. Seed giữ lại các thay đổi sản phẩm và tồn kho khi chạy lại.
+
+Thanh toán Thẻ/Ví là mô phỏng; để trống tài khoản sẽ dùng tài khoản demo thành công. Nhập `DEMO-0000` để kiểm tra giao dịch bị từ chối, rồi đổi `DEMO-1234` để thử lại. Chế độ demo bật `DEMO_ORDER_PROGRESSION=true`: máy chủ chuyển trạng thái đã lưu trong DB mỗi khoảng 10–12 giây; UI lấy API mỗi 3 giây. Ngoài demo, bỏ biến này và nhân viên cập nhật trạng thái qua API có phân quyền; production không chạy worker tự động.
+
+```bash
+# Lint, unit/integration, build và log kiểm chứng
+node scripts/verify-demo.cjs
+
+# Chrome thật có cửa sổ, screenshot/video/trace; cần demo đang chạy
+npx playwright test -c playwright.real.config.ts
+node scripts/audit-demo-database.cjs
+
+# Xem báo cáo tương tác
+npx playwright show-report docs/evidence/demo-acceptance-2026-11-14/playwright-report
+```
+
+`Ctrl+C` dừng web/API. Dừng database demo và giữ dữ liệu: `docker compose -p brewlite-acceptance -f docker-compose.demo.yml down`.

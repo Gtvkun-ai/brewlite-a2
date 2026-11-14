@@ -5,6 +5,16 @@ const prisma = new PrismaClient();
 
 const products = [
   {
+    code: 'CF-SALT',
+    name: 'Cà phê muối',
+    description: 'Cà phê rang mộc đậm đà kết hợp lớp kem muối béo mịn.',
+    basePrice: 39000,
+    imageUrl: '/img/caphesua.jpg',
+    category: 'Coffee',
+    isAvailable: true,
+    stockQuantity: 100,
+  },
+  {
     code: 'CF-MILK',
     name: 'Cà phê sữa đá',
     description: 'Cà phê Robusta đậm đà pha phin truyền thống kết hợp sữa đặc ngọt béo.',
@@ -83,7 +93,9 @@ async function main() {
   for (const product of products) {
     await prisma.product.upsert({
       where: { code: product.code },
-      update: product,
+      // Seed only missing catalog entries: restarting must preserve admin edits
+      // and the inventory already consumed by real orders.
+      update: {},
       create: product,
     });
   }

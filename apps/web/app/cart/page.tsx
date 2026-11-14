@@ -7,6 +7,7 @@ import {
   SIZE_OPTIONS,
   TOPPING_OPTIONS,
   useCart,
+  formatPreparation,
 } from '../../context/CartContext';
 import { fetchProducts } from '../../lib/api';
 import { formatVnd } from '../../lib/format';
@@ -107,14 +108,14 @@ export default function CartPage() {
             >
               Xem thực đơn
             </Link>
-            <button
+            {process.env.NEXT_PUBLIC_USE_FIXTURES === 'true' && <button
               type="button"
               onClick={loadFixtureCart}
               className="btn btn--secondary"
               data-testid="cart-load-fixture-btn"
             >
               Nạp giỏ hàng mẫu để kiểm thử
-            </button>
+            </button>}
           </div>
         </div>
       </main>
@@ -129,7 +130,7 @@ export default function CartPage() {
         </Link>
         <h1 className="page__title">Giỏ hàng ({totalCount} món)</h1>
         <p className="page__subtitle">
-          Cùng cấu hình tự động gộp dòng • Khác size/topping tự động tách dòng.
+          Kiểm tra kích cỡ, topping và tùy biến pha chế của từng món.
         </p>
       </header>
 
@@ -195,6 +196,11 @@ export default function CartPage() {
                         </span>
                       )}
                     </div>
+                    {item.category !== 'Pastry' && (
+                      <p className="cart-line__unit-price" data-testid={`cart-preparation-${idx}`}>
+                        {formatPreparation(item.sugar, item.ice)}
+                      </p>
+                    )}
                     <div
                       className="cart-line__unit-price"
                       data-testid={`cart-item-unit-${idx}`}
@@ -355,10 +361,7 @@ export default function CartPage() {
             </div>
           </div>
 
-          <p className="form-hint">
-            ℹ️ Giá hiển thị ở client chỉ dùng để xem trước. Khi đặt hàng, hệ thống chỉ gửi{' '}
-            <code>productId / selectedSize / selectedToppings / quantity</code> và tính giá chính thức tại server.
-          </p>
+          <p className="form-hint">Tổng tiền sẽ được kiểm tra lại khi đặt hàng.</p>
 
           <Link
             href="/checkout"
