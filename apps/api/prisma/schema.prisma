@@ -43,6 +43,7 @@ enum PaymentStatus {
 
 enum PaymentMethod {
   E_WALLET
+  VIETQR_MOMO
   CREDIT_CARD
   DOMESTIC_ATM
   CASH

@@ -120,7 +120,6 @@ describe('CheckoutPage (Role F - S1 & S2)', () => {
       expect(screen.getByText(/Cà phê Sữa Đá/i)).toBeInTheDocument();
       expect(screen.getByTestId('delivery-note')).toBeInTheDocument();
       expect(screen.getByTestId('payment-option-E_WALLET')).toBeInTheDocument();
-      expect(screen.getByTestId('payment-option-CREDIT_CARD')).toBeInTheDocument();
       expect(screen.getByTestId('payment-option-DOMESTIC_ATM')).toBeInTheDocument();
       expect(screen.getByTestId('checkout-submit-btn')).toHaveTextContent(
         'Xác nhận đặt hàng & Thanh toán',
@@ -302,19 +301,19 @@ describe('CheckoutPage (Role F - S1 & S2)', () => {
       // Submit button text changes to retry
       expect(screen.getByTestId('checkout-submit-btn')).toHaveTextContent('Thử lại thanh toán');
 
-      // 2nd attempt: Retry with card payment
+      // 2nd attempt: Retry with domestic ATM payment
       mockSubmitPayment.mockResolvedValueOnce({
         paymentId: 'pay_success_02',
         orderId: 'ord_retry_01',
         status: 'SUCCESS',
         orderStatus: 'PAID',
         amount: '100000',
-        method: 'CREDIT_CARD',
+        method: 'DOMESTIC_ATM',
         transactionRef: 'TX_RETRY_PASS',
       });
 
-      // Switch to CREDIT_CARD
-      fireEvent.click(screen.getByTestId('payment-option-CREDIT_CARD'));
+      // Switch to domestic ATM
+      fireEvent.click(screen.getByTestId('payment-option-DOMESTIC_ATM'));
 
       // Click Retry
       fireEvent.click(screen.getByTestId('checkout-submit-btn'));

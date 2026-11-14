@@ -22,7 +22,7 @@
 * **Role:** `CUSTOMER`, `BARISTA`, `MANAGER`, `ADMIN`. (Đăng ký công khai mặc định là `CUSTOMER`).
 * **OrderStatus:** `PENDING`, `PAID`, `PREPARING`, `READY`, `COMPLETED`, `CANCELLED`, `PAYMENT_FAILED`.
 * **PaymentStatus:** `PENDING`, `SUCCESS`, `FAILED`, `REFUNDED`.
-* **PaymentMethod:** `E_WALLET`, `CREDIT_CARD`, `DOMESTIC_ATM`, `CASH`. (Bản online hỗ trợ `E_WALLET`, `CREDIT_CARD`, `DOMESTIC_ATM` qua mock gateway).
+* **PaymentMethod:** `E_WALLET`, `VIETQR_MOMO`, `CREDIT_CARD`, `DOMESTIC_ATM`, `CASH`. (Bản online hỗ trợ `E_WALLET`, `VIETQR_MOMO`, `CREDIT_CARD`, `DOMESTIC_ATM` qua mock gateway).
 * **Kiểu tiền tệ trên Wire:** Chuỗi số nguyên VNĐ (định dạng String hoặc Number chuẩn không phần thập phân, ví dụ `"45000"` hoặc `45000`). Tuyệt đối không dùng số thực thả nổi (floating-point).
 
 ### 1.3. Bảng phụ thu Size & Topping
@@ -300,7 +300,7 @@ export type OrderStatus =
 
 export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED';
 
-export type PaymentMethod = 'E_WALLET' | 'CREDIT_CARD' | 'DOMESTIC_ATM' | 'CASH';
+export type PaymentMethod = 'E_WALLET' | 'VIETQR_MOMO' | 'CREDIT_CARD' | 'DOMESTIC_ATM' | 'CASH';
 
 export type ItemSize = 'REGULAR' | 'LARGE';
 
