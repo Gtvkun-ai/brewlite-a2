@@ -16,7 +16,12 @@ export type OrderStatus =
 
 export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED';
 
-export type PaymentMethod = 'E_WALLET' | 'CREDIT_CARD' | 'DOMESTIC_ATM' | 'CASH';
+export type PaymentMethod =
+  | 'E_WALLET'
+  | 'VIETQR_MOMO'
+  | 'CREDIT_CARD'
+  | 'DOMESTIC_ATM'
+  | 'CASH';
 
 export type ItemSize = 'REGULAR' | 'LARGE';
 

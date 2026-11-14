@@ -1,8 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useRef, useState } from 'react';
+import { genQRText } from 'vietqr';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { ApiError } from '../../lib/api';
@@ -12,6 +15,7 @@ import {
   submitPaymentApi,
 } from '../../lib/checkout-api';
 import { formatVnd } from '../../lib/format';
+import { VIETQR_RECIPIENT } from '../../lib/vietqr-account';
 import type {
   CreateOrderItemDto,
   PaymentMethod,
@@ -26,10 +30,10 @@ const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string; desc: s
     desc: 'Thanh toán tức thì qua ví điện tử BrewLite',
   },
   {
-    id: 'CREDIT_CARD',
-    label: 'Thẻ Quốc tế (Visa / Master)',
-    icon: '💳',
-    desc: 'Hỗ trợ thẻ tín dụng và ghi nợ quốc tế',
+    id: 'VIETQR_MOMO',
+    label: 'Ví điện tử / Chuyển khoản',
+    icon: '🔳',
+    desc: 'Quét bằng ứng dụng ngân hàng hỗ trợ VietQR',
   },
   {
     id: 'DOMESTIC_ATM',
@@ -69,15 +73,37 @@ export default function CheckoutPage() {
   // Idempotency & Order persistence across retries
   const [orderId, setOrderId] = useState<string | null>(null);
   const [orderCode, setOrderCode] = useState<string | null>(null);
+  const [serverTotalAmount, setServerTotalAmount] = useState<number | null>(null);
+  const [paymentReference, setPaymentReference] = useState('');
+  const [qrPayload, setQrPayload] = useState('');
   const idempotencyKeyRef = useRef<string>('');
   const [paymentResult, setPaymentResult] = useState<PaymentResponse | null>(null);
 
   // Initialize a stable Idempotency-Key on first load or after a completed order
   useEffect(() => {
     if (!idempotencyKeyRef.current) {
-      idempotencyKeyRef.current = generateIdempotencyKey();
+      const key = generateIdempotencyKey();
+      idempotencyKeyRef.current = key;
+      setPaymentReference(`BL-${key.replace(/-/g, '').slice(0, 8).toUpperCase()}`);
     }
   }, []);
+
+  const qrAmount = serverTotalAmount ?? subTotal;
+  const qrTransferContent = paymentReference ? `BREWLITE ${paymentReference}` : '';
+
+  useEffect(() => {
+    if (!paymentReference || !Number.isSafeInteger(qrAmount) || qrAmount <= 0) {
+      setQrPayload('');
+      return;
+    }
+
+    setQrPayload(genQRText({
+      acqId: VIETQR_RECIPIENT.bankBin,
+      accountNo: VIETQR_RECIPIENT.accountNumber,
+      amount: String(qrAmount),
+      addInfo: qrTransferContent,
+    }));
+  }, [paymentReference, qrAmount, qrTransferContent]);
 
   // Trigger celebration confetti on confirmed payment in browser only
   useEffect(() => {
@@ -165,7 +191,9 @@ export default function CheckoutPage() {
             </div>
             <div className="summary-row">
               <span className="summary-label">Phương thức:</span>
-              <span className="summary-value">{selectedMethod}</span>
+              <span className="summary-value">
+                {selectedMethod === 'VIETQR_MOMO' ? 'Ví điện tử / Chuyển khoản' : selectedMethod}
+              </span>
             </div>
           </div>
 
@@ -262,6 +290,8 @@ export default function CheckoutPage() {
         currentOrderCode = newOrder.code;
         setOrderId(newOrder.id);
         setOrderCode(newOrder.code);
+        setServerTotalAmount(Number(newOrder.totalAmount));
+        setPaymentReference(newOrder.code);
       }
 
       // STEP 2: Process Payment (POST /payments) with stable Idempotency-Key
@@ -270,7 +300,10 @@ export default function CheckoutPage() {
         {
           orderId: currentOrderId,
           method: selectedMethod,
-          accountRef: accountRef.trim() || undefined,
+          accountRef:
+            selectedMethod === 'VIETQR_MOMO'
+              ? undefined
+              : accountRef.trim() || undefined,
         },
         idempotencyKeyRef.current,
         authToken,
@@ -409,24 +442,92 @@ export default function CheckoutPage() {
             ))}
           </div>
 
-          <div className="form-group mt-3">
-            <label className="form-label" htmlFor="accountRef">
-              Thông tin tài khoản / Số thẻ mô phỏng
-            </label>
-            <input
-              id="accountRef"
-              type="text"
-              className="form-input"
-              placeholder="VD: 0901234567 hoặc 9704-xxxx-xxxx"
-              value={accountRef}
-              onChange={(e) => setAccountRef(e.target.value)}
-              disabled={isSubmitting}
-              data-testid="account-ref"
-            />
-            <p className="form-hint">
-              Hệ thống sử dụng cổng thanh toán mô phỏng an toàn với cơ chế Idempotency.
-            </p>
-          </div>
+          {selectedMethod === 'VIETQR_MOMO' ? (
+            <div className="checkout-qr" data-testid="payment-qr-panel">
+              <div className="checkout-qr__header">
+                <div className="checkout-qr__brand">
+                  <Image src="/icons/icon-192x192.png" alt="" width={42} height={42} />
+                  <div>
+                    <strong>BrewLite</strong>
+                    <span>Thanh toán đơn hàng</span>
+                  </div>
+                </div>
+                <span className="checkout-qr__rail">VIETQR · NAPAS 247</span>
+              </div>
+
+              <div className="checkout-qr__content">
+                <div className="checkout-qr__code" data-testid="payment-qr">
+                  {qrPayload ? (
+                    <QRCodeSVG
+                      value={qrPayload}
+                      title="VietQR đã điền sẵn số tiền và nội dung"
+                      size={300}
+                      level="H"
+                      includeMargin
+                      fgColor="#a94b1d"
+                      imageSettings={{
+                        src: '/icons/icon-192x192.png',
+                        width: 54,
+                        height: 54,
+                        excavate: true,
+                      }}
+                    />
+                  ) : (
+                    <span className="checkout-qr__dynamic-loading">Đang tạo mã QR…</span>
+                  )}
+                </div>
+
+                <div className="checkout-qr__details">
+                  <p className="checkout-qr__instruction">
+                    Quét mã bằng ứng dụng ngân hàng hỗ trợ VietQR. Thông tin người nhận và nội dung có sẵn trong mã.
+                  </p>
+                  <div className="checkout-qr__amount">
+                    <span>Số tiền đơn hàng</span>
+                    <strong data-testid="qr-amount">{formatVnd(qrAmount)}</strong>
+                  </div>
+                  <dl className="checkout-qr__transfer">
+                    <div>
+                      <dt>Người nhận</dt>
+                      <dd>{VIETQR_RECIPIENT.accountName}</dd>
+                    </div>
+                    <div>
+                      <dt>Số tài khoản</dt>
+                      <dd>0794447631</dd>
+                    </div>
+                    <div>
+                      <dt>Nội dung chuyển khoản</dt>
+                      <dd className="checkout-qr__reference" data-testid="qr-reference">
+                        {qrTransferContent}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+
+              <p className="checkout-qr__notice">
+                QR động điền sẵn số tiền và nội dung trong ứng dụng ngân hàng. Chuyển khoản là giao dịch thật; BrewLite hiện chưa tự đối soát giao dịch ngân hàng.
+              </p>
+            </div>
+          ) : (
+            <div className="form-group mt-3">
+              <label className="form-label" htmlFor="accountRef">
+                Thông tin tài khoản / Số thẻ mô phỏng
+              </label>
+              <input
+                id="accountRef"
+                type="text"
+                className="form-input"
+                placeholder="VD: 0901234567 hoặc 9704-xxxx-xxxx"
+                value={accountRef}
+                onChange={(e) => setAccountRef(e.target.value)}
+                disabled={isSubmitting}
+                data-testid="account-ref"
+              />
+              <p className="form-hint">
+                Hệ thống sử dụng cổng thanh toán mô phỏng an toàn với cơ chế Idempotency.
+              </p>
+            </div>
+          )}
 
           <div className="customer-info-box mt-3">
             <span>Khách hàng: </span>
@@ -444,7 +545,9 @@ export default function CheckoutPage() {
               ? 'Đang xử lý đơn hàng…'
               : orderId
                 ? 'Thử lại thanh toán'
-                : 'Xác nhận đặt hàng & Thanh toán'}
+                : selectedMethod === 'VIETQR_MOMO'
+                  ? 'Xác nhận thanh toán mô phỏng'
+                  : 'Xác nhận đặt hàng & Thanh toán'}
           </button>
 
           <p className="secure-badge mt-2">

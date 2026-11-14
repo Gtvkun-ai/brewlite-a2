@@ -3,6 +3,7 @@ import { PaymentMethod } from '@prisma/client';
 
 const ONLINE_PAYMENT_METHODS = [
   PaymentMethod.E_WALLET,
+  PaymentMethod.VIETQR_MOMO,
   PaymentMethod.CREDIT_CARD,
   PaymentMethod.DOMESTIC_ATM,
 ] as const;

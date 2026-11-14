@@ -44,7 +44,7 @@ export default function CartPage() {
 
     void (async () => {
       try {
-        const catalog = await fetchProducts();
+        const catalog = await fetchProducts({ fallbackOnNetworkError: false });
         if (!isMounted) return;
         const res = syncWithCatalog(catalog);
         if (res.updated) {

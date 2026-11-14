@@ -1,0 +1,27 @@
+B-30 AUTH REGRESSION AND HANDOVER
+
+Repository: Gtvkun-ai/brewlite-a2
+Branch: B
+Base: 804c7b805b8eda97ceb046aac34f7417394f0a71
+Commit: 83ceffc0448a8e217a91704489c6f9d1514bc4ee
+
+B-30 scope delivered:
+- Fixed registration rejecting the optional phone field reproduced by G; phone formatting is normalized and validated before Prisma.
+- Added auth/JWT config regressions for register/login, bcrypt boundary, role injection, JWT invalid/expired/signature cases, and RBAC.
+- Removed source defaults for deployment JWT/DB secrets; made local demo seeding opt-in and production-disabled; stopped logging demo passwords.
+- Updated Auth API contract, traceability, UML, handover notes, and expected/actual evidence report.
+
+Verification:
+- Targeted Auth/JWT config: 2 suites, 16 tests passed.
+- API full suite: 10 suites, 60 tests passed.
+- Web full suite: 8 files, 58 tests passed.
+- npm run lint: PASS.
+- npx tsc --project tests/tsconfig.json --noEmit: PASS.
+- npm run build: PASS (API and web).
+- docker compose config --quiet with temporary local-only variables: PASS.
+- Live API read-only smoke: health 200/status ok; anonymous /auth/me and /auth/staff/me 401; invalid login 401; customer staff route 403; barista staff route 200. Rejected role-injection request did not create an account; phone was not rejected by live validation.
+
+Open deployment action:
+The live API accepted previously public demo customer/barista credentials during read-only regression. Rotate those live account passwords and the deployment JWT secret, then invalidate old sessions. Earlier Git history contains prior static values; treat them as compromised if deployed. This local commit has not been deployed. Reviewer confirmation/PR review is pending.
+
+Archive excludes .git, node_modules, .env, build caches, and the supplied ZIP.

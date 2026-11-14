@@ -669,12 +669,12 @@ describe('Role E — Product Options & Cart Management (WEB-T02 & WEB-T03)', () 
         status: 'SUCCESS',
         orderStatus: 'PAID',
         amount: '100000',
-        method: 'CREDIT_CARD',
+        method: 'DOMESTIC_ATM',
         transactionRef: 'TX_E20_SUCCESS',
       });
 
       // Switch payment method and click retry
-      fireEvent.click(screen.getByTestId('payment-option-CREDIT_CARD'));
+      fireEvent.click(screen.getByTestId('payment-option-DOMESTIC_ATM'));
       fireEvent.click(screen.getByTestId('checkout-submit-btn'));
 
       // Verify success screen is displayed
