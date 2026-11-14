@@ -203,7 +203,7 @@ export default function AdminProductsPage() {
       setIsLoading(true);
       await login({
         email: 'admin@brewlite.vn',
-        password: 'AdminPassword123!',
+        password: 'Password123!',
       });
       await loadData();
     } catch (err: unknown) {
@@ -229,9 +229,15 @@ export default function AdminProductsPage() {
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', margin: '0 0 0.5rem' }}>
             Khu Vực Dành Cho Quản Trị Viên
           </h1>
-          <p style={{ color: 'var(--muted)', fontSize: '0.9rem', marginBottom: '1.75rem', lineHeight: 1.5 }}>
+          <p style={{ color: 'var(--muted)', fontSize: '0.9rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
             Trang này chỉ dành cho tài khoản có quyền <strong>Quản trị viên (ADMIN)</strong> hoặc Quản lý cửa hàng (MANAGER).
           </p>
+
+          <div style={{ background: '#faf7f2', border: '1px dashed #ebd9c8', borderRadius: '12px', padding: '0.85rem', marginBottom: '1.5rem', textAlign: 'left', fontSize: '0.82rem' }}>
+            <div style={{ fontWeight: 700, color: 'var(--accent)', marginBottom: '0.35rem' }}>🔑 Tài khoản Admin dùng thử:</div>
+            <div>• Email: <strong>admin@brewlite.vn</strong></div>
+            <div>• Mật khẩu: <strong>Password123!</strong></div>
+          </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <button
@@ -241,7 +247,7 @@ export default function AdminProductsPage() {
               style={{ width: '100%', padding: '0.8rem', borderRadius: '999px', fontWeight: 700 }}
             >
               <Sparkles size={16} style={{ display: 'inline', marginRight: '0.4rem', verticalAlign: 'middle' }} />
-              <span>Đăng nhập nhanh tài khoản Admin Demo</span>
+              <span>Đăng nhập 1-chạm bằng tài khoản Admin</span>
             </button>
             <Link
               href="/login"
