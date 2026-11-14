@@ -615,3 +615,7 @@ export function useCart(): CartContextType {
   }
   return ctx;
 }
+
+export function useOptionalCart(): CartContextType | undefined {
+  return useContext(CartContext);
+}

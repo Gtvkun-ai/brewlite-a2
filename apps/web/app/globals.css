@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 /* Mobile-first base — optimized for 375-430px, scales up to desktop. */
 *,
 *::before,
@@ -23,6 +25,8 @@
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 html,
@@ -34,9 +38,13 @@ body {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-serif, .hero-banner__title, .menu-title, .page__title, .navbar__logo-text, .card__title {
+  font-family: var(--font-serif);
 }
 
 .app-shell {
@@ -2495,4 +2503,369 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* ==========================================================================
+   Specialty Coffee Hero & Brand Storytelling
+   ========================================================================== */
+.hero-specialty {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #1c120c;
+  background-image: 
+    radial-gradient(circle at 85% 15%, rgba(194, 120, 71, 0.45) 0%, transparent 55%),
+    radial-gradient(circle at 10% 85%, rgba(142, 70, 31, 0.4) 0%, transparent 50%),
+    linear-gradient(rgba(24, 15, 10, 0.88), rgba(28, 18, 12, 0.94));
+  color: #ffffff;
+  padding: 2.5rem 1.75rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 16px 40px rgba(28, 18, 12, 0.16);
+  border: 1px solid rgba(194, 120, 71, 0.25);
+}
+
+.hero-specialty__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.hero-specialty__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(194, 120, 71, 0.2);
+  border: 1px solid rgba(194, 120, 71, 0.4);
+  color: #f6d1ad;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.hero-specialty__campus-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #d8c4b2;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.hero-specialty__headline {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 4vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #ffffff;
+  margin: 0 0 0.85rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hero-specialty__headline-highlight {
+  background: linear-gradient(135deg, #e5a975 0%, #f6d1ad 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-specialty__desc {
+  max-width: 680px;
+  font-size: 1rem;
+  color: #d1c1b3;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.hero-specialty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.hero-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c27847, #9d592b);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(194, 120, 71, 0.4);
+  transition: all 0.25s ease;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hero-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(194, 120, 71, 0.55);
+  color: #ffffff;
+}
+
+.hero-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.hero-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* 3 Value Proposition Cards */
+.hero-value-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (min-width: 680px) {
+  .hero-value-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.hero-value-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1rem 1.15rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  transition: all 0.25s ease;
+}
+
+.hero-value-card:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(194, 120, 71, 0.35);
+  transform: translateY(-2px);
+}
+
+.hero-value-card__icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(194, 120, 71, 0.2);
+  color: #e5a975;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-value-card__title {
+  font-family: var(--font-serif);
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.2rem;
+}
+
+.hero-value-card__desc {
+  font-size: 0.78rem;
+  color: #c7b6a8;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* PWA App Prompt Mini Banner */
+.hero-pwa-tip {
+  margin-top: 1.25rem;
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed rgba(194, 120, 71, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: #d1c1b3;
+}
+
+/* ==========================================================================
+   Sugar & Ice Customization Pills (Theo công thức chuẩn)
+   ========================================================================== */
+.customization-section {
+  background: #fdfaf6;
+  border: 1px solid #ebd9c8;
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.customization-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.65rem;
+}
+
+.customization-section__title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.pill-group:last-child {
+  margin-bottom: 0;
+}
+
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pill-btn--active {
+  background: #241a15 !important;
+  color: #ffffff !important;
+  border-color: #241a15 !important;
+  box-shadow: 0 2px 8px rgba(36, 26, 21, 0.2);
+}
+
+/* ==========================================================================
+   Loyalty & Rewards Page Styling
+   ========================================================================== */
+.loyalty-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.loyalty-hero {
+  border-radius: 24px;
+  background: linear-gradient(135deg, #241a15 0%, #3e261a 100%);
+  color: #ffffff;
+  padding: 2.25rem 1.75rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(36, 26, 21, 0.15);
+  margin-bottom: 2rem;
+  border: 1px solid rgba(194, 120, 71, 0.3);
+}
+
+.loyalty-hero__glow {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, rgba(194, 120, 71, 0.35) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.loyalty-vip-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 600px) {
+  .loyalty-vip-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.loyalty-tiers-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (min-width: 680px) {
+  .loyalty-tiers-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .loyalty-tiers-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.loyalty-tier-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.35rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(36, 26, 21, 0.04);
+  transition: all 0.25s ease;
+}
+
+.loyalty-tier-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 12px 28px rgba(194, 120, 71, 0.15);
+}
+
+.loyalty-tier-card--featured {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, #fffbf7 0%, #ffffff 100%);
+  box-shadow: 0 6px 20px rgba(194, 120, 71, 0.12);
+}
+
 

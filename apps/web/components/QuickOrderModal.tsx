@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { X, Coffee, Flame, Leaf, Sparkles } from 'lucide-react';
 import { formatVnd } from '../lib/format';
 import type { Product } from '../lib/types';
+import { useOptionalCart } from '../context/CartContext';
 import ProductOptionSelector from './ProductOptionSelector';
 
 export interface QuickOrderModalProps {
@@ -12,6 +13,8 @@ export interface QuickOrderModalProps {
 }
 
 export function QuickOrderModal({ product, onClose }: QuickOrderModalProps) {
+  const cart = useOptionalCart();
+  const openDrawer = cart?.openDrawer;
   // Prevent background scroll when modal is open
   useEffect(() => {
     if (product) {
@@ -107,10 +110,11 @@ export function QuickOrderModal({ product, onClose }: QuickOrderModalProps) {
             <ProductOptionSelector
               product={product}
               onAdded={() => {
-                // Auto close modal when item is successfully added to cart
+                // Auto close modal and slide open the Cart Drawer
                 setTimeout(() => {
                   onClose();
-                }, 400);
+                  openDrawer?.();
+                }, 350);
               }}
             />
           </div>
