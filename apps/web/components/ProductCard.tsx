@@ -1,15 +1,29 @@
 import Link from 'next/link';
+import React from 'react';
 import { Coffee, Flame, Leaf, Sparkles, Plus, AlertCircle } from 'lucide-react';
 import { formatVnd } from '../lib/format';
 import type { Product } from '../lib/types';
 
-/** Modern specialty coffee card with micro-interactions. */
-export default function ProductCard({ product }: { product: Product }) {
+export interface ProductCardProps {
+  product: Product;
+  onSelect?: (product: Product) => void;
+}
+
+/** Modern specialty coffee card with quick order modal support. */
+export default function ProductCard({ product, onSelect }: ProductCardProps) {
   const isOutOfStock = !product.isAvailable || product.stockQuantity <= 0;
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (onSelect) {
+      e.preventDefault();
+      onSelect(product);
+    }
+  };
 
   return (
     <Link
       href={`/products/${product.id}`}
+      onClick={handleClick}
       className={`card ${isOutOfStock ? 'card--out-of-stock' : ''}`}
       data-testid={`product-card-${product.id}`}
     >
@@ -32,17 +46,17 @@ export default function ProductCard({ product }: { product: Product }) {
           <span className="card__badge card__badge--tag">
             {product.category === 'Coffee' ? (
               <>
-                <Flame size={13} className="text-amber-400" />
+                <Flame size={13} className="text-amber-500" />
                 <span>Best Seller</span>
               </>
             ) : product.category === 'Tea' ? (
               <>
-                <Leaf size={13} className="text-emerald-400" />
+                <Leaf size={13} className="text-emerald-500" />
                 <span>Thanh mát</span>
               </>
             ) : (
               <>
-                <Sparkles size={13} className="text-orange-400" />
+                <Sparkles size={13} className="text-orange-500" />
                 <span>Tươi mới</span>
               </>
             )}

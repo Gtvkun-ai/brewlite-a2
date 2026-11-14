@@ -16,6 +16,7 @@ import {
 import { fetchProducts } from '../lib/api';
 import type { Product } from '../lib/types';
 import ProductCard from '../components/ProductCard';
+import QuickOrderModal from '../components/QuickOrderModal';
 import { Empty, Error, Loading } from '../components/States';
 
 type Status = 'loading' | 'success' | 'error';
@@ -32,6 +33,7 @@ export default function MenuPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const load = useCallback(async () => {
     setStatus('loading');
@@ -142,7 +144,7 @@ export default function MenuPage() {
               onClick={() => setSelectedCategory(cat.key)}
             >
               <Icon size={16} className="category-tab__icon" />
-              <span>{cat.label}</span>
+              <span className="category-tab__label">{cat.label}</span>
               {cat.key !== 'ALL' && (
                 <span className="category-tab__count">
                   {products.filter((p) => p.category.toLowerCase() === cat.key.toLowerCase()).length}
@@ -174,12 +176,22 @@ export default function MenuPage() {
         />
       )}
       {status === 'success' && filteredProducts.length > 0 && (
-        <section className="product-grid" data-testid="product-grid">
+        <section className="grid product-grid" data-testid="product-grid">
           {filteredProducts.map((p) => (
-            <ProductCard key={p.id} product={p} />
+            <ProductCard
+              key={p.id}
+              product={p}
+              onSelect={setSelectedProduct}
+            />
           ))}
         </section>
       )}
+
+      {/* Quick Order Modal (Đặt món trực tiếp trên trang) */}
+      <QuickOrderModal
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
     </main>
   );
 }
