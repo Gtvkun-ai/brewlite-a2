@@ -9,17 +9,10 @@ import {
   LayoutGrid,
   Search,
   X,
-  Sparkles,
   Zap,
-  Sprout,
-  Truck,
   Flame,
   Leaf,
-  ArrowDown,
   Gift,
-  MapPin,
-  Smartphone,
-  ShieldCheck,
 } from 'lucide-react';
 import { fetchProducts } from '../lib/api';
 import type { Product } from '../lib/types';
@@ -74,88 +67,38 @@ export default function MenuPage() {
 
   return (
     <main className="page menu-page">
-      {/* Specialty Coffee Hero Section & Storytelling */}
-      <section className="hero-specialty" aria-label="Giới thiệu BrewLite">
-        <div className="hero-specialty__top">
-          <span className="hero-specialty__tag">
-            <Flame size={14} className="text-amber-400" />
-            <span>Hạt Mộc Cầu Đất · Rang Mộc Tự Nhiên</span>
-          </span>
-          <span className="hero-specialty__campus-badge">
-            <MapPin size={13} className="text-amber-300" />
-            <span>SGU Campus · Nhà gỗ mộc ấm</span>
-          </span>
+      {/* Sleek Specialty Coffee Hero Banner */}
+      <section className="hero-compact" aria-label="Giới thiệu BrewLite">
+        <div className="hero-compact__badge">
+          <Flame size={13} />
+          <span>Hạt Mộc Cầu Đất · Rang Xay Tươi Mới Mỗi Ngày</span>
         </div>
 
-        <h1 className="hero-specialty__headline">
-          Ly nước đắng từ gốc,{' '}
-          <span className="hero-specialty__headline-highlight">
-            cuộc đời ngọt tại tâm.
-          </span>
+        <h1 className="hero-compact__title">
+          Ly nước đắng từ gốc, <span>cuộc đời ngọt tại tâm.</span>
         </h1>
 
-        <p className="hero-specialty__desc">
-          Cà phê rang mộc và trà thơm tuyển chọn mỗi ngày. Một chút ấm áp, trọn vẹn hương vị cao nguyên cho ngày mới đầy cảm hứng của bạn tại BrewLite.
+        <p className="hero-compact__desc">
+          Cà phê rang mộc và trà thơm tuyển chọn mỗi ngày. Một chút ấm áp cho ngày làm việc và học tập tràn đầy cảm hứng tại SGU Campus.
         </p>
 
-        <div className="hero-specialty__actions">
-          <a href="#menu-catalog" className="hero-btn-primary">
-            <span>Khám phá thực đơn</span>
-            <ArrowDown size={16} />
-          </a>
-          <Link href="/loyalty" className="hero-btn-secondary">
-            <Gift size={16} className="text-amber-300" />
-            <span>Ưu đãi & Loyalty</span>
+        <div className="hero-compact__features">
+          <span className="hero-compact__feature-item">
+            <Coffee size={14} />
+            <span>100% Hạt Mộc Cầu Đất</span>
+          </span>
+          <span className="hero-compact__feature-item">
+            <Zap size={14} />
+            <span>Pha Tươi Tại Quầy</span>
+          </span>
+          <span className="hero-compact__feature-item">
+            <Leaf size={14} />
+            <span>Trà Thơm Tuyển Chọn</span>
+          </span>
+          <Link href="/loyalty" className="hero-compact__feature-item" style={{ background: 'rgba(194, 120, 71, 0.25)', borderColor: 'rgba(194, 120, 71, 0.5)' }}>
+            <Gift size={14} />
+            <span>Tích điểm đổi Voucher</span>
           </Link>
-        </div>
-
-        {/* 3 Value Proposition Cards */}
-        <div className="hero-value-grid">
-          <div className="hero-value-card">
-            <div className="hero-value-card__icon">
-              <Coffee size={20} />
-            </div>
-            <div>
-              <h2 className="hero-value-card__title">Hạt Mộc Cầu Đất</h2>
-              <p className="hero-value-card__desc">
-                Chất lượng từ cao nguyên Đà Lạt, rang mộc 100% không tẩm ướp, trọn vị thuần khiết.
-              </p>
-            </div>
-          </div>
-
-          <div className="hero-value-card">
-            <div className="hero-value-card__icon">
-              <Zap size={20} />
-            </div>
-            <div>
-              <h2 className="hero-value-card__title">Pha Tươi Tại Quầy</h2>
-              <p className="hero-value-card__desc">
-                Chuẩn nhiệt độ và áp suất cho từng ly, giữ trọn lớp crema và hương thơm nồng nàn.
-              </p>
-            </div>
-          </div>
-
-          <div className="hero-value-card">
-            <div className="hero-value-card__icon">
-              <Leaf size={20} />
-            </div>
-            <div>
-              <h2 className="hero-value-card__title">Trà Thơm Tuyển Chọn</h2>
-              <p className="hero-value-card__desc">
-                Thanh mát, dịu nhẹ, kết hợp cùng trái cây tươi nhiệt đới giúp giải nhiệt tức thì.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* PWA App Prompt Hint */}
-        <div className="hero-pwa-tip">
-          <div className="flex items-center gap-2">
-            <Smartphone size={16} className="text-amber-400 flex-shrink-0" />
-            <span>
-              <strong>Cài BrewLite App:</strong> iPhone/iPad mở bằng Safari chọn <em>Chia sẻ → Thêm vào MH chính</em>. Android chọn <em>Cài đặt ứng dụng</em>.
-            </span>
-          </div>
         </div>
       </section>
 

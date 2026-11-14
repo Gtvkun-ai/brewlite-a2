@@ -23,9 +23,6 @@ export function Navbar() {
               Brew<span className="navbar__logo-accent">Lite</span>
             </span>
           </Link>
-          <span className="navbar__brand-badge hidden sm:inline-flex text-xs text-muted font-medium ml-2 px-2 py-0.5 bg-amber-50 rounded-full border border-amber-200">
-            SGU Campus
-          </span>
         </div>
 
         <div className="navbar__links">
@@ -52,7 +49,7 @@ export function Navbar() {
             className={`navbar__link ${pathname === '/loyalty' ? 'navbar__link--active' : ''}`}
           >
             <Sparkles size={14} className="inline mr-1 text-amber-500" />
-            <span>Ưu đãi Loyalty</span>
+            <span>Ưu đãi</span>
           </Link>
         </div>
 
