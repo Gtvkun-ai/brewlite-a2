@@ -15,7 +15,7 @@ Hệ thống đã được đóng gói và triển khai trực tuyến trên Clo
 * 🚀 **Frontend Web Application (Next.js PWA):** [https://brewlite-a2.vercel.app](https://brewlite-a2.vercel.app)
 * ☕ **Backend API (NestJS Modular):** [https://brewlite-a2.onrender.com](https://brewlite-a2.onrender.com)
 * 💓 **Health Check Endpoint:** [https://brewlite-a2.onrender.com/health](https://brewlite-a2.onrender.com/health)
-* 📹 **Video Demo Trực tiếp Luồng End-to-End:** *(Đang cập nhật link video demo)*
+* 📹 **Video Demo Trực tiếp Luồng End-to-End:** [Xem Video Demo trên Google Drive](https://drive.google.com/file/d/1iFAsIiqNFGtv-MeEcuc0m2lD_6hZyDsd/view?usp=sharing)
 * 🔐 Tài khoản seeded phục vụ demo local được mô tả trong [`docs/auth-api.md`](docs/auth-api.md); không dùng credential mẫu với dịch vụ live.
 
 Dự án Assignment 2 thực hiện quy trình kỹ nghệ phần mềm hoàn chỉnh theo 5 Task tuần tự:
