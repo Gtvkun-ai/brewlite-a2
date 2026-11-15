@@ -22,6 +22,7 @@ Dưới đây là các hình ảnh thực tế đã được lưu trữ trong th
 | **7** | `test-a-hack-price-rejected.jpg` | **Task C (FR-05): Chống sửa giá API** | *Hình 4.4: Postman gửi request chèn thêm price: 1000 bị ValidationPipe chặn đứng ngay lập tức với mã lỗi 400 Bad Request.* |
 | **8** | `test-a-security-suite-pass.jpg` | **Task C (NFR-02 & FR-07): Kiểm thử HTTP** | *Hình 4.5: Bộ kiểm thử tích hợp Supertest pass 100% 5/5 kịch bản bảo vệ giá API, chặn 401 khi thiếu token và bảo vệ phân quyền Role Barista.* |
 | **9** | [Link Video Drive](https://drive.google.com/file/d/1iFAsIiqNFGtv-MeEcuc0m2lD_6hZyDsd/view?usp=sharing) | **Task 5.4: Kiểm thử End-to-End** | *Video Demo E2E Production: Kiểm thử toàn trình đặt món, chống sửa giá Zero Client-Trust, thanh toán trực tuyến và trừ kho nguyên tử.* |
+| **10** | `c30-orders-concurrency-regression-2026-11-12/report.md` | **Task C-30: Kiểm thử Concurrency & ACID** | *Đối soát kịch bản 2/2 của Giảng viên và 10 request đồng thời: tranh chấp kho thấp, rollback nguyên tử và chống overselling trên PostgreSQL.* |
 
 ---
 
@@ -120,3 +121,38 @@ Kết quả gọi kiểm tra tự động trực tiếp trên môi trường Clo
 * **Đối soát sau thanh toán (Post-check qua `GET /products`):**
   * Tồn kho `stockQuantity` của `CF-SDA` giảm nguyên tử chính xác từ **`100` xuống `99`**.
   * Khách hàng được tự động chuyển hướng sang trang chi tiết đơn hàng hiển thị mã đơn, thông tin thanh toán và stepper trạng thái đơn thời gian thực (`PAID` $\rightarrow$ `PREPARING` $\rightarrow$ `READY` $\rightarrow$ `COMPLETED`).
+
+---
+
+## 5. Bằng chứng Kiểm thử Hồi quy Đồng thời & Tranh chấp Kho (Task C-30)
+
+* **Người thực hiện:** Phạm Minh Duy (Vai trò C — Backend Orders & Stock)
+* **File kiểm thử tích hợp chuyên biệt:** [`tests/integration/orders.spec.ts`](../../tests/integration/orders.spec.ts)
+* **File hồi quy Jest CI/CD:** [`apps/api/src/orders/orders.concurrency.spec.ts`](../../apps/api/src/orders/orders.concurrency.spec.ts)
+* **Báo cáo chi tiết:** [`docs/evidence/c30-orders-concurrency-regression-2026-11-12/report.md`](./c30-orders-concurrency-regression-2026-11-12/report.md)
+
+### 5.1. Kịch bản 2/2 chuẩn của Giảng viên (TEST C — Đối soát PostgreSQL thật)
+* **Tình huống:** Sản phẩm Croissant còn đúng 2 cái (`stockQuantity = 2`). Khách A và Khách B gửi 2 yêu cầu mua cùng lúc mỗi người 2 cái thông qua `Promise.all`.
+* **Kết quả thực tế:**
+  * Khách B thành công: Mã đơn `BL-20261115-BLSK`, giá trị 60.000 VND.
+  * Khách A bị từ chối: Lỗi `400 Bad Request: OUT_OF_STOCK`.
+  * Tồn kho sau kiểm thử: Giảm chính xác từ **`2` về `0`** (tuyệt đối không bị âm kho).
+* **Đánh giá:** PASS 100%. Đáp ứng trọn vẹn yêu cầu phi chức năng `NFR-05` (Toàn vẹn dữ liệu ACID) và giải quyết triệt để ghi chú nợ kỹ thuật của Giảng viên.
+
+```text
+======================================================================
+STARTING INTEGRATION TEST: Orders & Stock Concurrency (Task C-30)
+Database Target: postgresql://brew:***@localhost:5433/brewlite?schema=public
+======================================================================
+[PRE-CHECK] Mã sản phẩm: PAS-CROI | Tồn kho ban đầu: 2 ly
+[USERS] Khách A: customer@brewlite.vn | Khách B: barista@brewlite.vn
+[ACTION] Bắt đầu kích hoạt 2 yêu cầu đồng thời (mỗi khách mua 2 ly)...
+[RESULT] Số đơn thành công: 1 | Số đơn bị từ chối: 1
+ -> Đơn thành công: Mã đơn BL-20261115-BLSK bởi Khách B
+ -> Đơn bị từ chối: Lý do "OUT_OF_STOCK" cho Khách A
+[POST-CHECK] Tồn kho sau giao dịch đồng thời: 0 ly (Tuyệt đối không âm)
+----------------------------------------------------------------------
+KẾT LUẬN KIỂM THỬ: PASS 100% (ĐẠT CHUẨN NFR-05 & GIẢNG VIÊN)
+----------------------------------------------------------------------
+[CLEANUP] Đã phục hồi tồn kho Croissant về mức 40 bình thường.
+```
