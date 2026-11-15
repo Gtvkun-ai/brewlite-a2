@@ -1,4 +1,4 @@
-﻿# Bảng Ma trận Truy vết Yêu cầu (Traceability Matrix)
+# Bảng Ma trận Truy vết Yêu cầu (Traceability Matrix)
 
 > **Môn học:** Công nghệ Phần mềm  
 > **Dự án:** BrewLite – Assignment 2 (Requirements to Deployment)  

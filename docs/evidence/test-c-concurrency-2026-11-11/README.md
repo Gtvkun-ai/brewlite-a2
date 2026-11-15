@@ -1,4 +1,4 @@
-﻿# Test C – Tranh chấp tồn kho đồng thời
+# Test C – Tranh chấp tồn kho đồng thời
 
 - Ngày kiểm tra: 11/11/2026
 - Môi trường: Local API + PostgreSQL qua Docker Compose
@@ -38,6 +38,8 @@ Kịch bản yêu cầu trong `lecturer-audit-report.md` là:
   * Khách A bị từ chối với lỗi `OUT_OF_STOCK`.
   * Tồn kho cuối cùng giảm từ **2 về chính xác 0**.
 * **Đánh giá:** Đã thực thi đúng nguyên văn 100% kịch bản Giảng viên yêu cầu, giải quyết triệt để ghi chú nợ kỹ thuật trước đó. Xem báo cáo chi tiết tại [`docs/evidence/c30-orders-concurrency-regression-2026-11-12/report.md`](../c30-orders-concurrency-regression-2026-11-12/report.md).
+
+![Kết quả kiểm thử PostgreSQL thật](./test-c-concurrency-postgres-pass.jpg)
 
 ## 4. Bằng chứng mã nguồn liên quan
 

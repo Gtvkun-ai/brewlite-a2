@@ -37,6 +37,8 @@ Kiểm thử hồi quy C-30 tập trung vào các trường hợp biên và tìn
 
 Lệnh thực thi: `npm run test:integration` (chạy trên PostgreSQL Docker container `brewlite-db` cổng `5433`):
 
+![Kiểm thử PostgreSQL tranh chấp kho thật](./test-c-concurrency-postgres-pass.jpg)
+
 ```text
 ======================================================================
 STARTING INTEGRATION TEST: Orders & Stock Concurrency (Task C-30)
@@ -61,6 +63,8 @@ KẾT LUẬN KIỂM THỬ: PASS 100% (ĐẠT CHUẨN NFR-05 & GIẢNG VIÊN)
 
 * **File kiểm thử tích hợp chuyên biệt (Đầu ra bắt buộc):** [`tests/integration/orders.spec.ts`](../../../tests/integration/orders.spec.ts)
 * **Bộ hồi quy Jest CI/CD:** [`apps/api/src/orders/orders.concurrency.spec.ts`](../../../apps/api/src/orders/orders.concurrency.spec.ts) (9/9 tests pass)
+
+![Bộ hồi quy Jest Concurrency Suite](./test-c-concurrency-suite-pass.jpg)
 * **Logic trừ kho nguyên tử & ACID transaction:** [`apps/api/src/orders/orders.service.ts`](../../../apps/api/src/orders/orders.service.ts)
 * **Bộ test kiểm tra chống sửa giá & phân quyền:** [`apps/api/src/orders/orders.security.spec.ts`](../../../apps/api/src/orders/orders.security.spec.ts)
 
