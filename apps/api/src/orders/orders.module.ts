@@ -3,9 +3,10 @@ import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { OrdersDemoProgressService } from './orders-demo-progress.service';
 import { AuthModule } from '../auth/auth.module';
+import { InventoryModule } from '../inventory/inventory.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, InventoryModule],
   controllers: [OrdersController],
   providers: [OrdersService, OrdersDemoProgressService],
   exports: [OrdersService],

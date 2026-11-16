@@ -3,7 +3,7 @@ export interface Ingredient {
   name: string;
   unit: 'g' | 'ml' | 'portion';
   currentStock: number;
-  initialDemoStock: number;
+  baselineStock: number;
   minThreshold: number;
   category: string;
 }
@@ -56,7 +56,7 @@ export interface TestDSimulationResult {
   initialStock: Record<string, { name: string; stock: number; unit: string }>;
   finalStock: Record<string, { name: string; stock: number; unit: string }>;
   verifiedAt: string;
-  status: 'PASS';
+  status: 'PASS' | 'FAIL';
   logs: string[];
 }
 

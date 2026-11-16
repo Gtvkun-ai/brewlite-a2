@@ -154,18 +154,35 @@ Dự án duy trì bộ kiểm thử tự động toàn diện bao phủ toàn b�
 # 1. Kiểm tra chuẩn mã nguồn (Linting)
 npm run lint
 
-# 2. Chạy toàn bộ Unit Tests (Cả Backend API và Frontend Web - 128 tests pass 100%)
+# 2. Chạy toàn bộ Unit Tests (Backend API và Frontend Web)
 npm run test
 
-# 3. Chạy riêng kiểm thử Backend API (68 Jest tests: Auth, Catalog, Orders, Payments, Health)
+# 3. Chạy riêng kiểm thử Backend API
 npm run test --workspace @brewlite/api
 
-# 4. Chạy riêng kiểm thử Frontend Web (60 Vitest tests: Menu, Cart, Auth, Checkout, Orders)
+# 4. Chạy riêng kiểm thử Frontend Web
 npm run test --workspace @brewlite/web
 
 # 5. Chạy kiểm thử End-to-End bằng Playwright
 npx playwright test
 ```
+
+### Kiểm thử BOM trên PostgreSQL
+
+`npm run test:integration:bom` kiểm tra luồng đặt 20 ly, từ chối ly 21, rollback, đặt đồng thời và thanh toán thất bại. Chỉ chạy với PostgreSQL cô lập có tên chứa `test` hoặc `demo`; script từ chối các database khác. Không chạy bộ này trên database production của website.
+
+Với Render, hãy tạo một PostgreSQL riêng cho kiểm thử, rồi dùng **External Database URL** của database đó từ máy đang chạy test. Không dùng URL website hoặc database production. Trong PowerShell, đặt URL vào hai biến môi trường trong phiên hiện tại:
+
+```powershell
+$env:BOM_TEST_DATABASE_URL = "<External Database URL của Render PostgreSQL test riêng>"
+$env:DATABASE_URL = $env:BOM_TEST_DATABASE_URL
+npm.cmd exec --workspace @brewlite/api -- prisma migrate deploy
+npm.cmd run test:integration:bom
+Remove-Item Env:DATABASE_URL
+Remove-Item Env:BOM_TEST_DATABASE_URL
+```
+
+Không lưu URL có thông tin đăng nhập vào repository. Bộ integration test chưa thể chạy nếu chưa có database Render test riêng và URL của database đó.
 
 ### 🔬 Báo cáo Đối soát Kiểm thử Nghiệm thu Giảng viên
 Nhóm đã thực hiện và lưu trữ chi tiết bằng chứng 4 kịch bản kiểm thử tình huống khó theo yêu cầu của Giảng viên tại [`docs/evidence/lecturer-audit-report.md`](docs/evidence/lecturer-audit-report.md):

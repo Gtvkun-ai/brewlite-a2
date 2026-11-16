@@ -11,6 +11,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:integration": "ts-node tests/integration/orders.spec.ts",
+    "test:integration:bom": "ts-node --project apps/api/tsconfig.json tests/integration/bom.spec.ts",
     "build": "npm run build --workspaces --if-present",
     "test:e2e": "playwright test"
   },

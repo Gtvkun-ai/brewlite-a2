@@ -3,15 +3,19 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import {
   OrderStatus,
+  InventoryMovementType,
   PaymentMethod,
   PaymentStatus,
   Prisma,
+  RecipeSize,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { InventoryService } from '../inventory/inventory.service';
 import { CreatePaymentDto } from './payments.dto';
 import { PaymentError } from './payment.errors';
 import { MockGatewayService } from './mock-gateway.service';
@@ -43,6 +47,7 @@ export class PaymentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly gateway: MockGatewayService,
+    @Optional() private readonly inventoryService?: InventoryService,
   ) {}
 
   async createPayment(
@@ -60,7 +65,14 @@ export class PaymentsService {
         const order = await tx.order.findFirst({
           where: { id: dto.orderId, userId },
           include: {
-            items: { select: { productId: true, quantity: true } },
+            items: {
+              select: {
+                productId: true,
+                quantity: true,
+                selectedSize: true,
+                product: { select: { code: true } },
+              },
+            },
           },
         });
         if (!order) {
@@ -111,6 +123,7 @@ export class PaymentsService {
 
         if (order.status === OrderStatus.PAYMENT_FAILED) {
           await this.reserveInventory(tx, order.items);
+          await this.reserveBomInventory(tx, order.items);
         }
 
         const payment = await tx.payment.create({
@@ -149,6 +162,7 @@ export class PaymentsService {
           }
         } else {
           await this.releaseInventory(tx, order.items);
+          await this.releaseBomInventory(tx, order.items);
           const updated = await tx.order.updateMany({
             where: { id: order.id, status: order.status },
             data: { status: OrderStatus.PAYMENT_FAILED },
@@ -257,6 +271,48 @@ export class PaymentsService {
         where: { id: item.productId },
         data: { stockQuantity: { increment: item.quantity } },
       });
+    }
+  }
+
+  private async reserveBomInventory(
+    tx: Prisma.TransactionClient,
+    items: Array<{
+      quantity: number;
+      selectedSize: string | null;
+      product: { code: string };
+    }>,
+  ): Promise<void> {
+    if (!this.inventoryService) return;
+
+    for (const item of items) {
+      const productCode = item.product.code;
+      if (!(await this.inventoryService.hasRecipe(productCode, tx))) continue;
+      const size = item.selectedSize === 'LARGE' ? RecipeSize.LARGE : RecipeSize.REGULAR;
+      await this.inventoryService.deductRecipe(productCode, size, item.quantity, tx);
+    }
+  }
+
+  private async releaseBomInventory(
+    tx: Prisma.TransactionClient,
+    items: Array<{
+      quantity: number;
+      selectedSize: string | null;
+      product: { code: string };
+    }>,
+  ): Promise<void> {
+    if (!this.inventoryService) return;
+
+    for (const item of items) {
+      const productCode = item.product.code;
+      if (!(await this.inventoryService.hasRecipe(productCode, tx))) continue;
+      const size = item.selectedSize === 'LARGE' ? RecipeSize.LARGE : RecipeSize.REGULAR;
+      await this.inventoryService.restoreRecipe(
+        productCode,
+        size,
+        item.quantity,
+        tx,
+        InventoryMovementType.PAYMENT_FAILED,
+      );
     }
   }
 

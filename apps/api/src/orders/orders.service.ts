@@ -6,7 +6,7 @@ import {
   ConflictException,
   Optional,
 } from "@nestjs/common";
-import { PaymentStatus, Prisma } from "@prisma/client";
+import { PaymentStatus, Prisma, RecipeSize } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { OrderResponseDto } from "./dto/order-response.dto";
@@ -192,9 +192,9 @@ export class OrdersService {
         if (this.inventoryService) {
           for (const item of dto.items) {
             const product = productMap.get(item.productId)!;
-            if (this.inventoryService.hasRecipe(product.code)) {
-              const size = (item.selectedSize === "LARGE" ? "LARGE" : "REGULAR") as "REGULAR" | "LARGE";
-              this.inventoryService.deductRecipe(product.code, size, item.quantity);
+            if (await this.inventoryService.hasRecipe(product.code, tx)) {
+              const size = item.selectedSize === "LARGE" ? RecipeSize.LARGE : RecipeSize.REGULAR;
+              await this.inventoryService.deductRecipe(product.code, size, item.quantity, tx);
             }
           }
         }
@@ -539,9 +539,9 @@ export class OrdersService {
         // Hoàn lại định mức nguyên liệu BOM nếu có
         if (this.inventoryService) {
           const product = await tx.product.findUnique({ where: { id: item.productId } });
-          if (product && this.inventoryService.hasRecipe(product.code)) {
-            const size = (item.selectedSize === "LARGE" ? "LARGE" : "REGULAR") as "REGULAR" | "LARGE";
-            this.inventoryService.restoreRecipe(product.code, size, item.quantity);
+          if (product && await this.inventoryService.hasRecipe(product.code, tx)) {
+            const size = item.selectedSize === "LARGE" ? RecipeSize.LARGE : RecipeSize.REGULAR;
+            await this.inventoryService.restoreRecipe(product.code, size, item.quantity, tx);
           }
         }
       }

@@ -29,7 +29,6 @@ import {
   fetchRecipes,
   updateMaterial,
   runTestDSimulation,
-  resetDemoStock,
   fetchInboundLogs,
   restockMaterialApi,
   Ingredient,
@@ -46,7 +45,7 @@ export default function AdminInventoryPage() {
   const [forecasts, setForecasts] = useState<BottleneckForecast[]>([]);
   const [recipes, setRecipes] = useState<ProductRecipe[]>([]);
   const [selectedSize, setSelectedSize] = useState<'REGULAR' | 'LARGE'>('REGULAR');
-  const [selectedProductCode, setSelectedProductCode] = useState<string>('CF-SUA');
+  const [selectedProductCode, setSelectedProductCode] = useState<string>('CF-MILK');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
@@ -121,9 +120,7 @@ export default function AdminInventoryPage() {
     try {
       const result = await runTestDSimulation();
       setSimulationResult(result);
-      setActionSuccess('Đã thực thi thành công bài kiểm thử TEST D theo chuẩn Giảng viên!');
-      // Tải lại số liệu tồn kho mới
-      await loadData();
+      setActionSuccess('Đã chạy TEST D trên kho mô phỏng riêng; tồn kho thật không thay đổi.');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Thực thi TEST D thất bại';
       setActionError(msg);
@@ -132,19 +129,10 @@ export default function AdminInventoryPage() {
     }
   };
 
-  const handleResetStock = async () => {
-    setIsLoading(true);
+  const handleResetStock = () => {
     setActionError(null);
-    try {
-      await resetDemoStock();
-      setSimulationResult(null);
-      setActionSuccess('Đã khôi phục kho về mức mẫu: 500g cà phê, 1.000ml sữa, 200g đường.');
-      await loadData();
-    } catch {
-      setActionError('Khôi phục kho thất bại.');
-    } finally {
-      setIsLoading(false);
-    }
+    setSimulationResult(null);
+    setActionSuccess('Đã xóa kết quả mô phỏng; tồn kho thật không thay đổi.');
   };
 
   const handleSaveStock = async (e: React.FormEvent) => {
@@ -234,7 +222,7 @@ export default function AdminInventoryPage() {
 
   const activeForecast =
     forecasts.find((f) => f.productCode === selectedProductCode) ||
-    forecasts.find((f) => f.productCode === 'CF-SUA') ||
+    forecasts.find((f) => f.productCode === 'CF-MILK') ||
     forecasts[0];
 
   return (
@@ -280,10 +268,10 @@ export default function AdminInventoryPage() {
             disabled={isLoading || simulationRunning}
             className="btn btn--secondary"
             style={{ borderRadius: '999px', fontSize: '0.85rem', color: '#8c4b18' }}
-            title="Khôi phục kho về mức chuẩn của Giảng viên (500g, 1000ml, 200g)"
+            title="Xóa kết quả mô phỏng; không thay đổi tồn kho thật"
           >
             <RotateCcw size={14} style={{ display: 'inline', marginRight: '0.35rem' }} />
-            <span>Khôi phục mẫu</span>
+            <span>Xóa mô phỏng</span>
           </button>
           <button
             type="button"
@@ -349,7 +337,7 @@ export default function AdminInventoryPage() {
               1. Tồn Kho Nguyên Vật Liệu Thực Tế
             </h2>
             <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: '0.2rem 0 0' }}>
-              Bộ dữ liệu định mức giả lập theo tài liệu của Giảng viên (lecturer-audit-report.md)
+              Tồn kho và định mức đọc từ PostgreSQL. TEST D chạy riêng trên dữ liệu mô phỏng, không sửa số kho thật.
             </p>
           </div>
           <span style={{ fontSize: '0.8rem', background: '#f5ece5', padding: '0.3rem 0.75rem', borderRadius: '999px', fontWeight: 600, color: '#68402c' }}>
@@ -361,7 +349,9 @@ export default function AdminInventoryPage() {
           {materials.map((mat) => {
             const isMilk = mat.code === 'ING-MILK-FRESH';
             const isCoffee = mat.code === 'ING-COFFEE-ROBUSTA';
-            const percent = Math.min(100, Math.round((mat.currentStock / mat.initialDemoStock) * 100));
+            const percent = mat.baselineStock > 0
+              ? Math.min(100, Math.round((mat.currentStock / mat.baselineStock) * 100))
+              : 0;
             const isCritical = mat.currentStock <= mat.minThreshold;
 
             return (
@@ -413,7 +403,7 @@ export default function AdminInventoryPage() {
                     <span style={{ fontSize: '0.9rem', color: 'var(--muted)', marginLeft: '0.25rem' }}>{mat.unit}</span>
                   </div>
                   <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>
-                    Tiêu chuẩn: {mat.initialDemoStock} {mat.unit}
+                    Mốc tham chiếu: {mat.baselineStock} {mat.unit}
                   </span>
                 </div>
 
@@ -575,7 +565,7 @@ export default function AdminInventoryPage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '0.85rem' }}>
               <div>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8c4b18', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  {activeForecast.productCode === 'CF-SUA'
+                  {activeForecast.productCode === 'CF-MILK'
                     ? '🎯 Kịch bản Trọng tâm Giảng viên (TEST D)'
                     : '📋 Chi Tiết Định Mức & Điểm Nghẽn Món'}
                 </span>
@@ -674,15 +664,16 @@ export default function AdminInventoryPage() {
           <div style={{ background: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '12px', padding: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #e9ecef', paddingBottom: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ background: '#e8f5e9', color: '#2e7d32', border: '1px solid #81c784', padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <Check size={14} /> KẾT QUẢ: {simulationResult.status} (100% PASS)
+                <span style={{ background: simulationResult.status === 'PASS' ? '#e8f5e9' : '#ffebee', color: simulationResult.status === 'PASS' ? '#2e7d32' : '#c62828', border: `1px solid ${simulationResult.status === 'PASS' ? '#81c784' : '#ef9a9a'}`, padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                  {simulationResult.status === 'PASS' ? <Check size={14} /> : <AlertTriangle size={14} />}
+                  KẾT QUẢ: {simulationResult.status}
                 </span>
                 <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
                   Xác nhận lúc: {new Date(simulationResult.verifiedAt).toLocaleTimeString('vi-VN')}
                 </span>
               </div>
               <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#382217' }}>
-                Số ly bán thành công: {simulationResult.successCount} / 20 | Số ly bị chặn: 1 / 1
+                Số ly bán thành công: {simulationResult.successCount} / 20 | Số ly bị chặn: {simulationResult.failureAttempt.status === 400 ? 1 : 0} / 1
               </span>
             </div>
 
@@ -723,12 +714,12 @@ export default function AdminInventoryPage() {
 
               <div style={{ background: '#fff', border: '1px solid #ffcdd2', borderRadius: '10px', padding: '0.85rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem', color: '#c62828', fontWeight: 800, fontSize: '0.82rem' }}>
-                  <ShieldCheck size={15} /> 4. Chặn Ly 21 (HTTP 400)
+                  <ShieldCheck size={15} /> 4. Kết quả ly 21 (HTTP {simulationResult.failureAttempt.status})
                 </div>
                 <div style={{ fontSize: '0.76rem', color: '#555', lineHeight: 1.45 }}>
-                  • Lỗi: <strong>OUT_OF_STOCK_INGREDIENT</strong><br />
-                  • Máy chủ từ chối nhận đơn ly 21<br />
-                  • Trạng thái: <strong style={{ color: '#2e7d32' }}>PASS 100%</strong>
+                  • Kết quả: <strong>{simulationResult.failureAttempt.errorCode}</strong><br />
+                  • {simulationResult.failureAttempt.status === 400 ? 'Đơn ly 21 bị từ chối' : 'Đơn ly 21 đã được nhận'}<br />
+                  • Trạng thái: <strong style={{ color: simulationResult.status === 'PASS' ? '#2e7d32' : '#c62828' }}>{simulationResult.status}</strong>
                 </div>
               </div>
             </div>
@@ -736,19 +727,21 @@ export default function AdminInventoryPage() {
             {/* Error Rejection Box */}
             <div style={{ background: '#fff', borderLeft: '4px solid #c62828', padding: '0.85rem 1rem', borderRadius: '8px', marginBottom: '1rem', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
               <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#c62828', marginBottom: '0.2rem' }}>
-                [BẮT NGOẠI LỆ TẠI LY THỨ {simulationResult.failureAttempt.cupNumber}] Mã lỗi: {simulationResult.failureAttempt.errorCode} ({simulationResult.failureAttempt.status} Bad Request)
+                [KẾT QUẢ LY THỨ {simulationResult.failureAttempt.cupNumber}] Mã: {simulationResult.failureAttempt.errorCode} (HTTP {simulationResult.failureAttempt.status})
               </div>
               <div style={{ fontSize: '0.85rem', color: '#424242' }}>
                 Thông điệp phản hồi từ máy chủ: <em>&ldquo;{simulationResult.failureAttempt.errorMessage}&rdquo;</em>
               </div>
               <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.3rem' }}>
-                Nguyên liệu thiếu: <strong>{simulationResult.failureAttempt.missingIngredient}</strong> (Đã về 0ml sau 20 ly).
+                {simulationResult.failureAttempt.missingIngredient && (
+                  <>Nguyên liệu thiếu: <strong>{simulationResult.failureAttempt.missingIngredient}</strong> (đã về 0ml sau 20 ly).</>
+                )}
               </div>
             </div>
 
             {/* Terminal log output */}
             <div style={{ background: '#1e1e1e', color: '#4af626', padding: '1rem', borderRadius: '8px', fontFamily: 'Consolas, monospace', fontSize: '0.8rem', lineHeight: 1.6, maxHeight: '200px', overflowY: 'auto' }}>
-              <div style={{ color: '#888', marginBottom: '0.4rem' }}>{`// NHẬT KÝ KIỂM THỬ THỰC THI (TEST D AUDIT LOGS)`}</div>
+              <div style={{ color: '#888', marginBottom: '0.4rem' }}>{`// NHẬT KÝ MÔ PHỎNG TEST D (KHO RIÊNG)`}</div>
               {simulationResult.logs.map((log, idx) => (
                 <div key={idx} style={{ color: log.includes('CHẶN') ? '#ff5252' : log.includes('PASS') ? '#69f0ae' : '#e0e0e0' }}>
                   {log}
@@ -1094,7 +1087,7 @@ export default function AdminInventoryPage() {
                   value={editStockValue}
                   onChange={(e) => setEditStockValue(e.target.value)}
                   style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #ccc', fontSize: '1.1rem', fontWeight: 700 }}
-                  placeholder={`Ví dụ: ${editingMaterial.initialDemoStock}`}
+                  placeholder={`Ví dụ: ${editingMaterial.baselineStock}`}
                 />
               </div>
 

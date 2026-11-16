@@ -1,0 +1,1 @@
+ALTER TYPE "InventoryMovementType" ADD VALUE 'PAYMENT_FAILED';
