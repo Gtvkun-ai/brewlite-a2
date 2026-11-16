@@ -58,8 +58,12 @@
   2. Yêu cầu của Khách B chạy ngay sau đó, câu lệnh kiểm tra điều kiện `stockQuantity >= 2` bị thất bại ➔ Số dòng bị ảnh hưởng = 0 ➔ Hệ thống kích hoạt Rollback toàn bộ transaction và trả về lỗi **`400 Bad Request: OUT_OF_STOCK`**.
   3. Tồn kho sau kiểm thử: `stockQuantity = 0`. Tổng số ly bán ra = 2.
 * **Bằng chứng:**
-  * Atomic conditional deduction: [`apps/api/src/orders/orders.service.ts`](../../apps/api/src/orders/orders.service.ts)
-  * Test case: [`apps/api/src/orders/orders.service.spec.ts`](../../apps/api/src/orders/orders.service.spec.ts) (L191–L208)
+  * Ảnh chụp Terminal chạy kiểm thử tích hợp tranh chấp tồn kho trên PostgreSQL thật: ![TEST C - Tranh chấp tồn kho đồng thời trên PostgreSQL](./test-c-concurrency-postgres-pass.jpg)
+  * Ảnh chụp bộ kiểm thử hồi quy Concurrency Jest 9/9 Pass: ![TEST C - Bộ kiểm thử hồi quy Concurrency 9/9 Pass](./test-c-concurrency-suite-pass.jpg)
+  * File kiểm thử tích hợp thực tế trên PostgreSQL: [`tests/integration/orders.spec.ts`](../../tests/integration/orders.spec.ts)
+  * Bộ hồi quy chuyên biệt: [`apps/api/src/orders/orders.concurrency.spec.ts`](../../apps/api/src/orders/orders.concurrency.spec.ts)
+  * Logic trừ kho có điều kiện: [`apps/api/src/orders/orders.service.ts`](../../apps/api/src/orders/orders.service.ts)
+  * Báo cáo nghiệm thu chi tiết Task C-30: [`docs/evidence/c30-orders-concurrency-regression-2026-11-12/report.md`](./c30-orders-concurrency-regression-2026-11-12/report.md)
 * **Người thực hiện:** C (Phạm Minh Duy) & A (Tech Lead review).
 
 ---
