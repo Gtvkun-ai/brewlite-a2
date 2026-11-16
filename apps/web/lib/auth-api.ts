@@ -81,7 +81,7 @@ function normalizeProfile(value: unknown, fullName?: string): AuthResponse['user
     typeof profile.email !== 'string' || !profile.email ||
     !ROLES.includes(profile.role as Role)
   ) return null;
-  return {
+  const user: AuthResponse['user'] = {
     id,
     email: profile.email,
     fullName: typeof profile.fullName === 'string' && profile.fullName.trim()
@@ -89,6 +89,10 @@ function normalizeProfile(value: unknown, fullName?: string): AuthResponse['user
       : fullName || profile.email.split('@')[0],
     role: profile.role as Role,
   };
+  if (typeof profile.phone === 'string') user.phone = profile.phone;
+  if (typeof profile.address === 'string') user.address = profile.address;
+  if (typeof profile.createdAt === 'string') user.createdAt = profile.createdAt;
+  return user;
 }
 
 async function readProfile(token: string, fullName?: string): Promise<AuthResponse['user']> {
@@ -231,5 +235,168 @@ export async function fetchMeApi(): Promise<AuthResponse['user'] | null> {
       return null;
     }
     return getStoredUser();
+  }
+}
+
+export async function updateProfileApi(data: {
+  fullName?: string;
+  phone?: string;
+  address?: string;
+}): Promise<AuthResponse['user']> {
+  const token = getStoredToken();
+  if (!token) throw new ApiError(401, 'Vui lòng đăng nhập để cập nhật thông tin.');
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      let errorMsg = 'Không thể cập nhật thông tin cá nhân.';
+      try {
+        const body = (await res.json()) as { message?: string | string[] };
+        if (body.message) {
+          errorMsg = Array.isArray(body.message) ? body.message.join(', ') : body.message;
+        }
+      } catch {
+        // use default error
+      }
+      throw new ApiError(res.status, errorMsg);
+    }
+
+    const updated = normalizeProfile(await res.json(), data.fullName);
+    if (!updated) throw new ApiError(502, 'Máy chủ trả về phản hồi không hợp lệ.');
+    setStoredUser(updated);
+    return updated;
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    if (process.env.NEXT_PUBLIC_USE_FIXTURES === 'true') {
+      const current = getStoredUser();
+      if (!current) throw new ApiError(401, 'Chưa đăng nhập');
+      const updated: AuthResponse['user'] = {
+        ...current,
+        fullName: data.fullName?.trim() || current.fullName,
+        phone: data.phone !== undefined ? data.phone.trim() || null : current.phone,
+        address: data.address !== undefined ? data.address.trim() || null : current.address,
+      };
+      setStoredUser(updated);
+      return updated;
+    }
+    throw new ApiError(500, 'Lỗi kết nối máy chủ khi cập nhật thông tin.');
+  }
+}
+
+export async function changePasswordApi(data: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<{ message: string }> {
+  const token = getStoredToken();
+  if (!token) throw new ApiError(401, 'Vui lòng đăng nhập để đổi mật khẩu.');
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      let errorMsg = 'Đổi mật khẩu không thành công.';
+      try {
+        const body = (await res.json()) as { message?: string | string[] };
+        if (body.message) {
+          errorMsg = Array.isArray(body.message) ? body.message.join(', ') : body.message;
+        }
+      } catch {
+        // use default
+      }
+      throw new ApiError(res.status, errorMsg);
+    }
+
+    return (await res.json()) as { message: string };
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    if (process.env.NEXT_PUBLIC_USE_FIXTURES === 'true') {
+      return { message: 'Đổi mật khẩu thành công (chế độ thử nghiệm).' };
+    }
+    throw new ApiError(500, 'Lỗi kết nối máy chủ khi đổi mật khẩu.');
+  }
+}
+
+export async function forgotPasswordApi(email: string): Promise<{ message: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!res.ok) {
+      let errorMsg = 'Không thể gửi yêu cầu đặt lại mật khẩu.';
+      try {
+        const body = (await res.json()) as { message?: string | string[] };
+        if (body.message) {
+          errorMsg = Array.isArray(body.message) ? body.message.join(', ') : body.message;
+        }
+      } catch {
+        // default
+      }
+      throw new ApiError(res.status, errorMsg);
+    }
+
+    return (await res.json()) as { message: string };
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    if (process.env.NEXT_PUBLIC_USE_FIXTURES === 'true') {
+      return {
+        message: 'Nếu email tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu đã được gửi đến hộp thư của bạn.',
+      };
+    }
+    throw new ApiError(500, 'Lỗi kết nối máy chủ khi yêu cầu đặt lại mật khẩu.');
+  }
+}
+
+export async function resetPasswordApi(data: {
+  email: string;
+  newPassword: string;
+  token?: string;
+}): Promise<{ message: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      let errorMsg = 'Đặt lại mật khẩu không thành công.';
+      try {
+        const body = (await res.json()) as { message?: string | string[] };
+        if (body.message) {
+          errorMsg = Array.isArray(body.message) ? body.message.join(', ') : body.message;
+        }
+      } catch {
+        // default
+      }
+      throw new ApiError(res.status, errorMsg);
+    }
+
+    return (await res.json()) as { message: string };
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    if (process.env.NEXT_PUBLIC_USE_FIXTURES === 'true') {
+      return {
+        message: 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới.',
+      };
+    }
+    throw new ApiError(500, 'Lỗi kết nối máy chủ khi đặt lại mật khẩu.');
   }
 }

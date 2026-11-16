@@ -4,7 +4,7 @@
 > **Môn học:** Công nghệ Phần mềm (Software Engineering)  
 > **Trường:** Đại học Sài Gòn (SGU) – Khoa Công nghệ Thông tin  
 > **Dự án:** Hệ thống Bán lẻ & Thanh toán Cà phê Trực tuyến – BrewLite  
-> **Phạm vi tài liệu:** Gộp toàn diện từ Đặc tả Yêu cầu (SRS), Mô hình hóa UML, Thiết kế Kiến trúc (ADRs), Đối chiếu Code lõi A1 vs A2, Giải mã 4 Kịch bản Thẩm tra (Audit Tests A, B, C, D), Ma trận Truy vết 243 Tests, Bộ từ điển Thuật ngữ Kỹ sư chuẩn mực và Kịch bản Thuyết trình Phản biện 30–60 phút cho 7 thành viên.
+> **Phạm vi tài liệu:** Gộp toàn diện từ Đặc tả Yêu cầu (SRS), Mô hình hóa UML, Thiết kế Kiến trúc (ADRs), Đối chiếu Code lõi A1 vs A2, Giải mã 4 Kịch bản Thẩm tra (Audit Tests A, B, C, D), Ma trận Truy vết 269 Tests, Bộ từ điển Thuật ngữ Kỹ sư chuẩn mực và Kịch bản Thuyết trình Phản biện 30–60 phút cho 7 thành viên.
 
 ---
 
@@ -15,7 +15,7 @@
 3. [PHẦN III: THIẾT KẾ KIẾN TRÚC & HẠ TẦNG CLOUD (TASK 3)](#phần-iii-thiết-kế-kiến-trúc--hạ-tầng-cloud-task-3)
 4. [PHẦN IV: ĐỐI CHIẾU TẬN LÕI CODEBASE: A1 vs A2 (TIẾN HÓA KỸ THUẬT)](#phần-iv-đối-chiếu-tận-lõi-codebase-a1-vs-a2-tiến-hóa-kỹ-thuật)
 5. [PHẦN V: GIẢI MÃ TẬN LÕI BỘ TỨ THẨM TRA NGHIỆM THU (TEST A, B, C, D)](#phần-v-giải-mã-tận-lõi-bộ-tứ-thẩm-tra-nghiệm-thu-test-a-b-c-d)
-6. [PHẦN VI: MA TRẬN TRUY VẾT & DANH MỤC 243 TEST CASES (TASK 5)](#phần-vi-ma-trận-truy-vết--danh-mục-243-test-cases-task-5)
+6. [PHẦN VI: MA TRẬN TRUY VẾT & DANH MỤC 269 TEST CASES (TASK 5)](#phần-vi-ma-trận-truy-vết--danh-mục-269-test-cases-task-5)
 7. [PHẦN VII: TỪ ĐIỂN THUẬT NGỮ CHUẨN KỸ SƯ PHẦN MỀM](#phần-vii-từ-điển-thuật-ngữ-chuẩn-kỹ-sư-phần-mềm)
 8. [PHẦN VIII: KỊCH BẢN THUYẾT TRÌNH & PHẢN ĐÒN VẤN ĐÁP (30 - 60 PHÚT)](#phần-viii-kịch-bản-thuyết-trình--phản-đòn-vấn-đáp-30---60-phút)
 9. [PHẦN IX: CHIẾN THUẬT PHÒNG CHỐNG MỌI BIẾN CỐ & KỊCH BẢN TEST CHỦ ĐỘNG](#phần-ix-chiến-thuật-phòng-chống-mọi-biến-cố--kịch-bản-test-chủ-động)
@@ -342,7 +342,7 @@ Hệ thống tuân thủ nghiêm ngặt các quyết định kiến trúc đã �
 * **Tài liệu gốc:** [001-monorepo.md](architecture/adr/001-monorepo.md)
 * **Bối cảnh:** Ở A1, Backend và Frontend nằm ở 2 repo tách biệt, dẫn đến sai lệch DTO, trôi phiên bản API contract và khó khăn khi đồng bộ mã nguồn.
 * **Quyết định:** Hợp nhất hệ thống về **Monorepo với npm Workspaces** (`apps/api`, `apps/web`).
-* **Hệ quả:** Chia sẻ kiểu dữ liệu End-to-End TypeScript; đồng bộ CI/CD 1 lệnh `npm test` chạy toàn bộ 243 tests; quy trình pull/push và giải quyết xung đột diễn ra trên một cây lịch sử Git duy nhất.
+* **Hệ quả:** Chia sẻ kiểu dữ liệu End-to-End TypeScript; đồng bộ CI/CD 1 lệnh `npm test` chạy toàn bộ 269 tests; quy trình pull/push và giải quyết xung đột diễn ra trên một cây lịch sử Git duy nhất.
 
 #### ADR-002: Kiến trúc Frontend Next.js App Router & Progressive Web App (PWA)
 * **Tài liệu gốc:** [002-frontend-nextjs-pwa.md](architecture/adr/002-frontend-nextjs-pwa.md)
@@ -444,7 +444,7 @@ graph TB
 | **Bảo vệ Giao dịch kép** | Không có khóa chống trùng | `Idempotency-Key` UUIDv4 (@unique trong DB) | Chống trừ tiền đúp khi người dùng bấm nút nhiều lần trên mạng di động. |
 | **Tính toán Đơn giá** | Client gửi giá hoặc tính toán lỏng lẻo | Server-Authoritative Pricing 100% | Máy chủ tự tra cứu Database tính tiền; ValidationPipe chặn trường `price` từ Client. |
 | **Quản lý Trạng thái UI** | Zustand trên Client Component | Pure React Context API + LocalStorage | Tối ưu hóa cho Next.js 15 App Router, triệt tiêu lỗi Hydration Mismatch. |
-| **Độ bao phủ Kiểm thử** | Kiểm thử thủ công hoặc rời rạc | **243 automated tests** (135 API + 108 Web) | Đạt độ tin cậy hồi quy 100%, bảo vệ toàn diện các luồng nghiệp vụ cốt lõi. |
+| **Độ bao phủ Kiểm thử** | Kiểm thử thủ công hoặc rời rạc | **269 automated tests** (157 API + 112 Web) | Đạt độ tin cậy hồi quy 100%, bảo vệ toàn diện các luồng nghiệp vụ cốt lõi. |
 
 ---
 
@@ -555,40 +555,40 @@ $$Q = \min_{i=1}^{n} \left( \left\lfloor \frac{\text{Kho}_i}{\text{Định mức
 
 ---
 
-# PHẦN VI: MA TRẬN TRUY VẾT & DANH MỤC 243 TEST CASES (TASK 5)
+# PHẦN VI: MA TRẬN TRUY VẾT & DANH MỤC 269 TEST CASES (TASK 5)
 
-Hệ thống được bảo vệ vững chắc bởi **243 bài kiểm thử tự động**, đạt tỷ lệ **100% PASS** trên toàn bộ monorepo:
+Hệ thống được bảo vệ vững chắc bởi **269 bài kiểm thử tự động**, đạt tỷ lệ **100% PASS** trên toàn bộ monorepo:
 
 ```text
 ========================================================================================
                       TỔNG HỢP KIỂM THỬ TỰ ĐỘNG TOÀN HỆ THỐNG
 ========================================================================================
-  • Backend API (@brewlite/api):  16 test suites | 135 tests passed (100%)
-  • Frontend Web (@brewlite/web): 16 test suites | 108 tests passed (100%)
-  • Tổng cộng Monorepo:           32 test suites | 243 tests passed (100%)
+  • Backend API (@brewlite/api):  19 test suites | 157 tests passed (100%)
+  • Frontend Web (@brewlite/web): 17 test suites | 112 tests passed (100%)
+  • Tổng cộng Monorepo:           36 test suites | 269 tests passed (100%)
 ========================================================================================
 ```
 
-### 6.1. Bảng Tọa Độ 16 Test Suites Backend API (135 Tests - Jest)
+### 6.1. Bảng Tọa Độ 19 Test Suites Backend API (157 Tests - Jest)
 | Nhóm Kiểm Thử | Tên File Mã Nguồn | Số Tests | Nội dung kiểm tra chuyên sâu |
 | :--- | :--- | :---: | :--- |
-| **Orders Concurrency** | `orders.concurrency.spec.ts`<br>`orders-customization.spec.ts` | 14 tests | Kịch bản 2/2 trên PostgreSQL thật, kiểm soát đường, đá, size, topping. |
+| **Orders Concurrency** | `orders.concurrency.spec.ts`<br>`orders-customization.spec.ts`<br>`orders-concurrency-audit.spec.ts` | 17 tests | Kịch bản 2/2 trên PostgreSQL thật, kiểm soát đường, đá, size, topping, audit CAS. |
 | **Orders Demo Progress** | `orders-demo-progress.service.spec.ts` | 6 tests | Worker mô phỏng tiến trình KDS tự động chuyển trạng thái. |
 | **Promotions Module** | `promotions.controller.spec.ts`<br>`promotions.service.spec.ts` | 14 tests | Tạo voucher, áp dụng chiết khấu %, giảm cố định, giới hạn lượt dùng. |
 | **Catalog & Products** | `products.service.spec.ts`<br>`products.controller.spec.ts`<br>`products.security.spec.ts` | 24 tests | Lấy danh mục, chi tiết món, chặn quyền sửa menu của Customer. |
 | **Payments & Mock** | `payments.service.spec.ts`<br>`mock-gateway.service.spec.ts` | 18 tests | Khóa Idempotency-Key UUID, hủy đơn hoàn tiền `REFUND_PENDING`, thẻ lỗi `0000`. |
 | **Orders Security & Core** | `orders.security.spec.ts`<br>`orders.service.spec.ts`<br>`orders.controller.spec.ts` | 33 tests | **Test A** (chống sửa giá), **Test B** (hủy đơn hoàn kho), **Test C** (Atomic CAS), chặn IDOR. |
-| **Auth & Security** | `auth.security.spec.ts`<br>`jwt.config.spec.ts` | 22 tests | Bcrypt 12 rounds, chặn role injection, token hết hạn, sai chữ ký, duplicate email. |
+| **Auth, Roles & Profile** | `auth.security.spec.ts`<br>`jwt.config.spec.ts`<br>`auth-profile.spec.ts`<br>`auth-roles-matrix.spec.ts` | 41 tests | Bcrypt 12 rounds, ma trận RBAC, profile, đổi/quên mật khẩu (xác thực token jwt purpose), duplicate email. |
 | **Health Check** | `health.controller.spec.ts` | 4 tests | Endpoint `/health` kiểm tra kết nối cơ sở dữ liệu sống/chết. |
 
-### 6.2. Bảng Tọa Độ 16 Test Suites Frontend Web (108 Tests - Vitest)
+### 6.2. Bảng Tọa Độ 17 Test Suites Frontend Web (112 Tests - Vitest)
 | Nhóm Giao Diện | Tên File Mã Nguồn | Số Tests | Nội dung kiểm tra chuyên sâu |
 | :--- | :--- | :---: | :--- |
 | **Admin Back-office** | `admin-dashboard.test.tsx`<br>`admin-orders.test.tsx`<br>`admin-products.test.tsx`<br>`admin-promotions.test.tsx` | 19 tests | Dashboard doanh thu, KDS Barista 1 chạm, thêm/sửa món modal, quản lý voucher. |
 | **Cart & Options** | `cart.test.tsx`<br>`customization.test.tsx` | 18 tests | Tùy biến size Regular/Large (+10k), toppings, đường đá, gộp dòng, LocalStorage. |
 | **Checkout Flow** | `checkout.test.tsx`<br>`tests/checkout.test.tsx`<br>`checkout-api.test.ts` | 24 tests | Khóa nút Submit chống double-click, sinh Idempotency-Key, điều phối thanh toán. |
 | **Orders & Stepper** | `orders.test.tsx`<br>`order-detail.test.tsx`<br>`order-stepper.test.tsx` | 20 tests | Lịch sử đơn hàng, chi tiết đơn, Stepper 4 bước thời gian thực, retry khi lỗi mạng. |
-| **Auth Contract & UI** | `auth.test.tsx`<br>`auth-contract.test.tsx` | 17 tests | Form đăng nhập/đăng ký, xử lý token hết hạn, đăng xuất an toàn. |
+| **Auth Contract & Profile UI** | `auth.test.tsx`<br>`auth-contract.test.tsx`<br>`profile.test.tsx` | 21 tests | Form đăng nhập/đăng ký, quản lý hồ sơ, đổi mật khẩu, xử lý token hết hạn. |
 | **Menu & Catalog** | `menu.test.tsx`<br>`catalog-api.test.ts` | 10 tests | Hiển thị Grid món, phân loại, trạng thái Loading, Empty, Error + Retry. |
 
 ### 6.3. Kiểm Thử Giao Diện Trình Duyệt Thật (Playwright)
@@ -623,7 +623,7 @@ Hệ thống được bảo vệ vững chắc bởi **243 bài kiểm thử t�
 > 
 > Đó chính là sứ mệnh mà dự án **BrewLite** giải quyết.
 > 
-> Bước từ Assignment 1 sang Assignment 2, nhóm chúng em tiếp cận theo đúng **chuẩn mực Kỹ nghệ Phần mềm chuyên nghiệp**: Tái cấu trúc từ Polyrepo sang Monorepo với npm Workspaces, nâng cấp cơ chế trừ kho từ vòng lặp Optimistic Lock sang **Atomic SQL Compare-And-Swap**, chuẩn hóa hệ thống kiểm toán bằng **243 bài test tự động pass 100%**, và triển khai môi trường Cloud Production có giám sát Anti-Cold-Start.
+> Bước từ Assignment 1 sang Assignment 2, nhóm chúng em tiếp cận theo đúng **chuẩn mực Kỹ nghệ Phần mềm chuyên nghiệp**: Tái cấu trúc từ Polyrepo sang Monorepo với npm Workspaces, nâng cấp cơ chế trừ kho từ vòng lặp Optimistic Lock sang **Atomic SQL Compare-And-Swap**, chuẩn hóa hệ thống kiểm toán bằng **269 bài test tự động pass 100%**, và triển khai môi trường Cloud Production có giám sát Anti-Cold-Start.
 > 
 > Sau đây, chúng em xin phép được dẫn dắt Thầy Cô đi qua từng tầng kiến trúc và chứng minh mã nguồn thực chiến của hệ thống!"*
 
@@ -636,7 +636,7 @@ Hệ thống được bảo vệ vững chắc bởi **243 bài kiểm thử t�
 * **Thành viên D (Payments & Gateway | 4 phút):** Cổng thanh toán giả lập, cơ chế Idempotency-Key UUIDv4 chống trừ tiền 2 lần, kiểm tra khớp payload `isPayloadMatch`.
 * **Thành viên E (Cart & Customization | 4 phút):** Giao diện giỏ hàng Pure React Context API + LocalStorage, thuật toán chuẩn hóa `sanitizeToppings`, hàm trích xuất payload tuyệt đối không gửi giá lên server.
 * **Thành viên F (Checkout & UX | 4 phút):** Trải nghiệm Checkout, cơ chế khóa nút bấm Submit chống double-click, phân rã chi phí minh bạch.
-* **Thành viên G (KDS, Admin & QA | 4 phút):** Stepper 4 bước thời gian thực, Admin Back-office (Dashboard doanh thu, quản lý menu, vouchers), ma trận truy vết RTM và tổng kết 243 bài test tự động.
+* **Thành viên G (KDS, Admin & QA | 4 phút):** Stepper 4 bước thời gian thực, Admin Back-office (Dashboard doanh thu, quản lý menu, vouchers), ma trận truy vết RTM và tổng kết 269 bài test tự động.
 
 ---
 
@@ -693,7 +693,7 @@ Hệ thống được bảo vệ vững chắc bởi **243 bài kiểm thử t�
 #### Câu 10: *"Điểm tâm đắc nhất của nhóm về mặt Kỹ nghệ Phần mềm trong đồ án này là gì?"*
 > **Trả lời:**
 > *"Thưa Thầy Cô, điểm nhóm tâm đắc nhất chính là **Tính Trung Thực & Kỷ Luật Kỹ Nghệ (Engineering Integrity & Traceability)**.
-> Chúng em không viết code theo cảm tính và không phóng đại tính năng. Mọi chức năng đều có ma trận truy vết SRS $\to$ UML $\to$ Code $\to$ Test; các giới hạn kỹ thuật như BOM đều được lập biên bản minh bạch; và toàn bộ 243 bài test tự động đều có thể chạy lại để kiểm chứng bất kỳ lúc nào."*
+> Chúng em không viết code theo cảm tính và không phóng đại tính năng. Mọi chức năng đều có ma trận truy vết SRS $\to$ UML $\to$ Code $\to$ Test; các giới hạn kỹ thuật như BOM đều được lập biên bản minh bạch; và toàn bộ 269 bài test tự động đều có thể chạy lại để kiểm chứng bất kỳ lúc nào."*
 
 ---
 
@@ -704,7 +704,7 @@ Hệ thống được bảo vệ vững chắc bởi **243 bài kiểm thử t�
 | Tình huống biến cố | Mức độ rủi ro | Hành động phản ứng tức thì | Lời thoại giải thích chuyên nghiệp |
 | :--- | :---: | :--- | :--- |
 | **1. Mất mạng trường / Cloud Render phản hồi chậm** | 🔴 Cực cao | Chuyển ngay sang môi trường **Local Docker**: Chạy `docker compose up -d` hoặc truy cập `http://localhost:3000`. | *"Dạ thưa Thầy Cô, để đảm bảo tính sẵn sàng cao (High Availability), nhóm đã chuẩn bị sẵn môi trường Docker Container chạy song song ở Local để không bị gián đoạn buổi bảo vệ ạ."* |
-| **2. PowerShell báo lỗi ExecutionPolicy** | 🟡 Trung bình | Bật ngay file **`test-suite.bat`** ngoài màn hình hoặc chạy qua CMD: `cmd.exe /c "npm test"`. | *(Thao tác dứt khoát, màn hình console chạy xanh 243 tests lấy lại uy thế).* |
+| **2. PowerShell báo lỗi ExecutionPolicy** | 🟡 Trung bình | Bật ngay file **`test-suite.bat`** ngoài màn hình hoặc chạy qua CMD: `cmd.exe /c "npm test"`. | *(Thao tác dứt khoát, màn hình console chạy xanh 269 tests lấy lại uy thế).* |
 | **3. Giảng viên bảo: "Mở Database xem có bị trừ âm kho thật không?"** | 🔴 Cực cao | Bật **Prisma Studio**: `npx prisma studio` (hoặc bấm phím `7` trong file `test-suite.bat`) $\to$ Mở `http://localhost:5555`. | *"Dạ em xin phép mở Prisma Studio trực tiếp kết nối cơ sở dữ liệu. Thầy Cô có thể thấy bảng Product: stockQuantity dừng lại đúng bằng 0, không có bản ghi nào bị âm kho ạ."* |
 | **4. Giảng viên yêu cầu test thử sửa giá 1.000đ** | 🔴 Cực cao | Gửi Postman `POST /orders` có trường `"price": 1000`. Server trả về ngay `400 Bad Request`. Hoặc mở ảnh bằng chứng tại [test-a-hack-price-rejected.jpg](evidence/test-a-hack-price-rejected.jpg). | *"Dạ đây là request cố tình tiêm trường price: 1000. Do ValidationPipe áp dụng forbidNonWhitelisted: true, server từ chối ngay lập tức từ tầng Ingress ạ."* |
 | **5. Giảng viên hỏi vị trí file của Test A, B, C** | 🟡 Trung bình | Mở đúng 3 file đã ghim: `orders.security.spec.ts` (Test A), `orders.service.spec.ts` (Test B & C), `orders.concurrency.spec.ts` (Test C PostgreSQL thật). | *"Dạ toàn bộ kịch bản kiểm toán A, B, C đều được nhóm hiện thực thành các bài test tự động tại đây ạ..."* |
@@ -773,8 +773,8 @@ Thay vì kết thúc trong thế bị động chờ hỏi, Leader hãy **chủ �
 * **Nội dung:** Cơ chế khóa nút Submit chống double-click; hiển thị minh bạch phụ thu size/topping; kiểm thử Playwright UI.
 * **Lời thoại (Thành viên F | 2.5 phút):** Trình bày luồng đặt hàng và các biện pháp bảo vệ tương tác người dùng.
 
-### SLIDE 11: ĐẢM BẢO CHẤT LƯỢNG (QA), TRACEABILITY & 243 TESTS
-* **Nội dung:** Màn hình KDS Barista & Stepper thời gian thực; Ma trận truy vết RTM liên kết 100% yêu cầu; tổng kết 243 bài test tự động (135 API + 108 Web) pass 100%.
+### SLIDE 11: ĐẢM BẢO CHẤT LƯỢNG (QA), TRACEABILITY & 269 TESTS
+* **Nội dung:** Màn hình KDS Barista & Stepper thời gian thực; Ma trận truy vết RTM liên kết 100% yêu cầu; tổng kết 269 bài test tự động (157 API + 112 Web) pass 100%.
 * **Lời thoại (Thành viên G | 2 phút):** Chứng minh tính kỷ luật kỹ nghệ và độ bao phủ kiểm thử toàn diện.
 
 ### SLIDE 12: HẠ TẦNG CLOUD PRODUCTION & ANTI-COLD-START

@@ -178,5 +178,5 @@ Khi Thầy Cô hỏi: *"Hệ thống này được tổ chức như thế nào?"
   2. Health check: `https://brewlite-a2.onrender.com/health` (Hiện `{"status":"ok"}`).
   3. GitHub Actions: Mở tab Actions thấy các workflow màu xanh lá.
   4. File `traceability-matrix.md` trong VS Code.
-- [ ] Terminal mở sẵn tại thư mục `brewlite-a2`, gõ sẵn lệnh `npm run test` (chỉ cần Enter là chạy ra 243 tests pass xanh mướt).
+- [ ] Terminal mở sẵn tại thư mục `brewlite-a2`, gõ sẵn lệnh `npm run test` (chỉ cần Enter là chạy ra 269 tests pass xanh mướt).
 - [ ] Chuẩn bị sẵn Postman/cURL kịch bản chèn giá giả 1.000đ để sẵn sàng biểu diễn cho Thầy xem khi được hỏi.

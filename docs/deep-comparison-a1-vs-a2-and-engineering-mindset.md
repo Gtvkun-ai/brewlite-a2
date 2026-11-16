@@ -154,7 +154,7 @@ for (const [productId, requiredQty] of demandMap.entries()) {
 ### 5.2. Quy trình trong A2: "Enterprise CI/CD & Quality Gates"
 * **Pipeline CI tự động trên GitHub Actions (`.github/workflows/ci.yml`):**
   * Kích hoạt tự động khi mở Pull Request vào nhánh `main`.
-  * Thực thi nghiêm ngặt 4 bước: `Install ➔ Lint (ESLint 0 warnings) ➔ Unit & Integration Tests (243 tests) ➔ Build Production Bundle`.
+  * Thực thi nghiêm ngặt 4 bước: `Install ➔ Lint (ESLint 0 warnings) ➔ Unit & Integration Tests (269 tests) ➔ Build Production Bundle`.
   * **Quy tắc bắt buộc:** PR bị đỏ (fail test/lint) **tuyệt đối không được merge**.
 * **Hạ tầng Cloud Thực tế:**
   * Web trên Vercel Edge Network.
@@ -184,7 +184,7 @@ Khi nhìn lại toàn bộ quá trình, đây là 4 bài học lớn về tư du
 **Bạn trả lời theo khung 3 điểm gãy gọn:**
 
 1. **Về mặt Cấu trúc & Quy trình:**
-   > *"Dạ thưa Thầy Cô, ở A1 nhóm làm việc theo hướng tính năng rời rạc với 2 thư mục riêng lẻ và dùng script tùy biến để kiểm soát. Sang A2, nhóm đã chuẩn hóa toàn bộ thành **Monorepo npm workspaces**, xây dựng **Ma trận truy vết hai chiều (Traceability Matrix)** liên kết từ SRS đến 243 bài test, và áp dụng quy trình kiểm soát chất lượng tự động qua **GitHub Actions CI/CD** trước khi đưa lên Cloud Vercel và Render ạ."*
+   > *"Dạ thưa Thầy Cô, ở A1 nhóm làm việc theo hướng tính năng rời rạc với 2 thư mục riêng lẻ và dùng script tùy biến để kiểm soát. Sang A2, nhóm đã chuẩn hóa toàn bộ thành **Monorepo npm workspaces**, xây dựng **Ma trận truy vết hai chiều (Traceability Matrix)** liên kết từ SRS đến 269 bài test, và áp dụng quy trình kiểm soát chất lượng tự động qua **GitHub Actions CI/CD** trước khi đưa lên Cloud Vercel và Render ạ."*
 
 2. **Về mặt Toàn vẹn Dữ liệu (Concurrency & Schema):**
    > *"Ở A1, nhóm dùng khóa ID số tự tăng (dễ bị tấn công IDOR) và xử lý tranh chấp tồn kho bằng Optimistic Lock với vòng lặp thử lại 3 lần, rất dễ nghẽn hệ thống khi nhiều người mua cùng lúc. Sang A2, nhóm đã chuyển toàn bộ ID sang **CUID**, đổi tiền tệ sang **Decimal**, và nâng cấp thuật toán trừ kho thành **Atomic Conditional Update** trực tiếp trong PostgreSQL (`WHERE stockQuantity >= qty`). Nhờ đó, bài toán 2 khách mua ly cuối cùng được phân xử dứt điểm ở tầng Database Engine mà không cần vòng lặp retry ạ."*

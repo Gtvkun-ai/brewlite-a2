@@ -19,7 +19,7 @@
 * [SLIDE 08: CỔNG THANH TOÁN MOCK GATEWAY & IDEMPOTENCY CHỐNG TRỪ TIỀN 2 LẦN](#slide-08-cổng-thanh-toán-mock-gateway--idempotency-chống-trừ-tiền-2-lần)
 * [SLIDE 09: FRONTEND WEB PWA: CARTCONTEXT & SERVER-AUTHORITATIVE PRICING](#slide-09-frontend-web-pwa-cartcontext--server-authoritative-pricing)
 * [SLIDE 10: CHECKOUT AN TOÀN & TRÌNH DUYỆT THẬT PLAYWRIGHT E2E](#slide-10-checkout-an-toàn--trình-duyệt-thật-playwright-e2e)
-* [SLIDE 11: ĐẢM BẢO CHẤT LƯỢNG (QA), MA TRẬN TRUY VẾT & 243 TESTS](#slide-11-đảm-bảo-chất-lượng-qa-ma-trận-truy-vết--243-tests)
+* [SLIDE 11: ĐẢM BẢO CHẤT LƯỢNG (QA), MA TRẬN TRUY VẾT & 269 TESTS](#slide-11-đảm-bảo-chất-lượng-qa-ma-trận-truy-vết--269-tests)
 * [SLIDE 12: HẠ TẦNG CLOUD PRODUCTION & ZERO-DOWNTIME KEEP-ALIVE](#slide-12-hạ-tầng-cloud-production--zero-downtime-keep-alive)
 * [SLIDE 13: BIỂU DIỄN KIỂM THỬ CHỦ ĐỘNG & BẮT ĐẦU VẤN ĐÁP Q&A](#slide-13-biểu-diễn-kiểm-thử-chủ-động--bắt-đầu-vấn-đáp-qa)
 
@@ -167,13 +167,13 @@
 
 ---
 
-### SLIDE 11: ĐẢM BẢO CHẤT LƯỢNG (QA), MA TRẬN TRUY VẾT & 243 TESTS
+### SLIDE 11: ĐẢM BẢO CHẤT LƯỢNG (QA), MA TRẬN TRUY VẾT & 269 TESTS
 * **Nội dung trên Slide:**
   * KDS Barista: Màn hình điều phối chế biến, thanh Stepper 4 bước thời gian thực (`PAID ➔ PREPARING ➔ READY ➔ COMPLETED`).
   * Ma trận truy vết hai chiều (Traceability Matrix RTM): 100% Yêu cầu SRS $\to$ Mã nguồn $\to$ Test Case.
-  * Tổng kết 243 bài test tự động: 135 API Tests + 108 Web Tests + 1 E2E Suite $\implies$ **100% PASS**.
+  * Tổng kết 269 bài test tự động: 157 API Tests + 112 Web Tests + 1 E2E Suite $\implies$ **100% PASS**.
 * **🎤 LỜI THOẠI GIAO MIC (Thành viên G | 2 phút):**
-  > *"Phân hệ KDS giúp Barista cập nhật tiến độ chế biến và khách hàng theo dõi đơn hàng thời gian thực qua Stepper 4 bước. Về mặt QA, nhóm đã hoàn thiện Ma trận truy vết hai chiều liên kết toàn bộ 10 FRs và 5 NFRs sang mã nguồn và 243 bài test tự động, bảo vệ hệ thống toàn diện trước mọi nguy cơ hồi quy (Regression)."*
+  > *"Phân hệ KDS giúp Barista cập nhật tiến độ chế biến và khách hàng theo dõi đơn hàng thời gian thực qua Stepper 4 bước. Về mặt QA, nhóm đã hoàn thiện Ma trận truy vết hai chiều liên kết toàn bộ 10 FRs và 5 NFRs sang mã nguồn và 269 bài test tự động, bảo vệ hệ thống toàn diện trước mọi nguy cơ hồi quy (Regression)."*
 * **🛡️ KỊCH BẢN LEADER CÂU GIỜ:**
   > *"Tính truy vết hai chiều đảm bảo mỗi dòng code sinh ra đều phục vụ một yêu cầu nghiệp vụ cụ thể, không có code thừa và không có tính năng nào bị bỏ sót kiểm thử."*
 * **👉 CÂU GIAO MIC:** *"Hệ thống này được triển khai trên môi trường Cloud như thế nào? Xin mời Leader tổng kết."*
@@ -197,8 +197,8 @@
   * Tuyên bố chuyển sang phần Thẩm định & Hỏi đáp (Q&A).
 * **🎤 LỜI THOẠI "CHỦ ĐỘNG TẤN CÔNG" CỦA LEADER (2 phút):**
   > *"Kính thưa Thầy Cô, thay vì chỉ nói lý thuyết, bây giờ nhóm em xin phép **CHỦ ĐỘNG BẬT BỘ KIỂM THỬ TỰ ĐỘNG** để Thầy Cô cùng chứng kiến:
-  > (Leader mở file `test-suite.bat`, bấm phím 1 chạy 243 tests pass xanh lá cây trong 20s).
-  > Toàn bộ 243 tests kiểm tra bảo mật, giao dịch tài chính và trừ kho đều vượt qua 100%. Nhóm chúng em xin chân thành cảm ơn Thầy Cô và sẵn sàng bước vào phần Vấn đáp ạ!"*
+  > (Leader mở file `test-suite.bat`, bấm phím 1 chạy 269 tests pass xanh lá cây trong 20s).
+  > Toàn bộ 269 tests kiểm tra bảo mật, giao dịch tài chính và trừ kho đều vượt qua 100%. Nhóm chúng em xin chân thành cảm ơn Thầy Cô và sẵn sàng bước vào phần Vấn đáp ạ!"*
 
 ---
 

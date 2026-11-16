@@ -60,6 +60,7 @@ model User {
   passwordHash String
   fullName     String
   phone        String?
+  address      String?
   role         Role     @default(CUSTOMER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

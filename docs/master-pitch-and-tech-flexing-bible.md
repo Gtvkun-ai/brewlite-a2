@@ -14,7 +14,7 @@
 3. **Chương 3: Bóc tách Tận lõi 5 Tầng Công nghệ & Quyết định Thiết kế (ADRs)**
 4. **Chương 4: Kế thừa & Chuyển dịch toàn diện từ A1 lên A2**
 5. **Chương 5: Bảng đối soát từng mũi tên trên Sơ đồ UML sang Dòng Code thực tế**
-6. **Chương 6: Bản đồ Tọa độ 243 Bài Test & Cách chứng minh 4 Ca Thẩm tra (TEST A, B, C, D)**
+6. **Chương 6: Bản đồ Tọa độ 269 Bài Test & Cách chứng minh 4 Ca Thẩm tra (TEST A, B, C, D)**
 7. **Chương 7: Kịch bản Mở màn & Dẫn dắt Live Demo kịch tính từng phút (Timeline 45 phút)**
 8. **Chương 8: Cẩm nang Phản đòn Vấn đáp (Defensive Jujitsu) – 20 Câu hỏi hóc búa nhất**
 
@@ -155,7 +155,7 @@ Mở sơ đồ `docs/diagrams/sequence-checkout.puml` lên màn hình chiếu, v
 * **Phút 26–35: Biểu diễn 4 Ca Thẩm tra Kỹ thuật Khó (Điểm nhấn ăn trọn điểm 10)**
   * Biểu diễn Postman hack giá bị chặn (Test A).
   * Biểu diễn hủy đơn hoàn kho an toàn (Test B).
-  * Chạy lệnh Terminal `npm run test` cho thấy 243 tests pass xanh 100%.
+  * Chạy lệnh Terminal `npm run test` cho thấy 269 tests pass xanh 100%.
 * **Phút 36–45: Vấn đáp phản biện & Kết luận**
   * Cả 7 thành viên tự tin tiếp nhận câu hỏi của Hội đồng theo cẩm nang phản đòn.
 

@@ -101,7 +101,7 @@ flowchart TD
 | **Phạm vi tính năng** | Dàn trải rộng: có cả Rewards, Loyalty Points, Voucher GIAM10, Quản lý kho nguyên liệu BOM. | **Tập trung sâu vào MVP:** Đặt món $\to$ Giỏ hàng $\to$ Thanh toán an toàn $\to$ Lịch sử đơn. Hoãn (`Deferred`) Voucher theo `api-contracts.md`. | Đúng tinh thần Agile: Ưu tiên hoàn thiện trọn vẹn luồng cốt lõi và tính toàn vẹn dữ liệu thay vì làm nhiều mà lỗi. |
 | **Tài liệu & Truy vết** | User Stories cơ bản, các file tài liệu rời rạc, chưa có ma trận truy vết chính quy. | **Hệ thống 5 Task chuẩn mực:** SRS, PlantUML Diagrams, 5 ADRs, và **Traceability Matrix (`traceability-matrix.md`)**. | Đáp ứng yêu cầu Mục 8.1 của đề bài: Mọi chức năng và test case đều truy vết được 2 chiều về Use Case và Sơ đồ thiết kế. |
 | **Hạ tầng triển khai** | Chủ yếu chạy cục bộ qua `docker-compose.yml`. | **Production Cloud 100% có HTTPS:** Vercel (PWA) + Render (NestJS Docker) + PostgreSQL Cloud + GitHub Keep-Alive Cron. | Chuyển từ "phần mềm chỉ chạy ở máy tôi" sang "hệ thống thực tế phục vụ người dùng có SLA và giám sát". |
-| **Bộ kiểm thử** | Unit test rời rạc (chủ yếu Vitest cục bộ). | **243 tests pass 100%:** 135 tests Jest cho Backend, 108 tests Vitest cho Frontend, Playwright cho E2E, Supertest cho API Security. | Đảm bảo chất lượng nghiêm ngặt trước khi merge code vào `main`. |
+| **Bộ kiểm thử** | Unit test rời rạc (chủ yếu Vitest cục bộ). | **269 tests pass 100%:** 157 tests Jest cho Backend, 112 tests Vitest cho Frontend, Playwright cho E2E, Supertest cho API Security. | Đảm bảo chất lượng nghiêm ngặt trước khi merge code vào `main`. |
 
 ---
 

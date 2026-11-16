@@ -119,4 +119,4 @@ Khi Thầy Cô hỏi: *"Đồ án A2 này khác gì so với A1 tụi em đã l�
 > 
 > *Bước sang Assignment 2, tuân thủ nghiêm ngặt đề bài của Bộ môn, nhóm đã **chuyển dịch từ tư duy lập trình đơn thuần (Code-first) sang quy trình Kỹ nghệ phần mềm chuyên nghiệp (Engineering-first)** với 5 Task tuần tự: Khai thác yêu cầu SRS $\to$ Mô hình hóa sơ đồ UML $\to$ Thiết kế kiến trúc với 5 ADRs $\to$ Triển khai 2 Sprint Agile $\to$ Đóng gói CI/CD và Triển khai Cloud trực tuyến có HTTPS.*  
 > 
-> *Toàn bộ hệ thống được kết nối chặt chẽ qua **Ma trận truy vết hai chiều** và được bảo vệ bởi **Bộ kiểm thử 243 tests pass 100%** (135 Backend API + 108 Frontend Web), giải quyết triệt để các bài toán khó về chống sửa giá client, hủy đơn hoàn kho an toàn và tranh chấp tồn kho đồng thời. Sau đây em xin phép bắt đầu phần trình bày chi tiết ạ!"*
+> *Toàn bộ hệ thống được kết nối chặt chẽ qua **Ma trận truy vết hai chiều** và được bảo vệ bởi **Bộ kiểm thử 269 tests pass 100%** (157 Backend API + 112 Frontend Web), giải quyết triệt để các bài toán khó về chống sửa giá client, hủy đơn hoàn kho an toàn và tranh chấp tồn kho đồng thời. Sau đây em xin phép bắt đầu phần trình bày chi tiết ạ!"*

@@ -61,7 +61,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="footer__link">
+                <Link href="/profile" className="footer__link">
                   Tài khoản thành viên
                 </Link>
               </li>
