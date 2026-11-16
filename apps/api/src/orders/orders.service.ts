@@ -302,6 +302,102 @@ export class OrdersService {
   }
 
   /**
+   * Admin/Manager: Tính toán các chỉ số doanh thu và hiệu suất vận hành
+   */
+  async getAnalytics(): Promise<any> {
+    const orders = await this.prisma.order.findMany({
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    const validPaidOrders = orders.filter((o: any) =>
+      ['PAID', 'PREPARING', 'READY', 'COMPLETED'].includes(o.status),
+    );
+
+    const totalRevenue = validPaidOrders.reduce(
+      (sum: number, o: any) => sum + Number(o.totalAmount),
+      0,
+    );
+    const totalOrders = orders.length;
+    const completedOrders = orders.filter((o: any) => o.status === 'COMPLETED').length;
+    const cancelledOrders = orders.filter((o: any) => o.status === 'CANCELLED').length;
+    const pendingOrders = orders.filter((o: any) => o.status === 'PENDING').length;
+    const preparingOrders = orders.filter((o: any) => o.status === 'PREPARING').length;
+    const readyOrders = orders.filter((o: any) => o.status === 'READY').length;
+    const paidOrders = orders.filter((o: any) => o.status === 'PAID').length;
+
+    const averageOrderValue =
+      validPaidOrders.length > 0
+        ? Math.round(totalRevenue / validPaidOrders.length)
+        : 0;
+
+    // Top selling products aggregation
+    const productMap = new Map<string, { name: string; quantity: number; revenue: number }>();
+    for (const o of validPaidOrders) {
+      for (const item of o.items) {
+        const prodName = item.product?.name || 'Sản phẩm';
+        const curr = productMap.get(prodName) || { name: prodName, quantity: 0, revenue: 0 };
+        curr.quantity += item.quantity;
+        curr.revenue += Number(item.itemTotal);
+        productMap.set(prodName, curr);
+      }
+    }
+
+    const topProducts = Array.from(productMap.values())
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    return {
+      totalRevenue,
+      totalOrders,
+      completedOrders,
+      cancelledOrders,
+      averageOrderValue,
+      statusCounts: {
+        PENDING: pendingOrders,
+        PAID: paidOrders,
+        PREPARING: preparingOrders,
+        READY: readyOrders,
+        COMPLETED: completedOrders,
+        CANCELLED: cancelledOrders,
+      },
+      topProducts,
+    };
+  }
+
+  /**
+   * Lấy toàn bộ danh sách đơn hàng cho Quản trị viên / Barista / Manager kèm lọc trạng thái
+   */
+  async findAllOrders(status?: OrderStatus): Promise<OrderResponseDto[]> {
+    const where: any = {};
+    if (status) {
+      where.status = status;
+    }
+
+    const orders = await this.prisma.order.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: { fullName: true, email: true, phone: true },
+        },
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    return orders.map((o) => this.mapToResponse(o));
+  }
+
+  /**
    * Lấy chi tiết một đơn hàng theo ID (Bảo vệ quyền riêng tư: chỉ chủ đơn hoặc Staff mới xem được)
    */
   async findOrderById(
@@ -492,6 +588,9 @@ export class OrdersService {
       totalAmount: order.totalAmount.toString(),
       deliveryNote: order.deliveryNote ?? null,
       idempotencyKey: order.idempotencyKey ?? null,
+      customerName: order.user?.fullName,
+      customerEmail: order.user?.email,
+      customerPhone: order.user?.phone,
       createdAt:
         order.createdAt instanceof Date
           ? order.createdAt.toISOString()

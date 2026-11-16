@@ -14,3 +14,4 @@ apps/api/node_modules/.prisma/
 apps/api/src/generated/
 playwright-report/
 test-results/
+*.zip

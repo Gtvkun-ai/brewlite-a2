@@ -113,6 +113,9 @@ export interface OrderResponse {
   deliveryNote?: string;
   createdAt: string;
   items: OrderItemResponse[];
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
 }
 
 export interface PaymentRequest {

@@ -98,6 +98,7 @@ describe("OrdersService", () => {
     prisma = {
       order: {
         findUnique: jest.fn().mockResolvedValue(null),
+        findMany: jest.fn().mockResolvedValue([]),
       },
       $transaction: jest.fn(async (callback) => callback(txMock)),
     };
@@ -570,6 +571,36 @@ describe("OrdersService", () => {
           status: "REFUND_PENDING",
         },
       });
+    });
+
+    it("Admin: findAllOrders retrieves all orders optionally filtered by status", async () => {
+      const mockOrder = {
+        id: "ord-admin-1",
+        code: "BL-20261108-0001",
+        userId: "user-1",
+        status: "PAID",
+        subTotal: new Prisma.Decimal(50000),
+        discountAmount: new Prisma.Decimal(0),
+        totalAmount: new Prisma.Decimal(50000),
+        deliveryNote: null,
+        idempotencyKey: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: { fullName: "Nguyen Van A", email: "a@brewlite.vn", phone: "0901234567" },
+        items: [],
+      };
+
+      prisma.order.findMany.mockResolvedValueOnce([mockOrder]);
+
+      const res = await service.findAllOrders("PAID");
+      expect(res).toHaveLength(1);
+      expect(res[0].id).toBe("ord-admin-1");
+      expect(res[0].customerName).toBe("Nguyen Van A");
+      expect(prisma.order.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { status: "PAID" },
+        }),
+      );
     });
   });
 });

@@ -26,4 +26,7 @@ export class OrderResponseDto {
   createdAt: string;
   updatedAt: string;
   items: OrderItemResponseDto[];
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
 }

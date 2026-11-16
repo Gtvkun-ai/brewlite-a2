@@ -10,8 +10,9 @@ import {
   HttpStatus,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { OrderStatus, Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -39,6 +40,22 @@ export class OrdersController {
   @Get()
   async getMyOrders(@CurrentUser() userId: string): Promise<OrderResponseDto[]> {
     return this.ordersService.findUserOrders(userId);
+  }
+
+  @Get('admin/all')
+  @UseGuards(RolesGuard)
+  @Roles(Role.BARISTA, Role.MANAGER, Role.ADMIN)
+  async getAllOrders(
+    @Query('status') status?: OrderStatus,
+  ): Promise<OrderResponseDto[]> {
+    return this.ordersService.findAllOrders(status);
+  }
+
+  @Get('admin/analytics')
+  @UseGuards(RolesGuard)
+  @Roles(Role.BARISTA, Role.MANAGER, Role.ADMIN)
+  async getAnalytics(): Promise<any> {
+    return this.ordersService.getAnalytics();
   }
 
   @Get(':id')
