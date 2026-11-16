@@ -1,5 +1,5 @@
 // BrewLite Service Worker for Progressive Web App (PWA)
-const CACHE_NAME = 'brewlite-pwa-v1';
+const CACHE_NAME = 'brewlite-pwa-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/manifest.json',
@@ -36,7 +36,13 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
 
   // Do not intercept non-GET requests or API calls (API is always network-first)
-  if (request.method !== 'GET' || url.pathname.startsWith('/api') || url.port === '3001' || url.hostname.includes('onrender.com')) {
+  if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api')) {
+    return;
+  }
+
+  // Order/auth/catalog data must stay live regardless of the API's host or port.
+  // Cache assets only; browser navigations and Next RSC responses use the network.
+  if (!['image', 'style', 'script', 'font'].includes(request.destination)) {
     return;
   }
 

@@ -8,6 +8,8 @@ import {
   Min,
   ValidateNested,
   ArrayMinSize,
+  ArrayUnique,
+  IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ItemSize, ToppingCode } from '../../common/types';
@@ -28,11 +30,21 @@ export class CreateOrderItemDto {
 
   @IsOptional()
   @IsArray()
+  @ArrayUnique()
   @IsEnum(['TRAN_CHAU', 'KEM_CHEESE', 'THACH_DAO'], {
     each: true,
     message: 'selectedToppings chứa mã topping không hợp lệ',
   })
   selectedToppings?: ToppingCode[];
+
+  @IsOptional()
+  @IsInt()
+  @IsIn([0, 50, 70, 100])
+  selectedSugar?: 0 | 50 | 70 | 100;
+
+  @IsOptional()
+  @IsIn(['NORMAL', 'LESS', 'SEPARATE', 'NONE'])
+  selectedIce?: 'NORMAL' | 'LESS' | 'SEPARATE' | 'NONE';
 }
 
 export class CreateOrderDto {

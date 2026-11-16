@@ -1,0 +1,14 @@
+{
+  "cartPreservedAfterLogin": true,
+  "offlineShowedError": true,
+  "paymentAfterReconnect": {
+    "paymentId": "cmwgiwjjd001hex8k2xamujnf",
+    "orderId": "cmwgiwjj4001dex8kidi628wc",
+    "status": "SUCCESS",
+    "orderStatus": "PAID",
+    "amount": "39000",
+    "method": "E_WALLET",
+    "transactionRef": "MOCK-1794667855081-E_WALLET",
+    "createdAt": "2026-11-14T14:50:55.082Z"
+  }
+}

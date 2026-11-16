@@ -35,18 +35,25 @@ export class ProductsService {
       throw new ConflictException(`Mã sản phẩm "${dto.code}" đã tồn tại.`);
     }
 
-    return this.prisma.product.create({
-      data: {
-        code: dto.code,
-        name: dto.name,
-        description: dto.description || '',
-        basePrice: new Prisma.Decimal(String(dto.basePrice)),
-        imageUrl: dto.imageUrl,
-        category: dto.category,
-        isAvailable: dto.isAvailable ?? true,
-        stockQuantity: dto.stockQuantity ?? 100,
-      },
-    });
+    try {
+      return await this.prisma.product.create({
+        data: {
+          code: dto.code,
+          name: dto.name,
+          description: dto.description || '',
+          basePrice: new Prisma.Decimal(String(dto.basePrice)),
+          imageUrl: dto.imageUrl,
+          category: dto.category,
+          isAvailable: dto.isAvailable ?? true,
+          stockQuantity: dto.stockQuantity ?? 100,
+        },
+      });
+    } catch (error) {
+      if (this.prismaCode(error) === 'P2002') {
+        throw new ConflictException(`Mã sản phẩm "${dto.code}" đã tồn tại.`);
+      }
+      throw error;
+    }
   }
 
   async update(id: string, dto: UpdateProductDto): Promise<Product> {
@@ -73,6 +80,19 @@ export class ProductsService {
 
   async remove(id: string): Promise<Product> {
     await this.findOne(id);
-    return this.prisma.product.delete({ where: { id } });
+    try {
+      return await this.prisma.product.delete({ where: { id } });
+    } catch (error) {
+      if (this.prismaCode(error) === 'P2003') {
+        throw new ConflictException('Món đã có trong đơn hàng. Hãy tắt trạng thái bán để giữ lịch sử đơn.');
+      }
+      throw error;
+    }
+  }
+
+  private prismaCode(error: unknown): string | undefined {
+    return typeof error === 'object' && error !== null && 'code' in error
+      ? String(error.code)
+      : undefined;
   }
 }

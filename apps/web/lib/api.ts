@@ -22,6 +22,17 @@ export class ApiError extends Error {
 /** Fallback sample products for offline/fixture mode when backend API is offline. */
 export const FALLBACK_PRODUCTS: Product[] = [
   {
+    id: 'prod-salt-coffee',
+    code: 'CF-SALT',
+    name: 'Cà phê muối',
+    description: 'Cà phê rang mộc đậm đà kết hợp lớp kem muối béo mịn.',
+    basePrice: '39000',
+    imageUrl: '/img/caphesua.jpg',
+    category: 'Coffee',
+    isAvailable: true,
+    stockQuantity: 100,
+  },
+  {
     id: 'prod-milk-coffee',
     code: 'CF-MILK',
     name: 'Cà phê sữa đá',
@@ -111,10 +122,14 @@ export async function fetchProducts(
     }
     return (await res.json()) as Product[];
   } catch (error) {
-    if (error instanceof ApiError || options.fallbackOnNetworkError === false) {
+    if (
+      error instanceof ApiError ||
+      options.fallbackOnNetworkError === false ||
+      process.env.NEXT_PUBLIC_USE_FIXTURES !== 'true'
+    ) {
       throw error;
     }
-    // Fallback to offline catalog if backend is not running
+    // Offline samples are allowed only when fixture mode is explicitly enabled.
     return FALLBACK_PRODUCTS;
   }
 }
@@ -128,7 +143,7 @@ export async function fetchProduct(id: string): Promise<Product> {
     }
     return (await res.json()) as Product;
   } catch (error) {
-    if (error instanceof ApiError) {
+    if (error instanceof ApiError || process.env.NEXT_PUBLIC_USE_FIXTURES !== 'true') {
       throw error;
     }
     // Fallback to offline product if backend is not running

@@ -24,11 +24,13 @@ describe('CheckoutPage (Role F - S1 & S2)', () => {
     localStorage.clear();
     mockPush.mockReset();
     vi.restoreAllMocks();
+    vi.stubEnv('NEXT_PUBLIC_USE_FIXTURES', 'true');
   });
 
   afterEach(() => {
     cleanup();
     localStorage.clear();
+    vi.unstubAllEnvs();
   });
 
   function setAuthenticatedUser() {
@@ -101,6 +103,13 @@ describe('CheckoutPage (Role F - S1 & S2)', () => {
       expect(screen.getByTestId('load-fixture-btn')).toBeInTheDocument();
     });
 
+    it('hides fixture seeding controls in real API mode', async () => {
+      vi.stubEnv('NEXT_PUBLIC_USE_FIXTURES', 'false');
+      renderCheckout({ authenticated: true, withCart: false });
+      expect(await screen.findByTestId('checkout-empty-state')).toBeInTheDocument();
+      expect(screen.queryByTestId('load-fixture-btn')).not.toBeInTheDocument();
+    });
+
     it('loads fixture cart when clicking "Nạp giỏ hàng mẫu để kiểm thử"', async () => {
       renderCheckout({ authenticated: true, withCart: false });
 
@@ -122,7 +131,7 @@ describe('CheckoutPage (Role F - S1 & S2)', () => {
       expect(screen.getByTestId('payment-option-E_WALLET')).toBeInTheDocument();
       expect(screen.getByTestId('payment-option-DOMESTIC_ATM')).toBeInTheDocument();
       expect(screen.getByTestId('checkout-submit-btn')).toHaveTextContent(
-        'Xác nhận đặt hàng & Thanh toán',
+        'Xác nhận thanh toán',
       );
     });
 
@@ -176,10 +185,13 @@ describe('CheckoutPage (Role F - S1 & S2)', () => {
               quantity: 2,
               selectedSize: 'LARGE',
               selectedToppings: ['TRAN_CHAU'],
+              selectedSugar: 100,
+              selectedIce: 'NORMAL',
             },
           ],
         },
         'test-jwt-token',
+        expect.stringMatching(/^order:/),
       );
 
       await waitFor(() => {
@@ -191,7 +203,7 @@ describe('CheckoutPage (Role F - S1 & S2)', () => {
       expect(paymentCallArgs[0]).toEqual({
         orderId: 'ord_12345',
         method: 'E_WALLET',
-        accountRef: undefined,
+        accountRef: 'DEMO-E_WALLET-1234',
       });
       // Verify idempotencyKey is non-empty string
       expect(typeof paymentCallArgs[1]).toBe('string');
@@ -202,8 +214,9 @@ describe('CheckoutPage (Role F - S1 & S2)', () => {
       expect(await screen.findByTestId('checkout-success-view')).toBeInTheDocument();
       expect(screen.getByTestId('order-code')).toHaveTextContent('#BL-9999');
       expect(screen.getByTestId('transaction-ref')).toHaveTextContent('TX_778899');
-      expect(screen.getByTestId('view-order-btn')).toHaveAttribute('href', '/orders/BL-9999');
+      expect(screen.getByTestId('view-order-btn')).toHaveAttribute('href', '/orders/ord_12345');
       expect(screen.getByTestId('view-history-btn')).toHaveAttribute('href', '/orders');
+      await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/orders/ord_12345'), { timeout: 2500 });
     });
 
     it('prevents double-submit when user clicks repeatedly', async () => {
@@ -257,7 +270,7 @@ describe('CheckoutPage (Role F - S1 & S2)', () => {
       });
     });
 
-    it('handles payment decline/failure: preserves cart and reuses same orderId & key on retry', async () => {
+    it('handles payment decline/failure: preserves cart and retries the same order with a new payment attempt key', async () => {
       const mockCreateOrder = vi
         .spyOn(checkoutApi, 'createOrderApi')
         .mockResolvedValueOnce({
@@ -325,10 +338,10 @@ describe('CheckoutPage (Role F - S1 & S2)', () => {
       // CRITICAL VERIFICATION: createOrderApi must NOT be called again on retry!
       expect(mockCreateOrder).toHaveBeenCalledTimes(1);
 
-      // Verify second payment attempt used the SAME orderId and SAME idempotencyKey
+      // A confirmed decline gets a new payment attempt key on the SAME order
       const firstKey = mockSubmitPayment.mock.calls[0][1];
       const secondKey = mockSubmitPayment.mock.calls[1][1];
-      expect(secondKey).toBe(firstKey);
+      expect(secondKey).not.toBe(firstKey);
       expect(mockSubmitPayment.mock.calls[1][0].orderId).toBe('ord_retry_01');
 
       // Success view appears after successful retry

@@ -50,6 +50,7 @@ describe("OrdersService", () => {
 
   beforeEach(async () => {
     txMock = {
+      $queryRaw: jest.fn().mockResolvedValue([]),
       user: {
         findUnique: jest.fn().mockResolvedValue(mockUser),
       },
@@ -79,6 +80,8 @@ describe("OrdersService", () => {
             unitPrice: item.unitPrice,
             selectedSize: item.selectedSize,
             selectedToppings: item.selectedToppings,
+            selectedSugar: item.selectedSugar,
+            selectedIce: item.selectedIce,
             itemTotal: item.itemTotal,
             product:
               item.productId === mockProductMilkCoffee.id
@@ -424,7 +427,7 @@ describe("OrdersService", () => {
       const res = await service.updateOrderStatus("ord-1", "PREPARING");
       expect(res.status).toBe("PREPARING");
       expect(prisma.order.update).toHaveBeenCalledWith({
-        where: { id: "ord-1" },
+        where: { id: "ord-1", status: "PAID" },
         data: { status: "PREPARING" },
         include: expect.any(Object),
       });

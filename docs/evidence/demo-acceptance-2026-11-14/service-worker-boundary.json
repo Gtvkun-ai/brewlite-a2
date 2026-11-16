@@ -1,0 +1,26 @@
+{
+  "result": "PASS",
+  "cases": [
+    {
+      "url": "http://localhost:3101/orders/123",
+      "destination": "",
+      "method": "GET"
+    },
+    {
+      "url": "https://example.invalid/orders/123",
+      "destination": "",
+      "method": "GET"
+    },
+    {
+      "url": "http://localhost:3100/api/orders/123",
+      "destination": "",
+      "method": "GET"
+    },
+    {
+      "url": "http://localhost:3100/orders/123",
+      "destination": "document",
+      "method": "GET"
+    }
+  ],
+  "assertion": "Live API and document requests bypass cache; browser functional suite runs with serviceWorkers blocked for deterministic tests."
+}
