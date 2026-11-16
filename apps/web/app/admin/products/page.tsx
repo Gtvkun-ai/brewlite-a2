@@ -6,6 +6,7 @@ import {
   Coffee,
   Plus,
   Trash2,
+  Pencil,
   CheckCircle,
   XCircle,
   Search,
@@ -14,6 +15,11 @@ import {
   Sparkles,
   X,
   AlertTriangle,
+  Lock,
+  ClipboardList,
+  BarChart3,
+  Tag,
+  Layers,
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import {
@@ -42,6 +48,7 @@ export default function AdminProductsPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [busyProductIds, setBusyProductIds] = useState<string[]>([]);
@@ -56,6 +63,8 @@ export default function AdminProductsPage() {
   const [formImage, setFormImage] = useState<string>('/img/caphesua.jpg');
   const [formDesc, setFormDesc] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const isDevMode = process.env.NODE_ENV !== 'production';
 
   const isAdmin =
     isAuthenticated && (user?.role === 'ADMIN' || user?.role === 'MANAGER');
@@ -82,7 +91,10 @@ export default function AdminProductsPage() {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !isSubmitting) setIsModalOpen(false);
+      if (event.key === 'Escape' && !isSubmitting) {
+        setIsModalOpen(false);
+        setEditingProduct(null);
+      }
     };
     document.addEventListener('keydown', handleEscape);
     return () => {
@@ -91,10 +103,10 @@ export default function AdminProductsPage() {
     };
   }, [isModalOpen, isSubmitting]);
 
-  // Auto generate code from name
+  // Auto generate code from name (only when adding new product)
   const handleNameChange = (val: string, category = formCategory) => {
     setFormName(val);
-    if (!formCode || formCode.startsWith('CF-') || formCode.startsWith('TEA-') || formCode.startsWith('PAS-')) {
+    if (!editingProduct && (!formCode || formCode.startsWith('CF-') || formCode.startsWith('TEA-') || formCode.startsWith('PAS-'))) {
       const prefix = category === 'Coffee' ? 'CF' : category === 'Tea' ? 'TEA' : 'PAS';
       const cleanSlug = val
         .normalize('NFD')
@@ -107,6 +119,37 @@ export default function AdminProductsPage() {
         setFormCode(`${prefix}-${cleanSlug}`);
       }
     }
+  };
+
+  const handleOpenCreateModal = () => {
+    setEditingProduct(null);
+    setFormName('');
+    setFormCode('');
+    setFormCategory('Coffee');
+    setFormPrice('40000');
+    setFormStock('100');
+    setFormImage('/img/caphesua.jpg');
+    setFormDesc('');
+    setActionError(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (p: Product) => {
+    setEditingProduct(p);
+    setFormName(p.name);
+    setFormCode(p.code);
+    setFormCategory(p.category || 'Coffee');
+    setFormPrice(String(p.basePrice));
+    setFormStock(String(p.stockQuantity ?? 0));
+    setFormImage(p.imageUrl || '/img/caphesua.jpg');
+    setFormDesc(p.description || '');
+    setActionError(null);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingProduct(null);
   };
 
   const handleToggleAvailability = async (p: Product) => {
@@ -149,7 +192,7 @@ export default function AdminProductsPage() {
     }
   };
 
-  const handleCreateProduct = async (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) {
       setActionError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
@@ -176,34 +219,50 @@ export default function AdminProductsPage() {
     setActionError(null);
 
     try {
-      const newProd = await createProduct(
-        {
-          code: formCode.trim().toUpperCase(),
-          name: formName.trim(),
-          description: formDesc.trim(),
-          basePrice: priceNum,
-          category: formCategory,
-          imageUrl: formImage.trim() || '/img/caphesua.jpg',
-          stockQuantity: stockNum,
-          isAvailable: true,
-        },
-        token,
-      );
+      if (editingProduct) {
+        // Edit existing product
+        const updated = await updateProduct(
+          editingProduct.id,
+          {
+            name: formName.trim(),
+            description: formDesc.trim(),
+            basePrice: priceNum,
+            category: formCategory,
+            imageUrl: formImage.trim() || '/img/caphesua.jpg',
+            stockQuantity: stockNum,
+          },
+          token,
+        );
 
-      setProducts((prev) => [newProd, ...prev]);
-      setIsModalOpen(false);
-      // Reset form
-      setFormName('');
-      setFormCode('');
-      setFormDesc('');
-      setFormCategory('Coffee');
-      setFormPrice('40000');
-      setFormStock('100');
-      setFormImage('/img/caphesua.jpg');
-      setActionSuccess(`Đã thêm món mới "${newProd.name}" thành công!`);
-      setTimeout(() => setActionSuccess(null), 4000);
+        setProducts((prev) =>
+          prev.map((item) => (item.id === editingProduct.id ? updated : item)),
+        );
+        handleCloseModal();
+        setActionSuccess(`Đã cập nhật món "${updated.name}" thành công!`);
+        setTimeout(() => setActionSuccess(null), 4000);
+      } else {
+        // Create new product
+        const newProd = await createProduct(
+          {
+            code: formCode.trim().toUpperCase(),
+            name: formName.trim(),
+            description: formDesc.trim(),
+            basePrice: priceNum,
+            category: formCategory,
+            imageUrl: formImage.trim() || '/img/caphesua.jpg',
+            stockQuantity: stockNum,
+            isAvailable: true,
+          },
+          token,
+        );
+
+        setProducts((prev) => [newProd, ...prev]);
+        handleCloseModal();
+        setActionSuccess(`Đã thêm món mới "${newProd.name}" thành công!`);
+        setTimeout(() => setActionSuccess(null), 4000);
+      }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Không thể tạo sản phẩm';
+      const msg = err instanceof Error ? err.message : 'Không thể lưu thông tin món';
       setActionError(msg);
     } finally {
       setIsSubmitting(false);
@@ -229,7 +288,7 @@ export default function AdminProductsPage() {
     return { total, available, outOfStock };
   }, [products]);
 
-  // Demo auto-login for testing convenience
+  // Demo auto-login for testing convenience (Dev environment only)
   const handleQuickAdminLogin = async () => {
     setActionError(null);
     setLoginPending(true);
@@ -265,38 +324,67 @@ export default function AdminProductsPage() {
             Trang này chỉ dành cho tài khoản có quyền <strong>Quản trị viên (ADMIN)</strong> hoặc Quản lý cửa hàng (MANAGER).
           </p>
 
-          <div style={{ background: '#faf7f2', border: '1px dashed #ebd9c8', borderRadius: '12px', padding: '0.85rem', marginBottom: '1.5rem', textAlign: 'left', fontSize: '0.82rem' }}>
-            <div style={{ fontWeight: 700, color: 'var(--accent)', marginBottom: '0.35rem' }}>🔑 Tài khoản Admin dùng thử:</div>
-            <div>• Email: <strong>admin@brewlite.vn</strong></div>
-            <div>• Mật khẩu: <strong>Password123!</strong></div>
-          </div>
+          {isDevMode ? (
+            <>
+              <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '12px', padding: '0.85rem', marginBottom: '1.25rem', textAlign: 'left', fontSize: '0.82rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, color: '#b78103', marginBottom: '0.35rem' }}>
+                  <Lock size={14} />
+                  <span>🔑 Tài khoản Admin dùng thử (Chỉ hiện ở Dev Mode):</span>
+                </div>
+                <div>• Email: <strong>admin@brewlite.vn</strong></div>
+                <div>• Mật khẩu: <strong>Password123!</strong></div>
+                <div style={{ fontSize: '0.74rem', color: '#8d6e63', marginTop: '0.45rem', borderTop: '1px dashed #ffe082', paddingTop: '0.35rem', lineHeight: 1.4 }}>
+                  ⚠️ <strong>Cảnh báo bảo mật:</strong> Hộp thoại và tính năng đăng nhập 1-chạm này sẽ tự động bị ẩn trên môi trường Production.
+                </div>
+              </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {actionError && <p role="alert" className="text-danger">{actionError}</p>}
-            <button
-              type="button"
-              disabled={loginPending}
-              onClick={handleQuickAdminLogin}
-              className="btn btn--primary"
-              style={{ width: '100%', padding: '0.8rem', borderRadius: '999px', fontWeight: 700 }}
-            >
-              <Sparkles size={16} style={{ display: 'inline', marginRight: '0.4rem', verticalAlign: 'middle' }} />
-              <span>{loginPending ? 'Đang đăng nhập...' : 'Đăng nhập 1-chạm bằng tài khoản Admin'}</span>
-            </button>
-            <Link
-              href="/login?redirect=/admin/products"
-              className="btn btn--secondary"
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '999px' }}
-            >
-              Đăng nhập bằng tài khoản khác
-            </Link>
-            <Link
-              href="/"
-              style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.5rem', textDecoration: 'underline' }}
-            >
-              Quay lại Thực đơn
-            </Link>
-          </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {actionError && <p role="alert" className="text-danger">{actionError}</p>}
+                <button
+                  type="button"
+                  disabled={loginPending}
+                  onClick={handleQuickAdminLogin}
+                  className="btn btn--primary"
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: '999px', fontWeight: 700 }}
+                >
+                  <Sparkles size={16} style={{ display: 'inline', marginRight: '0.4rem', verticalAlign: 'middle' }} />
+                  <span>{loginPending ? 'Đang đăng nhập...' : 'Đăng nhập 1-chạm bằng tài khoản Admin'}</span>
+                </button>
+                <Link
+                  href="/login?redirect=/admin/products"
+                  className="btn btn--secondary"
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '999px' }}
+                >
+                  Đăng nhập bằng tài khoản khác
+                </Link>
+                <Link
+                  href="/"
+                  style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.5rem', textDecoration: 'underline' }}
+                >
+                  Quay lại Thực đơn
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <p style={{ fontSize: '0.85rem', color: '#c62828', background: '#ffebee', padding: '0.75rem', borderRadius: '8px' }}>
+                Vui lòng đăng nhập bằng tài khoản Quản trị viên được cấp phép để tiếp tục.
+              </p>
+              <Link
+                href="/login?redirect=/admin/products"
+                className="btn btn--primary"
+                style={{ width: '100%', padding: '0.8rem', borderRadius: '999px', fontWeight: 700 }}
+              >
+                Chuyển đến trang Đăng nhập
+              </Link>
+              <Link
+                href="/"
+                style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.5rem', textDecoration: 'underline' }}
+              >
+                Quay lại Thực đơn
+              </Link>
+            </div>
+          )}
         </div>
       </main>
     );
@@ -318,7 +406,7 @@ export default function AdminProductsPage() {
           </div>
           <h1 className="admin-header__title">Quản Trị Thực Đơn BrewLite</h1>
           <p className="admin-header__subtitle">
-            Thêm thức uống mới, điều chỉnh giá bán và cập nhật trạng thái kho tức thời.
+            Thêm thức uống mới, chỉnh sửa thông tin giá bán và cập nhật trạng thái kho tức thời.
           </p>
         </div>
 
@@ -333,7 +421,7 @@ export default function AdminProductsPage() {
           </Link>
           <button
             type="button"
-            onClick={() => { setActionError(null); setIsModalOpen(true); }}
+            onClick={handleOpenCreateModal}
             className="btn btn--primary"
             style={{ borderRadius: '999px', fontWeight: 700, fontSize: '0.88rem' }}
             data-testid="admin-add-product-btn"
@@ -343,6 +431,50 @@ export default function AdminProductsPage() {
           </button>
         </div>
       </header>
+
+      {/* Sub-navigation Tabs */}
+      <nav className="admin-nav-tabs" aria-label="Phân hệ Quản trị">
+        <Link
+          href="/admin/dashboard"
+          className="admin-nav-tab"
+          data-testid="admin-tab-dashboard"
+        >
+          <BarChart3 size={16} />
+          <span>Dashboard Doanh Thu</span>
+        </Link>
+        <Link
+          href="/admin/orders"
+          className="admin-nav-tab"
+          data-testid="admin-tab-orders"
+        >
+          <ClipboardList size={16} />
+          <span>Đơn hàng & KDS Barista</span>
+        </Link>
+        <Link
+          href="/admin/products"
+          className="admin-nav-tab admin-nav-tab--active"
+          data-testid="admin-tab-products"
+        >
+          <Coffee size={16} />
+          <span>Quản lý Thực đơn</span>
+        </Link>
+        <Link
+          href="/admin/promotions"
+          className="admin-nav-tab"
+          data-testid="admin-tab-promotions"
+        >
+          <Tag size={16} />
+          <span>Mã Khuyến Mãi</span>
+        </Link>
+        <Link
+          href="/admin/inventory"
+          className="admin-nav-tab"
+          data-testid="admin-tab-inventory"
+        >
+          <Layers size={16} />
+          <span>Kho & Định Mức BOM</span>
+        </Link>
+      </nav>
 
       {/* Notifications */}
       {actionSuccess && (
@@ -467,7 +599,7 @@ export default function AdminProductsPage() {
                     <td>
                       <button
                         type="button"
-                        disabled={busyProductIds.includes(p.id) || p.stockQuantity <= 0}
+                        disabled={busyProductIds.includes(p.id) || (p.stockQuantity <= 0 && !p.isAvailable)}
                         aria-label={`${isOutOfStock ? 'Bật bán' : 'Tạm hết hàng'} ${p.name}`}
                         aria-pressed={!isOutOfStock}
                         data-testid={`admin-toggle-${p.code}`}
@@ -493,16 +625,30 @@ export default function AdminProductsPage() {
                       </button>
                     </td>
                     <td style={{ textAlign: 'right' }}>
-                      <button
-                        type="button"
-                        disabled={busyProductIds.includes(p.id)}
-                        onClick={() => handleDelete(p)}
-                        className="admin-delete-btn"
-                        title={`Xóa món ${p.name}`}
-                        aria-label={`Xóa ${p.name}`}
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                        <button
+                          type="button"
+                          disabled={busyProductIds.includes(p.id)}
+                          onClick={() => handleOpenEditModal(p)}
+                          className="admin-edit-btn"
+                          title={`Chỉnh sửa món "${p.name}"`}
+                          aria-label={`Chỉnh sửa ${p.name}`}
+                          data-testid={`admin-edit-product-${p.id}`}
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busyProductIds.includes(p.id)}
+                          onClick={() => handleDelete(p)}
+                          className="admin-delete-btn"
+                          title={`Xóa món "${p.name}"`}
+                          aria-label={`Xóa ${p.name}`}
+                          data-testid={`admin-delete-product-${p.id}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -515,25 +661,39 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {/* Modal: Thêm Món Mới */}
+      {/* Modal: Thêm / Chỉnh Sửa Món */}
       {isModalOpen && (
-        <div className="admin-modal-backdrop" onClick={() => { if (!isSubmitting) setIsModalOpen(false); }}>
-          <div className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-product-modal-title" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="admin-modal-backdrop"
+          onClick={() => {
+            if (!isSubmitting) handleCloseModal();
+          }}
+        >
+          <div
+            className="admin-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-product-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="admin-modal__header">
-              <h2 id="admin-product-modal-title" className="admin-modal__title">Thêm Món Mới Vào Thực Đơn</h2>
+              <h2 id="admin-product-modal-title" className="admin-modal__title">
+                {editingProduct ? `Chỉnh Sửa Món: ${editingProduct.name}` : 'Thêm Món Mới Vào Thực Đơn'}
+              </h2>
               <button
                 type="button"
-                aria-label="Đóng biểu mẫu thêm món"
+                aria-label={editingProduct ? 'Đóng biểu mẫu chỉnh sửa món' : 'Đóng biểu mẫu thêm món'}
                 disabled={isSubmitting}
-                onClick={() => setIsModalOpen(false)}
+                onClick={handleCloseModal}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)' }}
               >
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleCreateProduct}>
+            <form onSubmit={handleSaveProduct}>
               {actionError && <p role="alert" className="text-danger">{actionError}</p>}
+
               <div className="form-group mb-3">
                 <label className="form-label" htmlFor="prod-name">
                   Tên món đồ uống / bánh *
@@ -562,8 +722,14 @@ export default function AdminProductsPage() {
                     placeholder="VD: TEA-OOLONG"
                     value={formCode}
                     onChange={(e) => setFormCode(e.target.value.toUpperCase())}
+                    disabled={Boolean(editingProduct)}
                     required
                   />
+                  {editingProduct && (
+                    <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>
+                      Mã SKU cố định không thay đổi khi sửa
+                    </span>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -606,7 +772,7 @@ export default function AdminProductsPage() {
 
                 <div className="form-group">
                   <label className="form-label" htmlFor="prod-stock">
-                    Số lượng tồn kho ban đầu
+                    {editingProduct ? 'Số lượng tồn kho (ly/phần)' : 'Số lượng tồn kho ban đầu'}
                   </label>
                   <input
                     id="prod-stock"
@@ -675,7 +841,7 @@ export default function AdminProductsPage() {
                 <button
                   type="button"
                   disabled={isSubmitting}
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={handleCloseModal}
                   className="btn btn--secondary"
                 >
                   Hủy bỏ
@@ -686,7 +852,11 @@ export default function AdminProductsPage() {
                   className="btn btn--primary"
                   style={{ fontWeight: 700 }}
                 >
-                  {isSubmitting ? 'Đang lưu...' : 'Lưu món vào thực đơn'}
+                  {isSubmitting
+                    ? 'Đang lưu...'
+                    : editingProduct
+                      ? 'Lưu thay đổi'
+                      : 'Lưu món vào thực đơn'}
                 </button>
               </div>
             </form>

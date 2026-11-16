@@ -4,6 +4,7 @@ import {
   BadRequestException,
   ForbiddenException,
   ConflictException,
+  Optional,
 } from "@nestjs/common";
 import { PaymentStatus, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
@@ -16,10 +17,14 @@ import {
   TOPPING_SURCHARGE,
   OrderStatus,
 } from "../common/types";
+import { InventoryService } from "../inventory/inventory.service";
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly inventoryService?: InventoryService,
+  ) {}
 
   /** Compare a multiset of complete item configurations, including duplicates. */
   private matchesItems(existingItems: Array<{
@@ -183,6 +188,17 @@ export class OrdersService {
           }
         }
 
+        // 3.4.1. Khấu trừ định mức nguyên vật liệu BOM nếu có (Bottleneck Atomic Check)
+        if (this.inventoryService) {
+          for (const item of dto.items) {
+            const product = productMap.get(item.productId)!;
+            if (this.inventoryService.hasRecipe(product.code)) {
+              const size = (item.selectedSize === "LARGE" ? "LARGE" : "REGULAR") as "REGULAR" | "LARGE";
+              this.inventoryService.deductRecipe(product.code, size, item.quantity);
+            }
+          }
+        }
+
         // 3.5. Tính toán giá tiền phía server (Server-authoritative Pricing)
         let subTotal = 0;
         const itemsToCreate = dto.items.map((item) => {
@@ -227,6 +243,14 @@ export class OrdersService {
             },
           },
           include: {
+            user: {
+              select: {
+                fullName: true,
+                phone: true,
+                email: true,
+                address: true,
+              },
+            },
             items: {
               include: {
                 product: true,
@@ -249,6 +273,14 @@ export class OrdersService {
         const raceOrder = await this.prisma.order.findUnique({
           where: { idempotencyKey },
           include: {
+            user: {
+              select: {
+                fullName: true,
+                phone: true,
+                email: true,
+                address: true,
+              },
+            },
             items: {
               include: {
                 product: true,
@@ -290,6 +322,118 @@ export class OrdersService {
       where: { userId },
       orderBy: { createdAt: "desc" },
       include: {
+        user: {
+          select: {
+            fullName: true,
+            phone: true,
+            email: true,
+            address: true,
+          },
+        },
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    return orders.map((o) => this.mapToResponse(o));
+  }
+
+  /**
+   * Admin/Manager: Tính toán các chỉ số doanh thu và hiệu suất vận hành
+   */
+  async getAnalytics(): Promise<any> {
+    const orders = await this.prisma.order.findMany({
+      include: {
+        user: {
+          select: {
+            fullName: true,
+            phone: true,
+            email: true,
+            address: true,
+          },
+        },
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    const validPaidOrders = orders.filter((o: any) =>
+      ['PAID', 'PREPARING', 'READY', 'COMPLETED'].includes(o.status),
+    );
+
+    const totalRevenue = validPaidOrders.reduce(
+      (sum: number, o: any) => sum + Number(o.totalAmount),
+      0,
+    );
+    const totalOrders = orders.length;
+    const completedOrders = orders.filter((o: any) => o.status === 'COMPLETED').length;
+    const cancelledOrders = orders.filter((o: any) => o.status === 'CANCELLED').length;
+    const pendingOrders = orders.filter((o: any) => o.status === 'PENDING').length;
+    const preparingOrders = orders.filter((o: any) => o.status === 'PREPARING').length;
+    const readyOrders = orders.filter((o: any) => o.status === 'READY').length;
+    const paidOrders = orders.filter((o: any) => o.status === 'PAID').length;
+
+    const averageOrderValue =
+      validPaidOrders.length > 0
+        ? Math.round(totalRevenue / validPaidOrders.length)
+        : 0;
+
+    // Top selling products aggregation
+    const productMap = new Map<string, { name: string; quantity: number; revenue: number }>();
+    for (const o of validPaidOrders) {
+      for (const item of o.items) {
+        const prodName = item.product?.name || 'Sản phẩm';
+        const curr = productMap.get(prodName) || { name: prodName, quantity: 0, revenue: 0 };
+        curr.quantity += item.quantity;
+        curr.revenue += Number(item.itemTotal);
+        productMap.set(prodName, curr);
+      }
+    }
+
+    const topProducts = Array.from(productMap.values())
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    return {
+      totalRevenue,
+      totalOrders,
+      completedOrders,
+      cancelledOrders,
+      averageOrderValue,
+      statusCounts: {
+        PENDING: pendingOrders,
+        PAID: paidOrders,
+        PREPARING: preparingOrders,
+        READY: readyOrders,
+        COMPLETED: completedOrders,
+        CANCELLED: cancelledOrders,
+      },
+      topProducts,
+    };
+  }
+
+  /**
+   * Lấy toàn bộ danh sách đơn hàng cho Quản trị viên / Barista / Manager kèm lọc trạng thái
+   */
+  async findAllOrders(status?: OrderStatus): Promise<OrderResponseDto[]> {
+    const where: any = {};
+    if (status) {
+      where.status = status;
+    }
+
+    const orders = await this.prisma.order.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: { fullName: true, email: true, phone: true, address: true },
+        },
         items: {
           include: {
             product: { select: { name: true } },
@@ -312,6 +456,14 @@ export class OrdersService {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: {
+        user: {
+          select: {
+            fullName: true,
+            phone: true,
+            email: true,
+            address: true,
+          },
+        },
         items: {
           include: {
             product: { select: { name: true } },
@@ -383,6 +535,15 @@ export class OrdersService {
             stockQuantity: { increment: item.quantity },
           },
         });
+
+        // Hoàn lại định mức nguyên liệu BOM nếu có
+        if (this.inventoryService) {
+          const product = await tx.product.findUnique({ where: { id: item.productId } });
+          if (product && this.inventoryService.hasRecipe(product.code)) {
+            const size = (item.selectedSize === "LARGE" ? "LARGE" : "REGULAR") as "REGULAR" | "LARGE";
+            this.inventoryService.restoreRecipe(product.code, size, item.quantity);
+          }
+        }
       }
 
       // Cập nhật trạng thái đơn CANCELLED
@@ -425,6 +586,14 @@ export class OrdersService {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: {
+        user: {
+          select: {
+            fullName: true,
+            phone: true,
+            email: true,
+            address: true,
+          },
+        },
         items: {
           include: {
             product: { select: { name: true } },
@@ -462,6 +631,14 @@ export class OrdersService {
       where: { id: orderId, status: order.status },
       data: { status: newStatus },
       include: {
+        user: {
+          select: {
+            fullName: true,
+            phone: true,
+            email: true,
+            address: true,
+          },
+        },
         items: {
           include: {
             product: { select: { name: true } },
@@ -492,6 +669,17 @@ export class OrdersService {
       totalAmount: order.totalAmount.toString(),
       deliveryNote: order.deliveryNote ?? null,
       idempotencyKey: order.idempotencyKey ?? null,
+      customer: order.user
+        ? {
+            fullName: order.user.fullName ?? '',
+            phone: order.user.phone ?? null,
+            email: order.user.email ?? '',
+            address: order.user.address ?? null,
+          }
+        : null,
+      customerName: order.user?.fullName,
+      customerEmail: order.user?.email,
+      customerPhone: order.user?.phone,
       createdAt:
         order.createdAt instanceof Date
           ? order.createdAt.toISOString()

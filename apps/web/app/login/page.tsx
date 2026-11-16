@@ -100,9 +100,19 @@ function LoginForm() {
         </div>
 
         <div className="form-group">
-          <label className="form-label" htmlFor="password">
-            Mật khẩu <span className="text-danger">*</span>
-          </label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label className="form-label" htmlFor="password">
+              Mật khẩu <span className="text-danger">*</span>
+            </label>
+            <Link
+              href="/forgot-password"
+              className="link"
+              style={{ fontSize: '0.85rem', marginBottom: '0.25rem' }}
+              data-testid="forgot-password-link"
+            >
+              Quên mật khẩu?
+            </Link>
+          </div>
           <input
             id="password"
             type="password"

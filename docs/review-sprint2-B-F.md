@@ -60,7 +60,7 @@
 
 ## 3. Tổng kết Nghiệm thu Tích hợp (Tech Lead A – A-10)
 
-1. **Giải quyết Xung đột (Conflict Resolution):** Đã hợp nhất an toàn `package-lock.json` và đồng bộ hóa các mã kiểm thử (`WEB-T04-AUTH`, `WEB-T05-CHECKOUT`, `WEB-T06-ORDERS`) trong [`docs/traceability-matrix.md`](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/docs/traceability-matrix.md).
+1. **Giải quyết Xung đột (Conflict Resolution):** Đã hợp nhất an toàn `package-lock.json` và đồng bộ hóa các mã kiểm thử (`WEB-T04-AUTH`, `WEB-T05-CHECKOUT`, `WEB-T06-ORDERS`) trong [`docs/traceability-matrix.md`](traceability-matrix.md).
 2. **Kết quả Quality Gate tự động:**
    * **Lint:** `npm run lint` $\rightarrow$ **0 Warning, 0 Error**.
    * **Test:** `npm test` $\rightarrow$ **54/54 tests PASS 100%** (6 Jest API + 48 Vitest Web).

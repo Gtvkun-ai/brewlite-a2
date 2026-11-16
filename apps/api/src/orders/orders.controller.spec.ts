@@ -10,6 +10,8 @@ describe('OrdersController', () => {
   let service: {
     createOrder: jest.Mock;
     findUserOrders: jest.Mock;
+    findAllOrders: jest.Mock;
+    getAnalytics: jest.Mock;
     findOrderById: jest.Mock;
     cancelOrder: jest.Mock;
     updateOrderStatus: jest.Mock;
@@ -47,6 +49,8 @@ describe('OrdersController', () => {
     service = {
       createOrder: jest.fn().mockResolvedValue(mockResponse),
       findUserOrders: jest.fn().mockResolvedValue([mockResponse]),
+      findAllOrders: jest.fn().mockResolvedValue([mockResponse]),
+      getAnalytics: jest.fn().mockResolvedValue({ totalRevenue: 100000, totalOrders: 2 }),
       findOrderById: jest.fn().mockResolvedValue(mockResponse),
       cancelOrder: jest.fn().mockResolvedValue({ ...mockResponse, status: 'CANCELLED' }),
       updateOrderStatus: jest.fn().mockResolvedValue({ ...mockResponse, status: 'PREPARING' }),
@@ -87,6 +91,18 @@ describe('OrdersController', () => {
     const result = await controller.getMyOrders('user-1');
     expect(result).toEqual([mockResponse]);
     expect(service.findUserOrders).toHaveBeenCalledWith('user-1');
+  });
+
+  it('delegates getAllOrders to OrdersService (Admin/Staff action)', async () => {
+    const result = await controller.getAllOrders('PAID' as any);
+    expect(result).toEqual([mockResponse]);
+    expect(service.findAllOrders).toHaveBeenCalledWith('PAID');
+  });
+
+  it('delegates getAnalytics to OrdersService (Admin analytics dashboard)', async () => {
+    const result = await controller.getAnalytics();
+    expect(result).toHaveProperty('totalRevenue');
+    expect(service.getAnalytics).toHaveBeenCalled();
   });
 
   it('delegates getOrderById to OrdersService with role', async () => {

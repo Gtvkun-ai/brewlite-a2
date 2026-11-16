@@ -12,6 +12,12 @@ export const ORDER_FIXTURES: OrderResponse[] = [
     discountAmount: '0',
     totalAmount: '145000',
     createdAt: '2026-11-06T01:15:00.000Z',
+    customer: {
+      fullName: 'Nguyễn Văn A',
+      phone: '0901234567',
+      email: 'customer@brewlite.vn',
+      address: '123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+    },
     items: [
       {
         id: 'fx-i1',
@@ -43,6 +49,12 @@ export const ORDER_FIXTURES: OrderResponse[] = [
     discountAmount: '0',
     totalAmount: '45000',
     createdAt: '2026-11-05T07:02:00.000Z',
+    customer: {
+      fullName: 'Trần Thị B',
+      phone: '0988776655',
+      email: 'tranthib@gmail.com',
+      address: '456 Lê Lợi, Quận 1, TP. Hồ Chí Minh',
+    },
     items: [
       {
         id: 'fx-i3',

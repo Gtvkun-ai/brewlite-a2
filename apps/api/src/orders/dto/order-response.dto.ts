@@ -1,5 +1,12 @@
 import { OrderStatus } from '../../common/types';
 
+export class OrderCustomerDto {
+  fullName: string;
+  phone: string | null;
+  email: string;
+  address?: string | null;
+}
+
 export class OrderItemResponseDto {
   id: string;
   productId: string;
@@ -26,4 +33,8 @@ export class OrderResponseDto {
   createdAt: string;
   updatedAt: string;
   items: OrderItemResponseDto[];
+  customer?: OrderCustomerDto | null;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
 }

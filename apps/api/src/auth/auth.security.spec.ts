@@ -193,7 +193,16 @@ describe('Auth security integration', () => {
       .expect(200);
     expect(prisma.user.findUnique).toHaveBeenCalledWith({
       where: { email: 'customer@example.com' },
-      select: { id: true, email: true, role: true, passwordHash: true },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        passwordHash: true,
+        fullName: true,
+        phone: true,
+        address: true,
+        createdAt: true,
+      },
     });
   });
 

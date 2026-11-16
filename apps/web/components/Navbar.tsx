@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Coffee, ShoppingBag, User, LogOut, Sparkles, ShieldCheck } from 'lucide-react';
+import { Coffee, ShoppingBag, User, LogOut, Sparkles, ShieldCheck, ClipboardList } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
@@ -54,17 +54,31 @@ export function Navbar() {
         </div>
 
         <div className="navbar__actions">
+          {/* Barista Staff KDS Link */}
+          {isAuthenticated && user?.role === 'BARISTA' && (
+            <Link
+              href="/admin/orders"
+              className="navbar__admin-link"
+              title="Quản trị đơn & KDS Barista"
+              data-testid="admin-orders-nav-link"
+              style={{ background: '#eef2ff', color: '#3730a3', borderColor: '#c7d2fe' }}
+            >
+              <ClipboardList size={14} />
+              <span>Đơn Barista</span>
+            </Link>
+          )}
+
           {/* Admin Link for Store Owners / Managers */}
           {isAuthenticated && (user?.role === 'ADMIN' || user?.role === 'MANAGER') && (
             <Link
-              href="/admin/products"
+              href="/admin/dashboard"
               className="navbar__admin-link"
-              title="Quản trị thực đơn"
-              aria-label="Quản trị món"
+              title="Quản trị hệ thống & Doanh thu"
+              aria-label="Quản trị"
               data-testid="admin-nav-link"
             >
               <ShieldCheck size={14} />
-              <span className="navbar__admin-text">Quản trị món</span>
+              <span className="navbar__admin-text">Quản trị</span>
             </Link>
           )}
 
@@ -87,10 +101,15 @@ export function Navbar() {
           {/* User Auth Info */}
           {isAuthenticated && user ? (
             <div className="navbar__user" data-testid="user-info">
-              <span className="navbar__username" title={user.email}>
+              <Link
+                href="/profile"
+                className="navbar__username"
+                title="Quản lý tài khoản cá nhân"
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
                 <User size={15} className="navbar__user-icon" />
                 <span className="navbar__username-text">{user.fullName || user.email.split('@')[0]}</span>
-              </span>
+              </Link>
               <button
                 type="button"
                 onClick={logout}
