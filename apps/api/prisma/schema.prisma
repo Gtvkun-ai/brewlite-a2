@@ -54,6 +54,20 @@ enum PromotionType {
   FIXED_AMOUNT
 }
 
+enum RecipeSize {
+  REGULAR
+  LARGE
+}
+
+enum InventoryMovementType {
+  OPENING
+  RESTOCK
+  ADJUSTMENT
+  SALE
+  ORDER_CANCELLED
+  PAYMENT_FAILED
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -82,6 +96,57 @@ model Product {
   createdAt     DateTime @default(now())
 
   orderItems OrderItem[]
+  recipes    ProductRecipe[]
+}
+
+model Ingredient {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  name          String
+  unit          String
+  currentStock  Decimal  @default(0) @db.Decimal(14, 2)
+  baselineStock Decimal  @default(0) @db.Decimal(14, 2)
+  minThreshold  Decimal  @default(0) @db.Decimal(14, 2)
+  category      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  recipes   ProductRecipe[]
+  movements InventoryMovement[]
+}
+
+model ProductRecipe {
+  id           String     @id @default(cuid())
+  productCode  String
+  ingredientId String
+  size         RecipeSize
+  amount       Decimal    @db.Decimal(14, 2)
+
+  product    Product    @relation(fields: [productCode], references: [code], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@unique([productCode, size, ingredientId])
+  @@index([ingredientId])
+}
+
+model InventoryMovement {
+  id                     String                @id @default(cuid())
+  ingredientId           String
+  ingredientCodeSnapshot String
+  ingredientNameSnapshot String
+  unitSnapshot           String
+  type                   InventoryMovementType
+  amount                 Decimal               @db.Decimal(14, 2)
+  beforeStock            Decimal               @db.Decimal(14, 2)
+  afterStock             Decimal               @db.Decimal(14, 2)
+  note                   String?
+  referenceKey           String?               @unique
+  createdAt              DateTime              @default(now())
+
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@index([ingredientId, createdAt])
+  @@index([type, createdAt])
 }
 
 model Order {

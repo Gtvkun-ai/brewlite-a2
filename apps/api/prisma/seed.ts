@@ -1,4 +1,9 @@
-import { PrismaClient, Role } from '@prisma/client';
+import {
+  InventoryMovementType,
+  PrismaClient,
+  RecipeSize,
+  Role,
+} from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -100,6 +105,99 @@ async function main() {
     });
   }
   console.log(`Seeded ${products.length} products with VND pricing.`);
+
+  const ingredients = [
+    {
+      code: 'ING-COFFEE-ROBUSTA',
+      name: 'Cà phê hạt Robusta Buôn Ma Thuột',
+      unit: 'g',
+      currentStock: 500,
+      baselineStock: 500,
+      minThreshold: 50,
+      category: 'Coffee',
+    },
+    {
+      code: 'ING-MILK-FRESH',
+      name: 'Sữa tươi thanh trùng Đà Lạt Milk',
+      unit: 'ml',
+      currentStock: 1000,
+      baselineStock: 1000,
+      minThreshold: 100,
+      category: 'Dairy',
+    },
+    {
+      code: 'ING-SUGAR-REFINED',
+      name: 'Đường mía tinh luyện Biên Hòa',
+      unit: 'g',
+      currentStock: 200,
+      baselineStock: 200,
+      minThreshold: 20,
+      category: 'Sweetener',
+    },
+  ];
+  const ingredientIds = new Map<string, string>();
+  for (const material of ingredients) {
+    const existing = await prisma.ingredient.findUnique({
+      where: { code: material.code },
+      select: { id: true },
+    });
+    const ingredient = await prisma.ingredient.upsert({
+      where: { code: material.code },
+      update: {
+        name: material.name,
+        unit: material.unit,
+        baselineStock: material.baselineStock,
+        minThreshold: material.minThreshold,
+        category: material.category,
+      },
+      create: material,
+      select: { id: true },
+    });
+    ingredientIds.set(material.code, ingredient.id);
+    if (!existing) {
+      await prisma.inventoryMovement.create({
+        data: {
+          ingredientId: ingredient.id,
+          ingredientCodeSnapshot: material.code,
+          ingredientNameSnapshot: material.name,
+          unitSnapshot: material.unit,
+          type: InventoryMovementType.OPENING,
+          amount: material.currentStock,
+          beforeStock: 0,
+          afterStock: material.currentStock,
+          note: 'Tồn kho đầu kỳ',
+          referenceKey: `seed-opening:${material.code}`,
+        },
+      });
+    }
+  }
+
+  const recipes = [
+    { productCode: 'CF-MILK', size: RecipeSize.REGULAR, ingredientCode: 'ING-COFFEE-ROBUSTA', amount: 10 },
+    { productCode: 'CF-MILK', size: RecipeSize.REGULAR, ingredientCode: 'ING-MILK-FRESH', amount: 50 },
+    { productCode: 'CF-MILK', size: RecipeSize.REGULAR, ingredientCode: 'ING-SUGAR-REFINED', amount: 5 },
+    { productCode: 'CF-MILK', size: RecipeSize.LARGE, ingredientCode: 'ING-COFFEE-ROBUSTA', amount: 15 },
+    { productCode: 'CF-MILK', size: RecipeSize.LARGE, ingredientCode: 'ING-MILK-FRESH', amount: 75 },
+    { productCode: 'CF-MILK', size: RecipeSize.LARGE, ingredientCode: 'ING-SUGAR-REFINED', amount: 8 },
+    { productCode: 'CF-AME', size: RecipeSize.REGULAR, ingredientCode: 'ING-COFFEE-ROBUSTA', amount: 15 },
+    { productCode: 'CF-AME', size: RecipeSize.LARGE, ingredientCode: 'ING-COFFEE-ROBUSTA', amount: 20 },
+  ];
+  for (const recipe of recipes) {
+    const ingredientId = ingredientIds.get(recipe.ingredientCode);
+    if (!ingredientId) continue;
+    await prisma.productRecipe.upsert({
+      where: {
+        productCode_size_ingredientId: {
+          productCode: recipe.productCode,
+          size: recipe.size,
+          ingredientId,
+        },
+      },
+      update: {},
+      create: { ...recipe, ingredientId },
+    });
+  }
+  console.log('Seeded persistent BOM ingredients, recipes, and opening movements.');
 
   // Demo accounts are for local development and automated tests only.
   // Never create known-password accounts in a production database.

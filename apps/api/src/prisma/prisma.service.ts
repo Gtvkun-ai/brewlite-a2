@@ -1,5 +1,10 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import { PrismaClient, Role } from '@prisma/client';
+import {
+  InventoryMovementType,
+  PrismaClient,
+  RecipeSize,
+  Role,
+} from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -22,6 +27,7 @@ export class PrismaService
     try {
       const productCount = await this.product.count();
       if (productCount > 0) {
+        await this.ensureInventorySeedData();
         return;
       }
       this.logger.log('Database empty: auto-seeding products and test accounts...');
@@ -162,9 +168,123 @@ export class PrismaService
         });
       }
 
+      await this.ensureInventorySeedData();
+
       this.logger.log('Auto-seed completed successfully!');
     } catch (err) {
       this.logger.warn(`Auto-seed non-fatal error: ${err}`);
+    }
+  }
+
+  private async ensureInventorySeedData(): Promise<void> {
+    const baseline = [
+      {
+        code: 'ING-COFFEE-ROBUSTA',
+        name: 'Cà phê hạt Robusta Buôn Ma Thuột',
+        unit: 'g',
+        currentStock: 500,
+        baselineStock: 500,
+        minThreshold: 50,
+        category: 'Coffee',
+      },
+      {
+        code: 'ING-MILK-FRESH',
+        name: 'Sữa tươi thanh trùng Đà Lạt Milk',
+        unit: 'ml',
+        currentStock: 1000,
+        baselineStock: 1000,
+        minThreshold: 100,
+        category: 'Dairy',
+      },
+      {
+        code: 'ING-SUGAR-REFINED',
+        name: 'Đường mía tinh luyện Biên Hòa',
+        unit: 'g',
+        currentStock: 200,
+        baselineStock: 200,
+        minThreshold: 20,
+        category: 'Sweetener',
+      },
+    ];
+    const ingredients = new Map<string, { id: string }>();
+
+    for (const material of baseline) {
+      const existing = await this.ingredient.findUnique({
+        where: { code: material.code },
+        select: { id: true },
+      });
+      const ingredient = await this.ingredient.upsert({
+        where: { code: material.code },
+        update: {
+          name: material.name,
+          unit: material.unit,
+          baselineStock: material.baselineStock,
+          minThreshold: material.minThreshold,
+          category: material.category,
+        },
+        create: material,
+        select: { id: true },
+      });
+      ingredients.set(material.code, ingredient);
+
+      if (!existing) {
+        await this.inventoryMovement.create({
+          data: {
+            ingredientId: ingredient.id,
+            ingredientCodeSnapshot: material.code,
+            ingredientNameSnapshot: material.name,
+            unitSnapshot: material.unit,
+            type: InventoryMovementType.OPENING,
+            amount: material.currentStock,
+            beforeStock: 0,
+            afterStock: material.currentStock,
+            note: 'Tồn kho đầu kỳ',
+            referenceKey: `seed-opening:${material.code}`,
+          },
+        });
+      }
+    }
+
+    const recipes: Array<{
+      productCode: string;
+      size: RecipeSize;
+      ingredientCode: string;
+      amount: number;
+    }> = [
+      { productCode: 'CF-MILK', size: RecipeSize.REGULAR, ingredientCode: 'ING-COFFEE-ROBUSTA', amount: 10 },
+      { productCode: 'CF-MILK', size: RecipeSize.REGULAR, ingredientCode: 'ING-MILK-FRESH', amount: 50 },
+      { productCode: 'CF-MILK', size: RecipeSize.REGULAR, ingredientCode: 'ING-SUGAR-REFINED', amount: 5 },
+      { productCode: 'CF-MILK', size: RecipeSize.LARGE, ingredientCode: 'ING-COFFEE-ROBUSTA', amount: 15 },
+      { productCode: 'CF-MILK', size: RecipeSize.LARGE, ingredientCode: 'ING-MILK-FRESH', amount: 75 },
+      { productCode: 'CF-MILK', size: RecipeSize.LARGE, ingredientCode: 'ING-SUGAR-REFINED', amount: 8 },
+      { productCode: 'CF-AME', size: RecipeSize.REGULAR, ingredientCode: 'ING-COFFEE-ROBUSTA', amount: 15 },
+      { productCode: 'CF-AME', size: RecipeSize.LARGE, ingredientCode: 'ING-COFFEE-ROBUSTA', amount: 20 },
+    ];
+
+    for (const recipe of recipes) {
+      const product = await this.product.findUnique({
+        where: { code: recipe.productCode },
+        select: { code: true },
+      });
+      const ingredient = ingredients.get(recipe.ingredientCode);
+      if (!product || !ingredient) continue;
+
+      await this.productRecipe.upsert({
+        where: {
+          productCode_size_ingredientId: {
+            productCode: recipe.productCode,
+            size: recipe.size,
+            ingredientId: ingredient.id,
+          },
+        },
+        update: {},
+        create: {
+          productCode: recipe.productCode,
+          size: recipe.size,
+          ingredientId: ingredient.id,
+          amount: recipe.amount,
+        },
+      });
     }
   }
 }

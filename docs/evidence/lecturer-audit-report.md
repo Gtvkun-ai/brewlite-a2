@@ -2,7 +2,7 @@
 
 > **Dự án:** BrewLite – Assignment 2 (Requirements to Deployment)  
 > **Môn học:** Công nghệ Phần mềm – Đại học Sài Gòn (SGU)  
-> **Ngày tổng hợp:** 10/11/2026  
+> **Ngày tổng hợp:** 17/11/2026<br>
 > **Tài liệu tham chiếu:** *Tổng hợp yêu cầu của Giảng viên (Tài liệu học tập & chuẩn bị Review)*  
 > **Trọng tâm:** Hiểu rõ chức năng • Thiết kế đúng quy trình • Kiểm thử các tình huống khó • Mỗi thành viên chứng minh được công việc của mình.
 
@@ -74,9 +74,14 @@
   * Cà phê: Tồn 500g (Định mức 10g/ly ➔ Tối đa 50 ly).
   * Sữa tươi: Tồn 1.000ml (Định mức 50ml/ly ➔ Tối đa 20 ly).
   * Đường: Tồn 200g (Định mức 5g/ly ➔ Tối đa 40 ly).
-* **Cách làm:** Tính số ly tối đa: $\min(50, 20, 40) = 20$ ly. Cho khách đặt hàng liên tục đến khi hết nguyên liệu hạn chế (sữa).
-* **Kết quả mong đợi:** Tối đa 20 ly được phục vụ; hệ thống xử lý đúng khi thiếu sữa dù cà phê và đường vẫn còn.
-* **Kết quả thực tế:** Nhóm hiện thực hóa bằng quy tắc tính toán định mức và cập nhật số lượng thành phẩm khả dụng theo đúng nguyên tắc $\min(\text{Nguyên liệu}_i / \text{Định mức}_i)$, đảm bảo giải thích rõ ràng và minh bạch cho Giảng viên.
+* **Cách làm:** Tính giới hạn lý thuyết $\min(500/10, 1000/50, 200/5) = 20$ ly. Bộ tích hợp PostgreSQL [`tests/integration/bom.spec.ts`](../../tests/integration/bom.spec.ts) được viết để đặt 20 ly, xác nhận ly 21 bị từ chối và rollback; buộc rollback transaction; tranh chấp đồng thời ly cuối; và kiểm tra hoàn kho sau thanh toán thất bại rồi thanh toán thử lại.
+* **Kết quả lần chạy 17/11/2026:**
+  * **Lint — PASS:** `npm.cmd run lint` (API và Web).
+  * **Unit Test — PASS:** `npm.cmd test` (API: 20 suites / 159 tests; Web: 17 files / 112 tests).
+  * **Integration PostgreSQL — CHƯA CHẠY:** `npm.cmd run test:integration:bom` dừng tại precondition vì chưa cấu hình `BOM_TEST_DATABASE_URL`. Máy kiểm thử không có PostgreSQL local; không kết nối hoặc ghi dữ liệu vào database production Render. Vì vậy các kịch bản 20/21 ly, rollback, concurrency và thanh toán thất bại chưa được xác nhận đầu cuối trên PostgreSQL.
+  * **Build — PASS:** `npm.cmd run build` (NestJS build thành công; Next.js production build tạo 19 trang).
+* **Kết luận:** Unit Test, Lint và Build đều xanh. Bằng chứng PostgreSQL cho kết quả thực tế của BOM vẫn đang chờ chạy trên database Render riêng có tên chứa `test` hoặc `demo`; không diễn giải các kịch bản đã viết trong integration test thành kết quả đã pass.
+* **Bằng chứng mã nguồn:** [`InventoryService`](../../apps/api/src/inventory/inventory.service.ts), [`OrdersService`](../../apps/api/src/orders/orders.service.ts), [`PaymentsService`](../../apps/api/src/payments/payments.service.ts), [`Prisma schema`](../../apps/api/prisma/schema.prisma), [`migration BOM`](../../apps/api/prisma/migrations/20261117090000_inventory_persistence/migration.sql), [`migration thanh toán thất bại`](../../apps/api/prisma/migrations/20261117130000_inventory_payment_failure/migration.sql), [`BOM PostgreSQL integration suite`](../../tests/integration/bom.spec.ts).
 * **Người thực hiện:** E (Hồ Trung Tín) & A (Tech Lead).
 
 ---

@@ -25,7 +25,7 @@ export class ProductsService {
       return products;
     }
 
-    return products.map((p) => this.applyBomLimits(p));
+    return Promise.all(products.map((product) => this.applyBomLimits(product)));
   }
 
   async findOne(id: string): Promise<Product> {
@@ -42,13 +42,19 @@ export class ProductsService {
     return this.applyBomLimits(product);
   }
 
-  private applyBomLimits(product: Product): Product {
-    if (!this.inventoryService || !this.inventoryService.hasRecipe(product.code)) {
+  private async applyBomLimits(product: Product): Promise<Product> {
+    if (
+      !this.inventoryService ||
+      !(await this.inventoryService.hasRecipe(product.code))
+    ) {
       return product;
     }
 
     try {
-      const forecast = this.inventoryService.calculateBottleneck(product.code, 'REGULAR');
+      const forecast = await this.inventoryService.calculateBottleneck(
+        product.code,
+        'REGULAR',
+      );
       const effectiveStock = Math.min(product.stockQuantity, forecast.maxCups);
       return {
         ...product,
