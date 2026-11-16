@@ -524,7 +524,7 @@ export default function CheckoutPage() {
               </div>
 
               <p className="checkout-qr__notice">
-                QR động điền sẵn số tiền và nội dung trong ứng dụng ngân hàng. Chuyển khoản là giao dịch thật; BrewLite hiện chưa tự đối soát giao dịch ngân hàng.
+                QR tự động điền sẵn số tiền và nội dung trong ứng dụng ngân hàng. Chuyển khoản là giao dịch thật; BrewLite hiện chưa tự đối soát giao dịch ngân hàng.
               </p>
             </div>
           ) : (
