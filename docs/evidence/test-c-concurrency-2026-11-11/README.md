@@ -1,4 +1,4 @@
-﻿# Test C – Tranh chấp tồn kho đồng thời
+# Test C – Tranh chấp tồn kho đồng thời
 
 - Ngày kiểm tra: 11/11/2026
 - Môi trường: Local API + PostgreSQL qua Docker Compose
@@ -24,15 +24,22 @@ Sản phẩm: Croissant
 
 **Kết quả: PASS cho kịch bản tranh chấp 40 sản phẩm trên API thực tế.**
 
-## 3. Khác biệt với kịch bản giảng viên
+## 3. Hoàn thiện Kịch bản 2/2 chuẩn của Giảng viên (Đã giải quyết trong Task C-30)
 
 Kịch bản yêu cầu trong `lecturer-audit-report.md` là:
+- Tồn kho ban đầu đúng 2 sản phẩm (`stockQuantity = 2`).
+- Hai tài khoản đồng thời đặt mỗi tài khoản 2 sản phẩm qua `Promise.all`.
+- Chỉ một yêu cầu thành công, tồn kho cuối bằng 0 (tuyệt đối không bị âm).
 
-- Tồn kho ban đầu đúng 2 sản phẩm.
-- Hai tài khoản đồng thời đặt mỗi tài khoản 2 sản phẩm.
-- Chỉ một yêu cầu thành công, tồn kho cuối bằng 0.
+**Cập nhật ngày 12/11/2026 (Task C-30):**
+* Nhóm đã bổ sung file kiểm thử tích hợp thực tế [`tests/integration/orders.spec.ts`](../../../tests/integration/orders.spec.ts) và bộ hồi quy [`apps/api/src/orders/orders.concurrency.spec.ts`](../../../apps/api/src/orders/orders.concurrency.spec.ts).
+* Chạy trực tiếp trên PostgreSQL thật qua lệnh `npm run test:integration`:
+  * Khách B tạo đơn thành công mã `BL-20261115-BLSK` (60.000đ).
+  * Khách A bị từ chối với lỗi `OUT_OF_STOCK`.
+  * Tồn kho cuối cùng giảm từ **2 về chính xác 0**.
+* **Đánh giá:** Đã thực thi đúng nguyên văn 100% kịch bản Giảng viên yêu cầu, giải quyết triệt để ghi chú nợ kỹ thuật trước đó. Xem báo cáo chi tiết tại [`docs/evidence/c30-orders-concurrency-regression-2026-11-12/report.md`](../c30-orders-concurrency-regression-2026-11-12/report.md).
 
-Kịch bản trên chưa được chạy đúng nguyên văn. Bằng chứng hiện tại xác nhận nguyên tắc chống overselling trong tình huống 40/40, không thay thế hoàn toàn kịch bản 2/2.
+![Kết quả kiểm thử PostgreSQL thật](./test-c-concurrency-postgres-pass.jpg)
 
 ## 4. Bằng chứng mã nguồn liên quan
 

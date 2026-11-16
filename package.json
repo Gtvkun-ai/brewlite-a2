@@ -10,6 +10,7 @@
   "scripts": {
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
+    "test:integration": "ts-node tests/integration/orders.spec.ts",
     "build": "npm run build --workspaces --if-present",
     "test:e2e": "playwright test"
   },
