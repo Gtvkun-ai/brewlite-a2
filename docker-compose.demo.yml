@@ -1,0 +1,19 @@
+# Isolated local acceptance environment; never uses the existing brewlite-db.
+services:
+  demo-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: brew_demo
+      POSTGRES_PASSWORD: brewlite_demo_local
+      POSTGRES_DB: brewlite_demo
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - demo-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brew_demo -d brewlite_demo"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+volumes:
+  demo-data:

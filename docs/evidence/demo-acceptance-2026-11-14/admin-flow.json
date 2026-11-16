@@ -1,0 +1,17 @@
+{
+  "created": {
+    "id": "cmwgiwgf1001bex8kff2jusmn",
+    "code": "AUD-1794667850605",
+    "name": "Trà sen demo 50605",
+    "description": "Món mới được thêm qua Chrome thật trong nghiệm thu.",
+    "basePrice": "42000",
+    "imageUrl": "/img/tradao.jpg",
+    "category": "Tea",
+    "isAvailable": true,
+    "stockQuantity": 12,
+    "createdAt": "2026-11-14T14:50:51.037Z"
+  },
+  "saltAvailabilityRestored": true,
+  "survivedReload": true,
+  "customerUpdatedAfterReload": true
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   Coffee,
@@ -35,20 +35,38 @@ export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [refreshError, setRefreshError] = useState(false);
+  const requestSequence = useRef(0);
 
-  const load = useCallback(async () => {
-    setStatus('loading');
+  const load = useCallback(async (background = false) => {
+    const sequence = ++requestSequence.current;
+    if (!background) setStatus('loading');
+    setRefreshError(false);
     try {
       const data = await fetchProducts();
+      if (sequence !== requestSequence.current) return;
       setProducts(data);
+      setSelectedProduct((previous) => previous ? data.find((product) => product.id === previous.id) ?? null : null);
       setStatus('success');
     } catch {
-      setStatus('error');
+      if (sequence !== requestSequence.current) return;
+      if (background) setRefreshError(true);
+      else setStatus('error');
     }
   }, []);
 
   useEffect(() => {
     void load();
+    const refresh = () => {
+      if (document.visibilityState !== 'visible') return;
+      void load(true);
+    };
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
   }, [load]);
 
   const filteredProducts = useMemo(() => {
@@ -143,6 +161,7 @@ export default function MenuPage() {
               key={cat.key}
               type="button"
               className={`category-tab ${isActive ? 'category-tab--active' : ''}`}
+              aria-pressed={isActive}
               onClick={() => setSelectedCategory(cat.key)}
             >
               <Icon size={16} className="category-tab__icon" />
@@ -158,16 +177,22 @@ export default function MenuPage() {
       </nav>
 
       {/* States or Catalog Grid */}
-      {status === 'loading' && <Loading label="Loading menu…" />}
+      {status === 'loading' && <Loading label="Đang tải thực đơn…" />}
+      {refreshError && (
+        <p role="alert" className="alert alert--error">
+          Chưa thể cập nhật thực đơn mới nhất.{' '}
+          <button type="button" className="btn btn--secondary" onClick={() => void load(true)}>Thử cập nhật lại</button>
+        </p>
+      )}
       {status === 'error' && (
         <Error
           message="Không thể kết nối với máy chủ API. Vui lòng kiểm tra mạng hoặc thử lại."
-          onRetry={load}
+          onRetry={() => void load()}
         />
       )}
       {status === 'success' && products.length === 0 && (
         <Empty
-          title="Menu is empty"
+          title="Thực đơn đang trống"
           message="Hiện chưa có món nào trong thực đơn. Vui lòng quay lại sau."
         />
       )}

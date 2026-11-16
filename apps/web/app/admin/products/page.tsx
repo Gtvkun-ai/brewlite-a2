@@ -11,8 +11,6 @@ import {
   Search,
   ArrowLeft,
   ShieldCheck,
-  Package,
-  Layers,
   Sparkles,
   X,
   AlertTriangle,
@@ -46,6 +44,8 @@ export default function AdminProductsPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [busyProductIds, setBusyProductIds] = useState<string[]>([]);
+  const [loginPending, setLoginPending] = useState(false);
 
   // Form State
   const [formName, setFormName] = useState<string>('');
@@ -64,7 +64,7 @@ export default function AdminProductsPage() {
     setIsLoading(true);
     setActionError(null);
     try {
-      const data = await fetchProducts();
+      const data = await fetchProducts({ fallbackOnNetworkError: false });
       setProducts(data);
     } catch {
       setActionError('Không thể tải danh sách sản phẩm từ máy chủ API.');
@@ -74,17 +74,32 @@ export default function AdminProductsPage() {
   }, []);
 
   useEffect(() => {
-    void loadData();
-  }, [loadData]);
+    if (!authLoading && isAdmin) void loadData();
+  }, [authLoading, isAdmin, loadData]);
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isSubmitting) setIsModalOpen(false);
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isModalOpen, isSubmitting]);
 
   // Auto generate code from name
-  const handleNameChange = (val: string) => {
+  const handleNameChange = (val: string, category = formCategory) => {
     setFormName(val);
     if (!formCode || formCode.startsWith('CF-') || formCode.startsWith('TEA-') || formCode.startsWith('PAS-')) {
-      const prefix = formCategory === 'Coffee' ? 'CF' : formCategory === 'Tea' ? 'TEA' : 'PAS';
+      const prefix = category === 'Coffee' ? 'CF' : category === 'Tea' ? 'TEA' : 'PAS';
       const cleanSlug = val
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[đĐ]/g, 'd')
         .replace(/[^a-zA-Z0-9]/g, '')
         .toUpperCase()
         .slice(0, 8);
@@ -95,12 +110,15 @@ export default function AdminProductsPage() {
   };
 
   const handleToggleAvailability = async (p: Product) => {
-    if (!token) return;
+    if (!token || busyProductIds.includes(p.id)) return;
+    setBusyProductIds((previous) => [...previous, p.id]);
+    setActionError(null);
+    setActionSuccess(null);
     try {
-      await updateProduct(p.id, { isAvailable: !p.isAvailable }, token);
+      const updated = await updateProduct(p.id, { isAvailable: !p.isAvailable }, token);
       setProducts((prev) =>
         prev.map((item) =>
-          item.id === p.id ? { ...item, isAvailable: !p.isAvailable } : item,
+          item.id === p.id ? updated : item,
         ),
       );
       setActionSuccess(`Đã cập nhật trạng thái món "${p.name}".`);
@@ -108,13 +126,16 @@ export default function AdminProductsPage() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Lỗi cập nhật';
       setActionError(msg);
+    } finally {
+      setBusyProductIds((previous) => previous.filter((id) => id !== p.id));
     }
   };
 
   const handleDelete = async (p: Product) => {
-    if (!token) return;
+    if (!token || busyProductIds.includes(p.id)) return;
     if (!confirm(`Bạn có chắc chắn muốn xóa món "${p.name}"?`)) return;
-
+    setBusyProductIds((previous) => [...previous, p.id]);
+    setActionError(null);
     try {
       await deleteProduct(p.id, token);
       setProducts((prev) => prev.filter((item) => item.id !== p.id));
@@ -123,6 +144,8 @@ export default function AdminProductsPage() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Lỗi khi xóa món';
       setActionError(msg);
+    } finally {
+      setBusyProductIds((previous) => previous.filter((id) => id !== p.id));
     }
   };
 
@@ -139,8 +162,13 @@ export default function AdminProductsPage() {
     }
 
     const priceNum = Number(formPrice);
-    if (isNaN(priceNum) || priceNum <= 0) {
+    if (!Number.isFinite(priceNum) || priceNum <= 0) {
       setActionError('Giá bán phải là số tiền hợp lệ (> 0đ).');
+      return;
+    }
+    const stockNum = Number(formStock);
+    if (!formStock.trim() || !Number.isSafeInteger(stockNum) || stockNum < 0 || stockNum > 2147483647) {
+      setActionError('Tồn kho phải là số nguyên từ 0 đến 2.147.483.647.');
       return;
     }
 
@@ -156,7 +184,7 @@ export default function AdminProductsPage() {
           basePrice: priceNum,
           category: formCategory,
           imageUrl: formImage.trim() || '/img/caphesua.jpg',
-          stockQuantity: Number(formStock) || 100,
+          stockQuantity: stockNum,
           isAvailable: true,
         },
         token,
@@ -168,6 +196,10 @@ export default function AdminProductsPage() {
       setFormName('');
       setFormCode('');
       setFormDesc('');
+      setFormCategory('Coffee');
+      setFormPrice('40000');
+      setFormStock('100');
+      setFormImage('/img/caphesua.jpg');
       setActionSuccess(`Đã thêm món mới "${newProd.name}" thành công!`);
       setTimeout(() => setActionSuccess(null), 4000);
     } catch (err: unknown) {
@@ -199,18 +231,18 @@ export default function AdminProductsPage() {
 
   // Demo auto-login for testing convenience
   const handleQuickAdminLogin = async () => {
+    setActionError(null);
+    setLoginPending(true);
     try {
-      setIsLoading(true);
       await login({
         email: 'admin@brewlite.vn',
         password: 'Password123!',
       });
-      await loadData();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Đăng nhập admin thất bại';
       setActionError(msg);
     } finally {
-      setIsLoading(false);
+      setLoginPending(false);
     }
   };
 
@@ -240,17 +272,19 @@ export default function AdminProductsPage() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {actionError && <p role="alert" className="text-danger">{actionError}</p>}
             <button
               type="button"
+              disabled={loginPending}
               onClick={handleQuickAdminLogin}
               className="btn btn--primary"
               style={{ width: '100%', padding: '0.8rem', borderRadius: '999px', fontWeight: 700 }}
             >
               <Sparkles size={16} style={{ display: 'inline', marginRight: '0.4rem', verticalAlign: 'middle' }} />
-              <span>Đăng nhập 1-chạm bằng tài khoản Admin</span>
+              <span>{loginPending ? 'Đang đăng nhập...' : 'Đăng nhập 1-chạm bằng tài khoản Admin'}</span>
             </button>
             <Link
-              href="/login"
+              href="/login?redirect=/admin/products"
               className="btn btn--secondary"
               style={{ width: '100%', padding: '0.75rem', borderRadius: '999px' }}
             >
@@ -299,7 +333,7 @@ export default function AdminProductsPage() {
           </Link>
           <button
             type="button"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => { setActionError(null); setIsModalOpen(true); }}
             className="btn btn--primary"
             style={{ borderRadius: '999px', fontWeight: 700, fontSize: '0.88rem' }}
             data-testid="admin-add-product-btn"
@@ -312,16 +346,17 @@ export default function AdminProductsPage() {
 
       {/* Notifications */}
       {actionSuccess && (
-        <div style={{ background: '#e8f5e9', border: '1px solid #a5d6a7', color: '#2e7d32', padding: '0.75rem 1rem', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem', fontWeight: 600 }}>
+        <div role="status" style={{ background: '#e8f5e9', border: '1px solid #a5d6a7', color: '#2e7d32', padding: '0.75rem 1rem', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem', fontWeight: 600 }}>
           <CheckCircle size={16} />
           <span>{actionSuccess}</span>
         </div>
       )}
 
-      {actionError && (
-        <div style={{ background: '#ffebee', border: '1px solid #ffcdd2', color: '#c62828', padding: '0.75rem 1rem', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem' }}>
+      {actionError && !isModalOpen && (
+        <div role="alert" style={{ background: '#ffebee', border: '1px solid #ffcdd2', color: '#c62828', padding: '0.75rem 1rem', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem' }}>
           <AlertTriangle size={16} />
           <span>{actionError}</span>
+          <button type="button" className="btn btn--secondary" onClick={() => void loadData()}>Thử lại</button>
         </div>
       )}
 
@@ -359,13 +394,14 @@ export default function AdminProductsPage() {
       </section>
 
       {/* Filter / Search Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
-        <div className="search-bar" style={{ maxWidth: '380px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
+        <div className="search-bar" style={{ maxWidth: '380px', flex: '1 1 220px', minWidth: 0 }}>
           <Search size={16} className="search-bar__icon" />
           <input
             type="text"
             className="search-bar__input"
             placeholder="Tìm theo tên món hoặc mã SKU..."
+            aria-label="Tìm kiếm sản phẩm quản trị"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -396,7 +432,7 @@ export default function AdminProductsPage() {
                 const isOutOfStock = !p.isAvailable || p.stockQuantity <= 0;
 
                 return (
-                  <tr key={p.id}>
+                  <tr key={p.id} data-testid={`admin-product-${p.code}`}>
                     <td>
                       <div className="admin-prod-info">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -426,28 +462,32 @@ export default function AdminProductsPage() {
                       </strong>
                     </td>
                     <td>
-                      <span>{p.stockQuantity} ly</span>
+                      <span>{p.stockQuantity} {p.category === 'Pastry' ? 'phần' : 'ly'}</span>
                     </td>
                     <td>
                       <button
                         type="button"
+                        disabled={busyProductIds.includes(p.id) || p.stockQuantity <= 0}
+                        aria-label={`${isOutOfStock ? 'Bật bán' : 'Tạm hết hàng'} ${p.name}`}
+                        aria-pressed={!isOutOfStock}
+                        data-testid={`admin-toggle-${p.code}`}
                         onClick={() => handleToggleAvailability(p)}
                         className={`admin-toggle-btn ${
                           !isOutOfStock
                             ? 'admin-toggle-btn--available'
                             : 'admin-toggle-btn--unavailable'
                         }`}
-                        title="Click để đổi trạng thái bán"
+                        title={p.stockQuantity <= 0 ? 'Không còn tồn kho để bật bán' : 'Bấm để đổi trạng thái bán'}
                       >
                         {!isOutOfStock ? (
                           <>
                             <CheckCircle size={12} />
-                            <span>Đang bán</span>
+                            <span>Còn hàng</span>
                           </>
                         ) : (
                           <>
                             <XCircle size={12} />
-                            <span>Tạm hết</span>
+                            <span>Hết hàng</span>
                           </>
                         )}
                       </button>
@@ -455,6 +495,7 @@ export default function AdminProductsPage() {
                     <td style={{ textAlign: 'right' }}>
                       <button
                         type="button"
+                        disabled={busyProductIds.includes(p.id)}
                         onClick={() => handleDelete(p)}
                         className="admin-delete-btn"
                         title={`Xóa món ${p.name}`}
@@ -466,6 +507,9 @@ export default function AdminProductsPage() {
                   </tr>
                 );
               })}
+              {filteredProducts.length === 0 && (
+                <tr><td colSpan={6} style={{ textAlign: 'center' }}>Không tìm thấy sản phẩm phù hợp.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -473,12 +517,14 @@ export default function AdminProductsPage() {
 
       {/* Modal: Thêm Món Mới */}
       {isModalOpen && (
-        <div className="admin-modal-backdrop" onClick={() => setIsModalOpen(false)}>
-          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-backdrop" onClick={() => { if (!isSubmitting) setIsModalOpen(false); }}>
+          <div className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-product-modal-title" onClick={(e) => e.stopPropagation()}>
             <div className="admin-modal__header">
-              <h2 className="admin-modal__title">Thêm Món Mới Vào Thực Đơn</h2>
+              <h2 id="admin-product-modal-title" className="admin-modal__title">Thêm Món Mới Vào Thực Đơn</h2>
               <button
                 type="button"
+                aria-label="Đóng biểu mẫu thêm món"
+                disabled={isSubmitting}
                 onClick={() => setIsModalOpen(false)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)' }}
               >
@@ -487,6 +533,7 @@ export default function AdminProductsPage() {
             </div>
 
             <form onSubmit={handleCreateProduct}>
+              {actionError && <p role="alert" className="text-danger">{actionError}</p>}
               <div className="form-group mb-3">
                 <label className="form-label" htmlFor="prod-name">
                   Tên món đồ uống / bánh *
@@ -499,10 +546,11 @@ export default function AdminProductsPage() {
                   value={formName}
                   onChange={(e) => handleNameChange(e.target.value)}
                   required
+                  autoFocus
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="admin-modal__form-row">
                 <div className="form-group">
                   <label className="form-label" htmlFor="prod-code">
                     Mã sản phẩm (SKU) *
@@ -528,7 +576,7 @@ export default function AdminProductsPage() {
                     value={formCategory}
                     onChange={(e) => {
                       setFormCategory(e.target.value);
-                      handleNameChange(formName);
+                      handleNameChange(formName, e.target.value);
                     }}
                   >
                     <option value="Coffee">Cà phê (Coffee)</option>
@@ -538,7 +586,7 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="admin-modal__form-row">
                 <div className="form-group">
                   <label className="form-label" htmlFor="prod-price">
                     Giá bán gốc (₫) *
@@ -546,7 +594,8 @@ export default function AdminProductsPage() {
                   <input
                     id="prod-price"
                     type="number"
-                    step="1000"
+                    min="1"
+                    step="1"
                     className="form-input"
                     placeholder="45000"
                     value={formPrice}
@@ -562,6 +611,9 @@ export default function AdminProductsPage() {
                   <input
                     id="prod-stock"
                     type="number"
+                    min="0"
+                    max="2147483647"
+                    step="1"
                     className="form-input"
                     placeholder="100"
                     value={formStock}
@@ -592,6 +644,7 @@ export default function AdminProductsPage() {
                       <button
                         key={img.url}
                         type="button"
+                        disabled={isSubmitting}
                         onClick={() => setFormImage(img.url)}
                         className={`sample-image-pill ${
                           formImage === img.url ? 'sample-image-pill--active' : ''
@@ -618,9 +671,10 @@ export default function AdminProductsPage() {
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '0.75rem' }}>
                 <button
                   type="button"
+                  disabled={isSubmitting}
                   onClick={() => setIsModalOpen(false)}
                   className="btn btn--secondary"
                 >

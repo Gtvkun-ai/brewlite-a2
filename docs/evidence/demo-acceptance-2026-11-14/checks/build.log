@@ -1,0 +1,64 @@
+$ /opt/homebrew/Cellar/node/26.7.0/bin/node scripts/demo.cjs build
+Started: 2026-11-14T14:47:40.021Z
+
+> build
+> npm run build --workspaces --if-present
+
+
+> @brewlite/api@0.1.0 build
+> prisma generate && nest build
+
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.19.3) to ./../../node_modules/@prisma/client in 51ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+
+> @brewlite/web@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.28
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 764ms
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/12) ...
+   Generating static pages (3/12) 
+   Generating static pages (6/12) 
+   Generating static pages (9/12) 
+ ✓ Generating static pages (12/12)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    6.84 kB         119 kB
+├ ○ /_not-found                            992 B         104 kB
+├ ○ /admin/products                      7.85 kB         116 kB
+├ ○ /cart                                2.61 kB         112 kB
+├ ○ /checkout                            28.7 kB         138 kB
+├ ƒ /demo-bank-payment                   1.29 kB         107 kB
+├ ○ /login                               3.37 kB         109 kB
+├ ○ /loyalty                             6.79 kB         113 kB
+├ ○ /orders                              3.85 kB         112 kB
+├ ƒ /orders/[id]                         4.24 kB         116 kB
+├ ƒ /products/[id]                        1.1 kB         113 kB
+└ ○ /register                            3.58 kB         110 kB
++ First Load JS shared by all             103 kB
+  ├ chunks/18-8a0e9dadb94224f5.js        46.6 kB
+  ├ chunks/87c73c54-24122e7b92478d00.js  54.2 kB
+  └ other shared chunks (total)          1.95 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+
+Exit: 0

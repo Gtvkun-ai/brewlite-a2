@@ -27,6 +27,10 @@ export type ItemSize = 'REGULAR' | 'LARGE';
 
 export type ToppingCode = 'TRAN_CHAU' | 'KEM_CHEESE' | 'THACH_DAO';
 
+export type SugarLevel = 0 | 50 | 70 | 100;
+
+export type IceLevel = 'NORMAL' | 'LESS' | 'SEPARATE' | 'NONE';
+
 export interface Product {
   id: string;
   code: string;
@@ -63,10 +67,13 @@ export interface CartItem {
   basePrice: string;
   size: ItemSize;
   toppings: ToppingCode[];
+  sugar?: SugarLevel;
+  ice?: IceLevel;
   quantity: number;
   unitPrice: string;
   itemTotal: string;
   imageUrl?: string;
+  category?: string;
 }
 
 export interface CreateOrderItemDto {
@@ -74,6 +81,8 @@ export interface CreateOrderItemDto {
   quantity: number;
   selectedSize: ItemSize;
   selectedToppings: ToppingCode[];
+  selectedSugar?: SugarLevel;
+  selectedIce?: IceLevel;
 }
 
 export interface CreateOrderRequest {
@@ -89,6 +98,8 @@ export interface OrderItemResponse {
   unitPrice: string;
   selectedSize: ItemSize;
   selectedToppings: ToppingCode[];
+  selectedSugar?: SugarLevel;
+  selectedIce?: IceLevel;
   itemTotal: string;
 }
 

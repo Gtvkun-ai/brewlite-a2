@@ -1,0 +1,24 @@
+{
+  "unauthenticatedAdmin": 401,
+  "customerAdmin": 403,
+  "priceTampering": {
+    "status": 400,
+    "body": {
+      "message": [
+        "items.0.property price should not exist"
+      ],
+      "error": "Bad Request",
+      "statusCode": 400
+    }
+  },
+  "invalidSugar": {
+    "status": 400,
+    "body": {
+      "message": [
+        "items.0.selectedSugar must be one of the following values: 0, 50, 70, 100"
+      ],
+      "error": "Bad Request",
+      "statusCode": 400
+    }
+  }
+}

@@ -7,7 +7,7 @@ import type { OrderResponse } from './types';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 /** true = đang dùng dữ liệu mẫu. Sprint 2: đặt NEXT_PUBLIC_USE_FIXTURES=false. */
-export const isUsingFixtures = process.env.NEXT_PUBLIC_USE_FIXTURES !== 'false';
+export const isUsingFixtures = process.env.NEXT_PUBLIC_USE_FIXTURES === 'true';
 
 /**
  * Contract: JWT Bearer (api-contracts.md, mục 2.2).
@@ -21,6 +21,7 @@ async function request<T>(path: string): Promise<T> {
   const token = getAccessToken();
   const res = await fetch(`${API_BASE_URL}${path}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
+    cache: 'no-store',
   });
   if (!res.ok) {
     throw new ApiError(res.status, `Failed to load orders (${res.status})`);

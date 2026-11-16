@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { X, Coffee, Flame, Leaf, Sparkles } from 'lucide-react';
+import React from 'react';
+import { X, Flame, Leaf, Sparkles } from 'lucide-react';
 import { formatVnd } from '../lib/format';
 import type { Product } from '../lib/types';
 import { useOptionalCart } from '../context/CartContext';
 import ProductOptionSelector from './ProductOptionSelector';
+import { useDialog } from './useDialog';
 
 export interface QuickOrderModalProps {
   product: Product | null;
@@ -15,24 +16,9 @@ export interface QuickOrderModalProps {
 export function QuickOrderModal({ product, onClose }: QuickOrderModalProps) {
   const cart = useOptionalCart();
   const openDrawer = cart?.openDrawer;
-  // Prevent background scroll when modal is open
-  useEffect(() => {
-    if (product) {
-      document.body.style.overflow = 'hidden';
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') onClose();
-      };
-      window.addEventListener('keydown', handleKeyDown);
-      return () => {
-        document.body.style.overflow = '';
-        window.removeEventListener('keydown', handleKeyDown);
-      };
-    }
-  }, [product, onClose]);
+  const dialogRef = useDialog(Boolean(product), onClose);
 
   if (!product) return null;
-
-  const isOutOfStock = !product.isAvailable || product.stockQuantity <= 0;
 
   return (
     <div
@@ -42,6 +28,8 @@ export function QuickOrderModal({ product, onClose }: QuickOrderModalProps) {
     >
       <div
         className="quick-order-modal"
+        ref={dialogRef as React.RefObject<HTMLDivElement>}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -110,11 +98,8 @@ export function QuickOrderModal({ product, onClose }: QuickOrderModalProps) {
             <ProductOptionSelector
               product={product}
               onAdded={() => {
-                // Auto close modal and slide open the Cart Drawer
-                setTimeout(() => {
-                  onClose();
-                  openDrawer?.();
-                }, 350);
+                onClose();
+                openDrawer?.();
               }}
             />
           </div>

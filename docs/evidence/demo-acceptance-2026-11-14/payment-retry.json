@@ -1,0 +1,26 @@
+{
+  "failure": {
+    "paymentId": "cmwgiwdep0018ex8k1ktwjg7i",
+    "orderId": "cmwgiwdeh0014ex8kucmapons",
+    "status": "FAILED",
+    "orderStatus": "PAYMENT_FAILED",
+    "amount": "39000",
+    "method": "E_WALLET",
+    "transactionRef": null,
+    "message": "Tài khoản không đủ số dư hoặc giao dịch bị từ chối",
+    "createdAt": "2026-11-14T14:50:47.138Z"
+  },
+  "success": {
+    "paymentId": "cmwgiwdhy001aex8ktxzfxo17",
+    "orderId": "cmwgiwdeh0014ex8kucmapons",
+    "status": "SUCCESS",
+    "orderStatus": "PAID",
+    "amount": "39000",
+    "method": "E_WALLET",
+    "transactionRef": "MOCK-1794667847252-E_WALLET",
+    "createdAt": "2026-11-14T14:50:47.254Z"
+  },
+  "stockBefore": 80,
+  "stockAfterFailure": 80,
+  "stockAfterSuccess": 79
+}

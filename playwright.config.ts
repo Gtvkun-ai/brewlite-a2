@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
 
-const PORT = 3100; // tránh cổng 3000 (dev) và 3001 (API)
+const PORT = 3200; // isolated from real acceptance app (3100) and API (3101)
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -19,6 +19,6 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     timeout: 120_000,
     reuseExistingServer: true,
-    env: { NEXT_PUBLIC_USE_FIXTURES: 'true' },
+    env: { NEXT_PUBLIC_USE_FIXTURES: 'true', NEXT_DIST_DIR: '.next-fixture' },
   },
 });

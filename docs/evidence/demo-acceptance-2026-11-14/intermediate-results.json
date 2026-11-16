@@ -1,0 +1,574 @@
+{
+  "config": {
+    "argv": [
+      "/opt/homebrew/Cellar/node/26.7.0/bin/node",
+      "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.real.config.ts"
+    ],
+    "configFile": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/playwright.real.config.ts",
+    "rootDir": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser",
+        "snapshotDir": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://localhost:3100",
+          "browserName": "chromium",
+          "channel": "chrome",
+          "headless": false,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "locale": "vi-VN",
+          "timezoneId": "Asia/Ho_Chi_Minh",
+          "serviceWorkers": "block",
+          "screenshot": "on",
+          "video": "on",
+          "trace": "on"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "docs/evidence/demo-acceptance-2026-11-14/playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "docs/evidence/demo-acceptance-2026-11-14/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.65.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "demo-acceptance.spec.ts",
+      "file": "demo-acceptance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Desktop: menu, 70/50 Large topping, drawer, wallet, live order progression",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 37976,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-14T14:38:09.587Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser",
+                      "contentType": "application/json",
+                      "body": "eyJ2ZXJzaW9uIjoiMTU3LjAuODEwMy43OSIsImhlYWRlZCI6dHJ1ZSwiZml4dHVyZU1vZGUiOmZhbHNlLCJ0aW1lem9uZSI6IkFzaWEvSG9fQ2hpX01pbmgifQ=="
+                    },
+                    {
+                      "name": "desktop-flow",
+                      "contentType": "application/json",
+                      "body": "ewogICJvcmRlciI6IHsKICAgICJpZCI6ICJjbXdnaWc3ODIwMDAxZXhnd3d3bnRjczJrIiwKICAgICJjb2RlIjogIkJMLTIwMjYxMTE0LVhONkkiLAogICAgInVzZXJJZCI6ICJjbXdnaTU0bzUwMDA4ZXh3c3Q4ZjNya3pmIiwKICAgICJzdGF0dXMiOiAiUEVORElORyIsCiAgICAic3ViVG90YWwiOiAiNTQwMDAiLAogICAgImRpc2NvdW50QW1vdW50IjogIjAiLAogICAgInRvdGFsQW1vdW50IjogIjU0MDAwIiwKICAgICJkZWxpdmVyeU5vdGUiOiBudWxsLAogICAgImlkZW1wb3RlbmN5S2V5IjogIm9yZGVyOjAxYmFkN2I3LTNkY2ItNGI5My1hZGUyLWQ4ODcwMjM0ZDk0YyIsCiAgICAiY3JlYXRlZEF0IjogIjIwMjYtMTEtMTRUMTQ6Mzg6MTIuNjI2WiIsCiAgICAidXBkYXRlZEF0IjogIjIwMjYtMTEtMTRUMTQ6Mzg6MTIuNjI2WiIsCiAgICAiaXRlbXMiOiBbCiAgICAgIHsKICAgICAgICAiaWQiOiAiY213Z2lnNzgyMDAwM2V4Z3dkZmxpeW5nMCIsCiAgICAgICAgInByb2R1Y3RJZCI6ICJjbXdnaTU0a2wwMDAwZXh3c2FlN3l2czNyIiwKICAgICAgICAicHJvZHVjdE5hbWUiOiAiQ8OgIHBow6ogbXXhu5FpIiwKICAgICAgICAicXVhbnRpdHkiOiAxLAogICAgICAgICJ1bml0UHJpY2UiOiAiNTQwMDAiLAogICAgICAgICJzZWxlY3RlZFNpemUiOiAiTEFSR0UiLAogICAgICAgICJzZWxlY3RlZFRvcHBpbmdzIjogWwogICAgICAgICAgIlRSQU5fQ0hBVSIKICAgICAgICBdLAogICAgICAgICJzZWxlY3RlZFN1Z2FyIjogNzAsCiAgICAgICAgInNlbGVjdGVkSWNlIjogIkxFU1MiLAogICAgICAgICJpdGVtVG90YWwiOiAiNTQwMDAiCiAgICAgIH0KICAgIF0KICB9LAogICJwYXltZW50IjogewogICAgInBheW1lbnRJZCI6ICJjbXdnaWc3OGgwMDA1ZXhnd3BybGdzcnZvIiwKICAgICJvcmRlcklkIjogImNtd2dpZzc4MjAwMDFleGd3d3dudGNzMmsiLAogICAgInN0YXR1cyI6ICJTVUNDRVNTIiwKICAgICJvcmRlclN0YXR1cyI6ICJQQUlEIiwKICAgICJhbW91bnQiOiAiNTQwMDAiLAogICAgIm1ldGhvZCI6ICJFX1dBTExFVCIsCiAgICAidHJhbnNhY3Rpb25SZWYiOiAiTU9DSy0xNzk0NjY3MDkyNjQwLUVfV0FMTEVUIiwKICAgICJjcmVhdGVkQXQiOiAiMjAyNi0xMS0xNFQxNDozODoxMi42NDFaIgogIH0sCiAgIm9ic2VydmVkIjogWwogICAgewogICAgICAic3RhdHVzIjogIlBBSUQiLAogICAgICAib2JzZXJ2ZWRBdCI6ICIyMDI2LTExLTE0VDE0OjM4OjE0LjAwNloiCiAgICB9LAogICAgewogICAgICAic3RhdHVzIjogIlBSRVBBUklORyIsCiAgICAgICJvYnNlcnZlZEF0IjogIjIwMjYtMTEtMTRUMTQ6Mzg6MjYuMTcxWiIKICAgIH0sCiAgICB7CiAgICAgICJzdGF0dXMiOiAiUkVBRFkiLAogICAgICAib2JzZXJ2ZWRBdCI6ICIyMDI2LTExLTE0VDE0OjM4OjM1LjA1NVoiCiAgICB9LAogICAgewogICAgICAic3RhdHVzIjogIkNPTVBMRVRFRCIsCiAgICAgICJvYnNlcnZlZEF0IjogIjIwMjYtMTEtMTRUMTQ6Mzg6NDYuOTUzWiIKICAgIH0KICBdLAogICJjcmVhdGVQYXlsb2FkIjogewogICAgIml0ZW1zIjogWwogICAgICB7CiAgICAgICAgInByb2R1Y3RJZCI6ICJjbXdnaTU0a2wwMDAwZXh3c2FlN3l2czNyIiwKICAgICAgICAicXVhbnRpdHkiOiAxLAogICAgICAgICJzZWxlY3RlZFNpemUiOiAiTEFSR0UiLAogICAgICAgICJzZWxlY3RlZFRvcHBpbmdzIjogWwogICAgICAgICAgIlRSQU5fQ0hBVSIKICAgICAgICBdLAogICAgICAgICJzZWxlY3RlZFN1Z2FyIjogNzAsCiAgICAgICAgInNlbGVjdGVkSWNlIjogIkxFU1MiCiAgICAgIH0KICAgIF0KICB9LAogICJwYXltZW50UGF5bG9hZCI6IHsKICAgICJvcmRlcklkIjogImNtd2dpZzc4MjAwMDFleGd3d3dudGNzMmsiLAogICAgIm1ldGhvZCI6ICJFX1dBTExFVCIsCiAgICAiYWNjb3VudFJlZiI6ICJERU1PLUVfV0FMTEVULTEyMzQiCiAgfSwKICAicmVsb2FkZWRGcm9tRGF0YWJhc2UiOiB0cnVlCn0="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Desktop-me-5ee6c-llet-live-order-progression/test-finished-1.png"
+                    },
+                    {
+                      "name": "javascript-errors",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Desktop-me-5ee6c-llet-live-order-progression/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Desktop-me-5ee6c-llet-live-order-progression/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61294b7db1cf8fbd45a6-aef1c69da69b842902ea",
+          "file": "demo-acceptance.spec.ts",
+          "line": 62,
+          "column": 1
+        },
+        {
+          "title": "Mobile 390px: customized drink and simulated card checkout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3409,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-14T14:38:48.609Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser",
+                      "contentType": "application/json",
+                      "body": "eyJ2ZXJzaW9uIjoiMTU3LjAuODEwMy43OSIsImhlYWRlZCI6dHJ1ZSwiZml4dHVyZU1vZGUiOmZhbHNlLCJ0aW1lem9uZSI6IkFzaWEvSG9fQ2hpX01pbmgifQ=="
+                    },
+                    {
+                      "name": "mobile-flow",
+                      "contentType": "application/json",
+                      "body": "ewogICJwYXltZW50IjogewogICAgInBheW1lbnRJZCI6ICJjbXdnaWgwZm8wMDBiZXhnd3o2amQ0bjA1IiwKICAgICJvcmRlcklkIjogImNtd2dpaDBmaDAwMDdleGd3cmQ1bm1qZTQiLAogICAgInN0YXR1cyI6ICJTVUNDRVNTIiwKICAgICJvcmRlclN0YXR1cyI6ICJQQUlEIiwKICAgICJhbW91bnQiOiAiNTQwMDAiLAogICAgIm1ldGhvZCI6ICJET01FU1RJQ19BVE0iLAogICAgInRyYW5zYWN0aW9uUmVmIjogIk1PQ0stMTc5NDY2NzEzMDQ4NC1ET01FU1RJQ19BVE0iLAogICAgImNyZWF0ZWRBdCI6ICIyMDI2LTExLTE0VDE0OjM4OjUwLjQ4NVoiCiAgfSwKICAidmlld3BvcnQiOiB7CiAgICAid2lkdGgiOiAzOTAsCiAgICAiaGVpZ2h0IjogODQ0CiAgfSwKICAib3ZlcmZsb3ciOiB7CiAgICAid2lkdGgiOiAzOTAsCiAgICAic2Nyb2xsIjogMzkwCiAgfQp9"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Mobile-390-3b020-and-simulated-card-checkout/test-finished-1.png"
+                    },
+                    {
+                      "name": "javascript-errors",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Mobile-390-3b020-and-simulated-card-checkout/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Mobile-390-3b020-and-simulated-card-checkout/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61294b7db1cf8fbd45a6-301fb617803c4206d3da",
+          "file": "demo-acceptance.spec.ts",
+          "line": 129,
+          "column": 1
+        },
+        {
+          "title": "Payment failure and retry: same order, fresh attempt, inventory deducted once",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3676,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-14T14:38:52.137Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser",
+                      "contentType": "application/json",
+                      "body": "eyJ2ZXJzaW9uIjoiMTU3LjAuODEwMy43OSIsImhlYWRlZCI6dHJ1ZSwiZml4dHVyZU1vZGUiOmZhbHNlLCJ0aW1lem9uZSI6IkFzaWEvSG9fQ2hpX01pbmgifQ=="
+                    },
+                    {
+                      "name": "payment-retry",
+                      "contentType": "application/json",
+                      "body": "ewogICJmYWlsdXJlIjogewogICAgInBheW1lbnRJZCI6ICJjbXdnaWgzNXAwMDBoZXhndzBrZDk2NmFtIiwKICAgICJvcmRlcklkIjogImNtd2dpaDM1ZzAwMGRleGd3cXhvaW40YmwiLAogICAgInN0YXR1cyI6ICJGQUlMRUQiLAogICAgIm9yZGVyU3RhdHVzIjogIlBBWU1FTlRfRkFJTEVEIiwKICAgICJhbW91bnQiOiAiMzkwMDAiLAogICAgIm1ldGhvZCI6ICJFX1dBTExFVCIsCiAgICAidHJhbnNhY3Rpb25SZWYiOiBudWxsLAogICAgIm1lc3NhZ2UiOiAiVMOgaSBraG/huqNuIGtow7RuZyDEkeG7pyBz4buRIGTGsCBob+G6t2MgZ2lhbyBk4buLY2ggYuG7iyB04burIGNo4buRaSIsCiAgICAiY3JlYXRlZEF0IjogIjIwMjYtMTEtMTRUMTQ6Mzg6NTQuMDEzWiIKICB9LAogICJzdWNjZXNzIjogewogICAgInBheW1lbnRJZCI6ICJjbXdnaWgzOTAwMDBqZXhnd3ZkdjFwMTM0IiwKICAgICJvcmRlcklkIjogImNtd2dpaDM1ZzAwMGRleGd3cXhvaW40YmwiLAogICAgInN0YXR1cyI6ICJTVUNDRVNTIiwKICAgICJvcmRlclN0YXR1cyI6ICJQQUlEIiwKICAgICJhbW91bnQiOiAiMzkwMDAiLAogICAgIm1ldGhvZCI6ICJFX1dBTExFVCIsCiAgICAidHJhbnNhY3Rpb25SZWYiOiAiTU9DSy0xNzk0NjY3MTM0MTI5LUVfV0FMTEVUIiwKICAgICJjcmVhdGVkQXQiOiAiMjAyNi0xMS0xNFQxNDozODo1NC4xMzJaIgogIH0sCiAgInN0b2NrQmVmb3JlIjogOTUsCiAgInN0b2NrQWZ0ZXJGYWlsdXJlIjogOTUsCiAgInN0b2NrQWZ0ZXJTdWNjZXNzIjogOTQKfQ=="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Payment-fa-12e0b-mpt-inventory-deducted-once/test-finished-1.png"
+                    },
+                    {
+                      "name": "javascript-errors",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Payment-fa-12e0b-mpt-inventory-deducted-once/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Payment-fa-12e0b-mpt-inventory-deducted-once/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61294b7db1cf8fbd45a6-1a74f0a321b3dcba6d5d",
+          "file": "demo-acceptance.spec.ts",
+          "line": 155,
+          "column": 1
+        },
+        {
+          "title": "Admin: real login, availability toggle reaches customer, new product persists",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 17046,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('a.card').filter({ has: getByRole('heading', { name: 'Cà phê muối', exact: true }) })\nExpected substring: \u001b[32m\"Tạm hết hàng\"\u001b[39m\nReceived string:    \u001b[31m\"Best SellerCà phê nguyên chấtCòn 94 lyCà phê muốiCà phê rang mộc đậm đà kết hợp lớp kem muối béo mịn.Giá niêm yết39.000 ₫Đặt món\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('a.card').filter({ has: getByRole('heading', { name: 'Cà phê muối', exact: true }) }) with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('a.card').filter({ has: getByRole('heading', { name: 'Cà phê muối', exact: true }) })\u001b[22m\n\u001b[2m    34 × locator resolved to <a class=\"card \" href=\"/products/cmwgi54kl0000exwsae7yvs3r\" data-testid=\"product-card-cmwgi54kl0000exwsae7yvs3r\">…</a>\u001b[22m\n\u001b[2m       - unexpected value \"Best SellerCà phê nguyên chấtCòn 94 lyCà phê muốiCà phê rang mộc đậm đà kết hợp lớp kem muối béo mịn.Giá niêm yết39.000 ₫Đặt món\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('a.card').filter({ has: getByRole('heading', { name: 'Cà phê muối', exact: true }) })\nExpected substring: \u001b[32m\"Tạm hết hàng\"\u001b[39m\nReceived string:    \u001b[31m\"Best SellerCà phê nguyên chấtCòn 94 lyCà phê muốiCà phê rang mộc đậm đà kết hợp lớp kem muối béo mịn.Giá niêm yết39.000 ₫Đặt món\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('a.card').filter({ has: getByRole('heading', { name: 'Cà phê muối', exact: true }) }) with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('a.card').filter({ has: getByRole('heading', { name: 'Cà phê muối', exact: true }) })\u001b[22m\n\u001b[2m    34 × locator resolved to <a class=\"card \" href=\"/products/cmwgi54kl0000exwsae7yvs3r\" data-testid=\"product-card-cmwgi54kl0000exwsae7yvs3r\">…</a>\u001b[22m\n\u001b[2m       - unexpected value \"Best SellerCà phê nguyên chấtCòn 94 lyCà phê muốiCà phê rang mộc đậm đà kết hợp lớp kem muối béo mịn.Giá niêm yết39.000 ₫Đặt món\"\u001b[22m\n\n    at /Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts:200:26",
+                    "location": {
+                      "file": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts",
+                      "column": 26,
+                      "line": 200
+                    },
+                    "snippet": " \u001b[90m 198 |\u001b[39m   \u001b[36mawait\u001b[39m customer\u001b[33m.\u001b[39mbringToFront()\u001b[33m;\u001b[39m\n \u001b[90m 199 |\u001b[39m   \u001b[36mconst\u001b[39m saltCard \u001b[33m=\u001b[39m customer\u001b[33m.\u001b[39mlocator(\u001b[32m'a.card'\u001b[39m)\u001b[33m.\u001b[39mfilter({ has\u001b[33m:\u001b[39m customer\u001b[33m.\u001b[39mgetByRole(\u001b[32m'heading'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Cà phê muối'\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m }) })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 200 |\u001b[39m   \u001b[36mawait\u001b[39m expect(saltCard)\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Tạm hết hàng'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 201 |\u001b[39m   \u001b[36mawait\u001b[39m saltCard\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 202 |\u001b[39m   \u001b[36mawait\u001b[39m expect(customer\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'add-to-cart-btn'\u001b[39m))\u001b[33m.\u001b[39mtoBeDisabled()\u001b[33m;\u001b[39m\n \u001b[90m 203 |\u001b[39m   \u001b[36mawait\u001b[39m shot(customer\u001b[33m,\u001b[39m \u001b[32m'admin-03-customer-out-of-stock'\u001b[39m)\u001b[33m;\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts",
+                        "column": 26,
+                        "line": 200
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('a.card').filter({ has: getByRole('heading', { name: 'Cà phê muối', exact: true }) })\nExpected substring: \u001b[32m\"Tạm hết hàng\"\u001b[39m\nReceived string:    \u001b[31m\"Best SellerCà phê nguyên chấtCòn 94 lyCà phê muốiCà phê rang mộc đậm đà kết hợp lớp kem muối béo mịn.Giá niêm yết39.000 ₫Đặt món\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('a.card').filter({ has: getByRole('heading', { name: 'Cà phê muối', exact: true }) }) with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('a.card').filter({ has: getByRole('heading', { name: 'Cà phê muối', exact: true }) })\u001b[22m\n\u001b[2m    34 × locator resolved to <a class=\"card \" href=\"/products/cmwgi54kl0000exwsae7yvs3r\" data-testid=\"product-card-cmwgi54kl0000exwsae7yvs3r\">…</a>\u001b[22m\n\u001b[2m       - unexpected value \"Best SellerCà phê nguyên chấtCòn 94 lyCà phê muốiCà phê rang mộc đậm đà kết hợp lớp kem muối béo mịn.Giá niêm yết39.000 ₫Đặt món\"\u001b[22m\n\n\n  198 |   await customer.bringToFront();\n  199 |   const saltCard = customer.locator('a.card').filter({ has: customer.getByRole('heading', { name: 'Cà phê muối', exact: true }) });\n> 200 |   await expect(saltCard).toContainText('Tạm hết hàng');\n      |                          ^\n  201 |   await saltCard.click();\n  202 |   await expect(customer.getByTestId('add-to-cart-btn')).toBeDisabled();\n  203 |   await shot(customer, 'admin-03-customer-out-of-stock');\n    at /Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts:200:26"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-14T14:38:56.042Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser",
+                      "contentType": "application/json",
+                      "body": "eyJ2ZXJzaW9uIjoiMTU3LjAuODEwMy43OSIsImhlYWRlZCI6dHJ1ZSwiZml4dHVyZU1vZGUiOmZhbHNlLCJ0aW1lem9uZSI6IkFzaWEvSG9fQ2hpX01pbmgifQ=="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Admin-real-c7ae6-stomer-new-product-persists/test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Admin-real-c7ae6-stomer-new-product-persists/test-failed-2.png"
+                    },
+                    {
+                      "name": "javascript-errors",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Admin-real-c7ae6-stomer-new-product-persists/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Admin-real-c7ae6-stomer-new-product-persists/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Admin-real-c7ae6-stomer-new-product-persists/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts",
+                    "column": 26,
+                    "line": 200
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "61294b7db1cf8fbd45a6-7140508ccf037ae6ca2a",
+          "file": "demo-acceptance.spec.ts",
+          "line": 185,
+          "column": 1
+        },
+        {
+          "title": "Real API negatives: unauthenticated/customer admin denied, server price and option validation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 980,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-14T14:39:14.326Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser",
+                      "contentType": "application/json",
+                      "body": "eyJ2ZXJzaW9uIjoiMTU3LjAuODEwMy43OSIsImhlYWRlZCI6dHJ1ZSwiZml4dHVyZU1vZGUiOmZhbHNlLCJ0aW1lem9uZSI6IkFzaWEvSG9fQ2hpX01pbmgifQ=="
+                    },
+                    {
+                      "name": "real-api-negative-cases",
+                      "contentType": "application/json",
+                      "body": "ewogICJ1bmF1dGhlbnRpY2F0ZWRBZG1pbiI6IDQwMSwKICAiY3VzdG9tZXJBZG1pbiI6IDQwMywKICAicHJpY2VUYW1wZXJpbmciOiB7CiAgICAic3RhdHVzIjogNDAwLAogICAgImJvZHkiOiB7CiAgICAgICJtZXNzYWdlIjogWwogICAgICAgICJpdGVtcy4wLnByb3BlcnR5IHByaWNlIHNob3VsZCBub3QgZXhpc3QiCiAgICAgIF0sCiAgICAgICJlcnJvciI6ICJCYWQgUmVxdWVzdCIsCiAgICAgICJzdGF0dXNDb2RlIjogNDAwCiAgICB9CiAgfSwKICAiaW52YWxpZFN1Z2FyIjogewogICAgInN0YXR1cyI6IDQwMCwKICAgICJib2R5IjogewogICAgICAibWVzc2FnZSI6IFsKICAgICAgICAiaXRlbXMuMC5zZWxlY3RlZFN1Z2FyIG11c3QgYmUgb25lIG9mIHRoZSBmb2xsb3dpbmcgdmFsdWVzOiAwLCA1MCwgNzAsIDEwMCIKICAgICAgXSwKICAgICAgImVycm9yIjogIkJhZCBSZXF1ZXN0IiwKICAgICAgInN0YXR1c0NvZGUiOiA0MDAKICAgIH0KICB9Cn0="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Real-API-n-82422-price-and-option-validation/test-finished-1.png"
+                    },
+                    {
+                      "name": "javascript-errors",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Real-API-n-82422-price-and-option-validation/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Real-API-n-82422-price-and-option-validation/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61294b7db1cf8fbd45a6-4bd91c892d9abb943eec",
+          "file": "demo-acceptance.spec.ts",
+          "line": 239,
+          "column": 1
+        },
+        {
+          "title": "Guest cart survives login and offline checkout never fabricates a paid order",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1017,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at salt (/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts:34:31)\n    at /Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts:263:3",
+                    "location": {
+                      "file": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts",
+                      "column": 31,
+                      "line": 34
+                    },
+                    "snippet": " \u001b[90m 32 |\u001b[39m   \u001b[36mconst\u001b[39m products \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m (\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mrequest\u001b[33m.\u001b[39mget(\u001b[32m`${API}/products`\u001b[39m))\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m   \u001b[36mconst\u001b[39m product \u001b[33m=\u001b[39m products\u001b[33m.\u001b[39mfind((p\u001b[33m:\u001b[39m { code\u001b[33m:\u001b[39m string }) \u001b[33m=>\u001b[39m p\u001b[33m.\u001b[39mcode \u001b[33m===\u001b[39m \u001b[32m'CF-SALT'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 34 |\u001b[39m   expect(product\u001b[33m.\u001b[39misAvailable)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m`product-card-${product.id}`\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 36 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'quick-order-modal'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 37 |\u001b[39m   \u001b[36mreturn\u001b[39m product\u001b[33m;\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts",
+                        "column": 31,
+                        "line": 34
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  32 |   const products = await (await page.request.get(`${API}/products`)).json();\n  33 |   const product = products.find((p: { code: string }) => p.code === 'CF-SALT');\n> 34 |   expect(product.isAvailable).toBe(true);\n     |                               ^\n  35 |   await page.getByTestId(`product-card-${product.id}`).click();\n  36 |   await expect(page.getByTestId('quick-order-modal')).toBeVisible();\n  37 |   return product;\n    at salt (/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts:34:31)\n    at /Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts:263:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-14T14:39:15.882Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser",
+                      "contentType": "application/json",
+                      "body": "eyJ2ZXJzaW9uIjoiMTU3LjAuODEwMy43OSIsImhlYWRlZCI6dHJ1ZSwiZml4dHVyZU1vZGUiOmZhbHNlLCJ0aW1lem9uZSI6IkFzaWEvSG9fQ2hpX01pbmgifQ=="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Guest-cart-b06d2-ver-fabricates-a-paid-order/test-failed-1.png"
+                    },
+                    {
+                      "name": "javascript-errors",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Guest-cart-b06d2-ver-fabricates-a-paid-order/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Guest-cart-b06d2-ver-fabricates-a-paid-order/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/docs/evidence/demo-acceptance-2026-11-14/browser-artifacts/demo-acceptance-Guest-cart-b06d2-ver-fabricates-a-paid-order/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/nguyenanhhuy/Desktop/source/brewlite-a2/tests/real-browser/demo-acceptance.spec.ts",
+                    "column": 31,
+                    "line": 34
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "61294b7db1cf8fbd45a6-2977e978b5b84345be24",
+          "file": "demo-acceptance.spec.ts",
+          "line": 261,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-14T14:38:09.350Z",
+    "duration": 67876.04400000001,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

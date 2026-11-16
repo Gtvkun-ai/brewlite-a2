@@ -1,0 +1,79 @@
+{
+  "order": {
+    "id": "cmwgivhts000sex8k5aqo78vw",
+    "code": "BL-20261114-Q2TW",
+    "userId": "cmwgi54o50008exwst8f3rkzf",
+    "status": "PENDING",
+    "subTotal": "54000",
+    "discountAmount": "0",
+    "totalAmount": "54000",
+    "deliveryNote": null,
+    "idempotencyKey": "order:c38a5f4c-a1a4-4c9c-9a62-5a28e86c115a",
+    "createdAt": "2026-11-14T14:50:06.209Z",
+    "updatedAt": "2026-11-14T14:50:06.209Z",
+    "items": [
+      {
+        "id": "cmwgivhts000uex8k72bk7sd6",
+        "productId": "cmwgi54kl0000exwsae7yvs3r",
+        "productName": "Cà phê muối",
+        "quantity": 1,
+        "unitPrice": "54000",
+        "selectedSize": "LARGE",
+        "selectedToppings": [
+          "TRAN_CHAU"
+        ],
+        "selectedSugar": 70,
+        "selectedIce": "LESS",
+        "itemTotal": "54000"
+      }
+    ]
+  },
+  "payment": {
+    "paymentId": "cmwgivhu4000wex8kj6mq0zqe",
+    "orderId": "cmwgivhts000sex8k5aqo78vw",
+    "status": "SUCCESS",
+    "orderStatus": "PAID",
+    "amount": "54000",
+    "method": "E_WALLET",
+    "transactionRef": "MOCK-1794667806220-E_WALLET",
+    "createdAt": "2026-11-14T14:50:06.221Z"
+  },
+  "observed": [
+    {
+      "status": "PAID",
+      "observedAt": "2026-11-14T14:50:07.586Z"
+    },
+    {
+      "status": "PREPARING",
+      "observedAt": "2026-11-14T14:50:19.755Z"
+    },
+    {
+      "status": "READY",
+      "observedAt": "2026-11-14T14:50:28.619Z"
+    },
+    {
+      "status": "COMPLETED",
+      "observedAt": "2026-11-14T14:50:40.993Z"
+    }
+  ],
+  "createPayload": {
+    "items": [
+      {
+        "productId": "cmwgi54kl0000exwsae7yvs3r",
+        "quantity": 1,
+        "selectedSize": "LARGE",
+        "selectedToppings": [
+          "TRAN_CHAU"
+        ],
+        "selectedSugar": 70,
+        "selectedIce": "LESS"
+      }
+    ]
+  },
+  "paymentPayload": {
+    "orderId": "cmwgivhts000sex8k5aqo78vw",
+    "method": "E_WALLET",
+    "accountRef": "DEMO-E_WALLET-1234"
+  },
+  "reloadedFromDatabase": true
+}

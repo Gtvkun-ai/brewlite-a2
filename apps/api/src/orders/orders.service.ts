@@ -21,6 +21,22 @@ import {
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /** Compare a multiset of complete item configurations, including duplicates. */
+  private matchesItems(existingItems: Array<{
+    productId: string; quantity: number; selectedSize?: string | null;
+    selectedToppings?: string[]; selectedSugar?: number; selectedIce?: string;
+  }>, requestedItems: CreateOrderDto['items']): boolean {
+    const canonical = (items: typeof existingItems) => items.map((item) => JSON.stringify([
+      item.productId,
+      item.quantity,
+      item.selectedSize ?? "REGULAR",
+      [...(item.selectedToppings ?? [])].sort(),
+      item.selectedSugar ?? 100,
+      item.selectedIce ?? "NORMAL",
+    ])).sort();
+    return JSON.stringify(canonical(existingItems)) === JSON.stringify(canonical(requestedItems));
+  }
+
   /**
    * Sinh mã đơn hàng chuẩn format BL-YYYYMMDD-XXXX
    */
@@ -81,18 +97,7 @@ export class OrdersService {
         }
 
         // Kiểm tra payload có khớp với đơn hàng đã tạo hay không (Chống đổi payload cùng key)
-        const isSameItemCount = existingOrder.items.length === dto.items.length;
-        const isPayloadMatch =
-          isSameItemCount &&
-          dto.items.every((reqItem) => {
-            const matched = existingOrder.items.find(
-              (dbItem) =>
-                dbItem.productId === reqItem.productId &&
-                dbItem.quantity === reqItem.quantity &&
-                (dbItem.selectedSize || "REGULAR") === reqItem.selectedSize,
-            );
-            return !!matched;
-          });
+        const isPayloadMatch = this.matchesItems(existingOrder.items, dto.items);
 
         if (!isPayloadMatch) {
           throw new ConflictException({
@@ -197,6 +202,8 @@ export class OrdersService {
             unitPrice: new Prisma.Decimal(unitPriceNum),
             selectedSize: item.selectedSize,
             selectedToppings: item.selectedToppings ?? [],
+            selectedSugar: item.selectedSugar ?? 100,
+            selectedIce: item.selectedIce ?? "NORMAL",
             itemTotal: new Prisma.Decimal(itemTotalNum),
           };
         });
@@ -257,18 +264,7 @@ export class OrdersService {
             });
           }
 
-          const isSameItemCount = raceOrder.items.length === dto.items.length;
-          const isPayloadMatch =
-            isSameItemCount &&
-            dto.items.every((reqItem) => {
-              const matched = raceOrder.items.find(
-                (dbItem) =>
-                  dbItem.productId === reqItem.productId &&
-                  dbItem.quantity === reqItem.quantity &&
-                  (dbItem.selectedSize || "REGULAR") === reqItem.selectedSize,
-              );
-              return !!matched;
-            });
+          const isPayloadMatch = this.matchesItems(raceOrder.items, dto.items);
 
           if (!isPayloadMatch) {
             throw new ConflictException({
@@ -350,6 +346,8 @@ export class OrdersService {
     userId: string,
   ): Promise<OrderResponseDto> {
     return await this.prisma.$transaction(async (tx) => {
+      // Serialize cancellation with payment and the optional demo/staff worker.
+      await tx.$queryRaw`SELECT id FROM "Order" WHERE id = ${orderId} FOR UPDATE`;
       const order = await tx.order.findUnique({
         where: { id: orderId },
         include: { items: true },
@@ -461,7 +459,7 @@ export class OrdersService {
     }
 
     const updatedOrder = await this.prisma.order.update({
-      where: { id: orderId },
+      where: { id: orderId, status: order.status },
       data: { status: newStatus },
       include: {
         items: {
@@ -470,6 +468,11 @@ export class OrdersService {
           },
         },
       },
+    }).catch((error) => {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+        throw new ConflictException("Trạng thái đơn đã thay đổi. Vui lòng tải lại.");
+      }
+      throw error;
     });
 
     return this.mapToResponse(updatedOrder);
@@ -505,6 +508,8 @@ export class OrdersService {
         unitPrice: item.unitPrice.toString(),
         selectedSize: item.selectedSize ?? "REGULAR",
         selectedToppings: item.selectedToppings ?? [],
+        selectedSugar: item.selectedSugar ?? 100,
+        selectedIce: item.selectedIce ?? "NORMAL",
         itemTotal: item.itemTotal.toString(),
       })),
     };

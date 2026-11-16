@@ -7,7 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useRef, useState } from 'react';
 import { genQRText } from 'vietqr';
 import { useAuth } from '../../context/AuthContext';
-import { useCart } from '../../context/CartContext';
+import { ICE_OPTIONS, SUGAR_OPTIONS, useCart } from '../../context/CartContext';
 import { ApiError } from '../../lib/api';
 import {
   createOrderApi,
@@ -25,9 +25,9 @@ import type {
 const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string; desc: string }[] = [
   {
     id: 'E_WALLET',
-    label: 'Ví điện tử BrewPay',
+    label: 'Ví điện tử (mô phỏng)',
     icon: '📱',
-    desc: 'Thanh toán tức thì qua ví điện tử BrewLite',
+    desc: 'Dùng tài khoản ví mẫu, không phát sinh giao dịch thật',
   },
   {
     id: 'VIETQR_MOMO',
@@ -37,9 +37,9 @@ const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string; desc: s
   },
   {
     id: 'DOMESTIC_ATM',
-    label: 'Thẻ ATM Nội địa (Napas)',
+    label: 'Thẻ ATM (mô phỏng)',
     icon: '🏦',
-    desc: 'Thanh toán qua cổng Napas 40+ ngân hàng',
+    desc: 'Dùng thẻ mẫu, không cần nhập thông tin thẻ thật',
   },
 ];
 
@@ -104,6 +104,15 @@ export default function CheckoutPage() {
       addInfo: qrTransferContent,
     }));
   }, [paymentReference, qrAmount, qrTransferContent]);
+
+  // Continue to the actual persisted order after the payment is confirmed.
+  useEffect(() => {
+    if (paymentResult?.status !== 'SUCCESS') return;
+    const timer = window.setTimeout(() => {
+      router.push(`/orders/${encodeURIComponent(paymentResult.orderId)}`);
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, [paymentResult, router]);
 
   // Trigger celebration confetti on confirmed payment in browser only
   useEffect(() => {
@@ -199,7 +208,7 @@ export default function CheckoutPage() {
 
           <div className="btn-group">
             <Link
-              href={`/orders/${encodeURIComponent(orderCode || paymentResult.orderId)}`}
+              href={`/orders/${encodeURIComponent(paymentResult.orderId)}`}
               className="btn btn--block btn--primary"
               data-testid="view-order-btn"
             >
@@ -235,14 +244,16 @@ export default function CheckoutPage() {
             <Link href="/" className="btn btn--primary">
               Xem thực đơn
             </Link>
-            <button
-              type="button"
-              onClick={loadFixtureCart}
-              className="btn btn--secondary"
-              data-testid="load-fixture-btn"
-            >
-              Nạp giỏ hàng mẫu để kiểm thử
-            </button>
+            {process.env.NEXT_PUBLIC_USE_FIXTURES === 'true' && (
+              <button
+                type="button"
+                onClick={loadFixtureCart}
+                className="btn btn--secondary"
+                data-testid="load-fixture-btn"
+              >
+                Nạp giỏ hàng mẫu để kiểm thử
+              </button>
+            )}
           </div>
         </div>
       </main>
@@ -276,6 +287,8 @@ export default function CheckoutPage() {
           quantity: it.quantity,
           selectedSize: it.size,
           selectedToppings: it.toppings,
+          selectedSugar: it.sugar ?? 100,
+          selectedIce: it.ice ?? 'NORMAL',
         }));
 
         const newOrder = await createOrderApi(
@@ -284,6 +297,7 @@ export default function CheckoutPage() {
             items: orderItemsDto,
           },
           authToken,
+          `order:${idempotencyKeyRef.current}`,
         );
 
         currentOrderId = newOrder.id;
@@ -300,10 +314,7 @@ export default function CheckoutPage() {
         {
           orderId: currentOrderId,
           method: selectedMethod,
-          accountRef:
-            selectedMethod === 'VIETQR_MOMO'
-              ? undefined
-              : accountRef.trim() || undefined,
+          accountRef: accountRef.trim() || `DEMO-${selectedMethod}-1234`,
         },
         idempotencyKeyRef.current,
         authToken,
@@ -314,7 +325,9 @@ export default function CheckoutPage() {
         clearCart();
         setPaymentResult(paymentRes);
       } else {
-        // Payment failed: keep cart, keep orderId and idempotencyKey for retry
+        // A confirmed failure ends this payment attempt. Retry the same order
+        // with a fresh key; replaying the old key would replay the failure.
+        idempotencyKeyRef.current = generateIdempotencyKey();
         setErrorMessage(
           paymentRes.message ||
             'Thanh toán bị từ chối. Vui lòng kiểm tra lại số dư hoặc chọn phương thức khác.',
@@ -373,6 +386,12 @@ export default function CheckoutPage() {
                   </div>
                   <div className="checkout-item__meta">
                     <span className="badge badge--neutral">Size: {it.size}</span>
+                    <span className="badge badge--neutral">
+                      {SUGAR_OPTIONS.find((option) => option.code === (it.sugar ?? 100))?.label ?? `Đường ${it.sugar ?? 100}%`}
+                    </span>
+                    <span className="badge badge--neutral">
+                      {ICE_OPTIONS.find((option) => option.code === (it.ice ?? 'NORMAL'))?.label ?? 'Đá 100%'}
+                    </span>
                     {it.toppings.length > 0 && (
                       <span className="badge badge--accent">
                         Topping: {it.toppings.join(', ')}
@@ -408,7 +427,7 @@ export default function CheckoutPage() {
                 setDeliveryNote(e.target.value);
                 setCartDeliveryNote(e.target.value);
               }}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !!orderId}
               data-testid="delivery-note"
             />
           </div>
@@ -511,20 +530,20 @@ export default function CheckoutPage() {
           ) : (
             <div className="form-group mt-3">
               <label className="form-label" htmlFor="accountRef">
-                Thông tin tài khoản / Số thẻ mô phỏng
+                Mã tài khoản mô phỏng (tùy chọn)
               </label>
               <input
                 id="accountRef"
                 type="text"
                 className="form-input"
-                placeholder="VD: 0901234567 hoặc 9704-xxxx-xxxx"
+                placeholder="DEMO-1234 (mã có đuôi 0000 để thử từ chối)"
                 value={accountRef}
                 onChange={(e) => setAccountRef(e.target.value)}
                 disabled={isSubmitting}
                 data-testid="account-ref"
               />
               <p className="form-hint">
-                Hệ thống sử dụng cổng thanh toán mô phỏng an toàn với cơ chế Idempotency.
+                Để trống để dùng tài khoản mẫu. Không nhập số thẻ hoặc thông tin ngân hàng thật.
               </p>
             </div>
           )}
@@ -547,11 +566,11 @@ export default function CheckoutPage() {
                 ? 'Thử lại thanh toán'
                 : selectedMethod === 'VIETQR_MOMO'
                   ? 'Xác nhận thanh toán mô phỏng'
-                  : 'Xác nhận đặt hàng & Thanh toán'}
+                  : 'Xác nhận thanh toán'}
           </button>
 
           <p className="secure-badge mt-2">
-            🔒 Bảo mật theo chuẩn Idempotency v4 & JWT Authentication
+            Thanh toán mô phỏng · Không trừ tiền thật
           </p>
         </section>
       </div>
