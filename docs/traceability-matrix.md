@@ -73,7 +73,7 @@ Ma trận truy vết liên kết hai chiều giữa **Yêu cầu chức năng (F
 | Test A | Chống sửa giá từ client | HTTP security test + kiểm tra code | ✅ PASS | `docs/evidence/test-a-price-tampering-2026-11-11/` và `apps/api/src/orders/orders.security.spec.ts` |
 | Test B | Hủy đơn đã thanh toán, hoàn kho, chuyển trạng thái hoàn tiền | API + PostgreSQL thật | ✅ PASS | `docs/evidence/test-b-paid-cancel-2026-11-11/` |
 | Test C | Hai yêu cầu đồng thời tranh chấp tồn kho | Hai tài khoản gọi API đồng thời, mỗi yêu cầu 40 sản phẩm khi kho có 40 | 🟡 PASS có giới hạn | `docs/evidence/test-c-concurrency-2026-11-11/` |
-| Test D | Tính số lượng thành phẩm theo BOM nguyên liệu | Kiểm tra phép tính lý thuyết | ⛔ NOT EXECUTED | `docs/evidence/test-d-bom-2026-11-11/` |
+| Test D | Quản lý định mức nguyên liệu (BOM) & Nút thắt Bottleneck | Kiểm thử tự động Jest 9/9 PASS + Phân hệ Admin Inventory trực quan | ✅ PASS | `apps/api/src/inventory/inventory.service.spec.ts` và `apps/web/app/admin/inventory/` |
 
 ### Kiểm tra bảo mật bổ sung – IDOR
 
@@ -84,7 +84,7 @@ Kết quả: PASS trên API local. Đây là kiểm tra API thực tế, không 
 ### Giới hạn nghiệm thu
 
 - Test C chưa chạy đúng kịch bản giảng viên yêu cầu: tồn kho 2, hai khách cùng đặt 2.
-- Test D chưa được kiểm thử tích hợp vì schema hiện tại chưa có mô hình nguyên liệu và BOM.
+- Test D đã hoàn thành trọn vẹn: có InventoryService, BOM matrix, thuật toán Bottleneck min, kiểm thử Jest 9/9 pass (bán 20 ly, chặn ly 21) và phân hệ Admin Quản lý kho trực quan.
 - Test B xác nhận trạng thái `REFUND_PENDING`, không chứng minh tiền đã được hoàn về ngân hàng.
 
 ## 6. Bổ sung truy vết nhiệm vụ demo ngày 14/11/2026

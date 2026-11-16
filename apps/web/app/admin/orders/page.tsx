@@ -24,6 +24,7 @@ import {
   MessageSquare,
   BarChart3,
   Tag,
+  Layers,
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import {
@@ -386,6 +387,14 @@ export default function AdminOrdersPage() {
         >
           <Tag size={16} />
           <span>Mã Khuyến Mãi</span>
+        </Link>
+        <Link
+          href="/admin/inventory"
+          className="admin-nav-tab"
+          data-testid="admin-tab-inventory"
+        >
+          <Layers size={16} />
+          <span>Kho & Định Mức BOM</span>
         </Link>
       </nav>
 

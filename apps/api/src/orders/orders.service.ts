@@ -4,6 +4,7 @@ import {
   BadRequestException,
   ForbiddenException,
   ConflictException,
+  Optional,
 } from "@nestjs/common";
 import { PaymentStatus, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
@@ -16,10 +17,14 @@ import {
   TOPPING_SURCHARGE,
   OrderStatus,
 } from "../common/types";
+import { InventoryService } from "../inventory/inventory.service";
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly inventoryService?: InventoryService,
+  ) {}
 
   /** Compare a multiset of complete item configurations, including duplicates. */
   private matchesItems(existingItems: Array<{
@@ -180,6 +185,17 @@ export class OrdersService {
               errorCode: "OUT_OF_STOCK",
               message: `Sản phẩm "${product.name}" không đủ tồn kho`,
             });
+          }
+        }
+
+        // 3.4.1. Khấu trừ định mức nguyên vật liệu BOM nếu có (Bottleneck Atomic Check)
+        if (this.inventoryService) {
+          for (const item of dto.items) {
+            const product = productMap.get(item.productId)!;
+            if (this.inventoryService.hasRecipe(product.code)) {
+              const size = (item.selectedSize === "LARGE" ? "LARGE" : "REGULAR") as "REGULAR" | "LARGE";
+              this.inventoryService.deductRecipe(product.code, size, item.quantity);
+            }
           }
         }
 
@@ -519,6 +535,15 @@ export class OrdersService {
             stockQuantity: { increment: item.quantity },
           },
         });
+
+        // Hoàn lại định mức nguyên liệu BOM nếu có
+        if (this.inventoryService) {
+          const product = await tx.product.findUnique({ where: { id: item.productId } });
+          if (product && this.inventoryService.hasRecipe(product.code)) {
+            const size = (item.selectedSize === "LARGE" ? "LARGE" : "REGULAR") as "REGULAR" | "LARGE";
+            this.inventoryService.restoreRecipe(product.code, size, item.quantity);
+          }
+        }
       }
 
       // Cập nhật trạng thái đơn CANCELLED

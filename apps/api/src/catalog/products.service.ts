@@ -2,19 +2,30 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { Prisma, Product } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
+import { InventoryService } from '../inventory/inventory.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly inventoryService?: InventoryService,
+  ) {}
 
-  findAll(): Promise<Product[]> {
-    return this.prisma.product.findMany({
+  async findAll(): Promise<Product[]> {
+    const products = await this.prisma.product.findMany({
       orderBy: { createdAt: 'desc' },
     });
+
+    if (!this.inventoryService) {
+      return products;
+    }
+
+    return products.map((p) => this.applyBomLimits(p));
   }
 
   async findOne(id: string): Promise<Product> {
@@ -24,7 +35,29 @@ export class ProductsService {
       throw new NotFoundException(`Product with id "${id}" not found`);
     }
 
-    return product;
+    if (!this.inventoryService) {
+      return product;
+    }
+
+    return this.applyBomLimits(product);
+  }
+
+  private applyBomLimits(product: Product): Product {
+    if (!this.inventoryService || !this.inventoryService.hasRecipe(product.code)) {
+      return product;
+    }
+
+    try {
+      const forecast = this.inventoryService.calculateBottleneck(product.code, 'REGULAR');
+      const effectiveStock = Math.min(product.stockQuantity, forecast.maxCups);
+      return {
+        ...product,
+        stockQuantity: effectiveStock,
+        isAvailable: product.isAvailable && effectiveStock > 0,
+      };
+    } catch {
+      return product;
+    }
   }
 
   async create(dto: CreateProductDto): Promise<Product> {

@@ -189,6 +189,7 @@ describe('Role E — Product Options & Cart Management (WEB-T02 & WEB-T03)', () 
 
     it('recalculates price immediately on size, topping, and quantity changes and adds to cart', async () => {
       vi.spyOn(api, 'fetchProduct').mockResolvedValueOnce(sampleProduct);
+      vi.spyOn(api, 'fetchProducts').mockResolvedValue([sampleProduct]);
 
       render(
         <CartProvider>
@@ -583,6 +584,7 @@ describe('Role E — Product Options & Cart Management (WEB-T02 & WEB-T03)', () 
       );
 
       vi.spyOn(api, 'fetchProduct').mockResolvedValueOnce(sampleProduct);
+      vi.spyOn(api, 'fetchProducts').mockResolvedValue([sampleProduct]);
 
       function FullFlowApp() {
         return (
