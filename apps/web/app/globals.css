@@ -33,6 +33,7 @@ html,
 body {
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 body {
@@ -1721,28 +1722,29 @@ h1, h2, h3, .font-serif, .hero-banner__title, .menu-title, .page__title, .navbar
 }
 
 .qty-control--sm .qty-btn {
-  width: 30px;
-  height: 30px;
-  font-size: 0.95rem;
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
 }
 
 .qty-control--sm .qty-value {
-  min-width: 30px;
-  font-size: 0.9rem;
+  min-width: 32px;
+  font-size: 0.95rem;
 }
 
 .qty-btn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: none;
   background: transparent;
   color: var(--text);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
 }
 
 .qty-btn:hover:not(:disabled) {
@@ -1806,10 +1808,14 @@ h1, h2, h3, .font-serif, .hero-banner__title, .menu-title, .page__title, .navbar
   background: none;
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 0.25rem 0.6rem;
-  font-size: 0.8rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.85rem;
   color: var(--danger);
   cursor: pointer;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
 }
 
 .cart-clear-link:hover {
@@ -1890,12 +1896,23 @@ h1, h2, h3, .font-serif, .hero-banner__title, .menu-title, .page__title, .navbar
 
 .cart-line__remove {
   background: none;
-  border: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
   color: var(--danger);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   cursor: pointer;
-  padding: 0.15rem 0.3rem;
+  padding: 0.3rem 0.6rem;
   text-decoration: underline;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
+  transition: all 0.15s ease;
+}
+
+.cart-line__remove:hover {
+  background: rgba(179, 38, 30, 0.08);
+  border-color: rgba(179, 38, 30, 0.2);
 }
 
 .cart-line__options {
@@ -1939,9 +1956,13 @@ h1, h2, h3, .font-serif, .hero-banner__title, .menu-title, .page__title, .navbar
   background: var(--surface);
   color: var(--muted);
   border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.76rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
   cursor: pointer;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
 }
 
 .topping-pill--active {
