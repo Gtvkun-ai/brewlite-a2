@@ -7,11 +7,11 @@ cls
 echo ===============================================================================
 echo            BREWLITE - TRÌNH ĐIỀU KHIỂN KIỂM THỬ CHỦ ĐỘNG & BẢO VỆ ĐỒ ÁN
 echo ===============================================================================
-echo [1] Chạy TOÀN BỘ 128 bài test tự động (Backend Jest + Frontend Vitest)
+echo [1] Chạy TOÀN BỘ 243 bài test tự động (135 Backend Jest + 108 Frontend Vitest)
 echo [2] Chạy TEST A: Chống sửa giá API & Phân quyền Barista (orders.security.spec.ts)
 echo [3] Chạy TEST B: Hủy đơn sau thanh toán & Hoàn tiền (cancelOrder - REFUND_PENDING)
 echo [4] Chạy TEST C: Tranh chấp tồn kho Concurrency 2 khách mua 2 ly cuối (OUT_OF_STOCK)
-echo [5] Chạy TOÀN BỘ 60 tests Giao diện Frontend Web (Cart, Menu, Auth, Stepper)
+echo [5] Chạy TOÀN BỘ 108 tests Giao diện Frontend Web (Cart, Menu, Auth, Stepper, Admin)
 echo [6] Bật Playwright UI Graphic Mode (Trình duyệt Chromium tự động click trực quan)
 echo [7] Mở PRISMA STUDIO (Xem Database trực quan trên giao diện Web localhost:5555)
 echo [8] Chạy Kiểm tra Khói API Cloud Live (curl health & products)
@@ -32,7 +32,7 @@ goto MENU
 
 :RUN_ALL
 cls
-echo [INFO] Đang chạy toàn bộ 128 bài test trong Monorepo...
+echo [INFO] Đang chạy toàn bộ 243 bài test trong Monorepo...
 call npm test
 echo.
 pause
@@ -64,7 +64,7 @@ goto MENU
 
 :RUN_WEB
 cls
-echo [INFO] Đang chạy 60 bài test Frontend Web...
+echo [INFO] Đang chạy 108 bài test Frontend Web...
 call npm run test --workspace=apps/web
 echo.
 pause

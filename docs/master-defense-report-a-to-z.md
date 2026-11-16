@@ -1,10 +1,10 @@
 # ĐẠI BÁO CÁO TOÀN DIỆN KỸ NGHỆ PHẦN MỀM & CẨM NANG THUYẾT TRÌNH BẢO VỆ TẬN LÕI: BREWLITE (A1 & A2)
-## The Unified Master Defense, Architectural Thesis & Tech-Flexing Bible
+## The Unified Master Defense, Architectural Thesis & Engineering Verification Bible
 
 > **Môn học:** Công nghệ Phần mềm (Software Engineering)  
 > **Trường:** Đại học Sài Gòn (SGU) – Khoa Công nghệ Thông tin  
 > **Dự án:** Hệ thống Bán lẻ & Thanh toán Cà phê Trực tuyến – BrewLite  
-> **Phạm vi tài liệu:** Gộp toàn diện từ Đặc tả Yêu cầu (SRS), Mô hình hóa UML, Thiết kế Kiến trúc (ADRs), Đối chiếu Code lõi A1 vs A2, Giải mã 4 Kịch bản Thẩm tra (Audit Tests A, B, C, D), Ma trận Truy vết 128 Tests, Bộ từ điển "Múa công nghệ" và Kịch bản Thuyết trình Phản biện 30–60 phút cho 7 thành viên.
+> **Phạm vi tài liệu:** Gộp toàn diện từ Đặc tả Yêu cầu (SRS), Mô hình hóa UML, Thiết kế Kiến trúc (ADRs), Đối chiếu Code lõi A1 vs A2, Giải mã 4 Kịch bản Thẩm tra (Audit Tests A, B, C, D), Ma trận Truy vết 243 Tests, Bộ từ điển Thuật ngữ Kỹ sư chuẩn mực và Kịch bản Thuyết trình Phản biện 30–60 phút cho 7 thành viên.
 
 ---
 
@@ -15,8 +15,8 @@
 3. [PHẦN III: THIẾT KẾ KIẾN TRÚC & HẠ TẦNG CLOUD (TASK 3)](#phần-iii-thiết-kế-kiến-trúc--hạ-tầng-cloud-task-3)
 4. [PHẦN IV: ĐỐI CHIẾU TẬN LÕI CODEBASE: A1 vs A2 (TIẾN HÓA KỸ THUẬT)](#phần-iv-đối-chiếu-tận-lõi-codebase-a1-vs-a2-tiến-hóa-kỹ-thuật)
 5. [PHẦN V: GIẢI MÃ TẬN LÕI BỘ TỨ THẨM TRA NGHIỆM THU (TEST A, B, C, D)](#phần-v-giải-mã-tận-lõi-bộ-tứ-thẩm-tra-nghiệm-thu-test-a-b-c-d)
-6. [PHẦN VI: MA TRẬN TRUY VẾT & DANH MỤC 128 TEST CASES (TASK 5)](#phần-vi-ma-trận-truy-vết--danh-mục-128-test-cases-task-5)
-7. [PHẦN VII: TỪ ĐIỂN "MÚA CÔNG NGHỆ" CHUẨN KỸ SƯ QUỐC TẾ](#phần-vii-từ-điển-múa-công-nghệ-chuẩn-kỹ-sư-quốc-tế)
+6. [PHẦN VI: MA TRẬN TRUY VẾT & DANH MỤC 243 TEST CASES (TASK 5)](#phần-vi-ma-trận-truy-vết--danh-mục-243-test-cases-task-5)
+7. [PHẦN VII: TỪ ĐIỂN THUẬT NGỮ CHUẨN KỸ SƯ PHẦN MỀM](#phần-vii-từ-điển-thuật-ngữ-chuẩn-kỹ-sư-phần-mềm)
 8. [PHẦN VIII: KỊCH BẢN THUYẾT TRÌNH & PHẢN ĐÒN VẤN ĐÁP (30 - 60 PHÚT)](#phần-viii-kịch-bản-thuyết-trình--phản-đòn-vấn-đáp-30---60-phút)
 9. [PHẦN IX: CHIẾN THUẬT PHÒNG CHỐNG MỌI BIẾN CỐ & KỊCH BẢN TEST CHỦ ĐỘNG](#phần-ix-chiến-thuật-phòng-chống-mọi-biến-cố--kịch-bản-test-chủ-động)
 10. [PHẦN X: BỘ 13 SLIDE TRÌNH CHIẾU TỔNG QUÁT & KỊCH BẢN GIAO MIC ĐA NĂNG](#phần-x-bộ-13-slide-trình-chiếu-tổng-quát--kịch-bản-giao-mic-đa-năng)
@@ -37,27 +37,34 @@ Trong ngành F&B và chuỗi bán lẻ cà phê hiện đại, khung giờ cao �
 | **1. Khách hàng (Customer)** | Đặt đồ uống từ xa qua di động | Không cần cài App (PWA), đặt món < 30s, thanh toán quét mã 1 chạm, nhận diện tiến độ pha chế tức thì. |
 | **2. Barista (Pha chế)** | Chế biến đơn hàng đúng công thức | Hiển thị màn hình KDS rõ ràng phân loại Size/Topping, thao tác chuyển trạng thái 1 chạm trên tablet. |
 | **3. Thu ngân (Cashier)** | Quản lý thanh toán & quầy | Không phải đếm tiền mặt, đối soát doanh thu tự động khớp 100% với cổng thanh toán. |
-| **4. Quản lý (Store Manager)** | Giám sát vận hành & tồn kho | Cảnh báo hết hàng tự động, đóng/mở bán món theo thời gian thực, báo cáo doanh thu theo ca. |
-| **5. Cổng thanh toán (Gateway)** | Xử lý giao dịch tài chính | Đảm bảo Idempotency (chống trừ tiền 2 lần), xác thực Webhook an toàn, hỗ trợ hoàn tiền tự động. |
+| **4. Quản lý (Store Manager)** | Giám sát vận hành & tồn kho | Cảnh báo hết hàng tự động, đóng/mở bán món theo thời gian thực, dashboard doanh thu & KDS. |
+| **5. Cổng thanh toán (Gateway)** | Xử lý giao dịch tài chính | Đảm bảo Idempotency (chống trừ tiền 2 lần), xác thực an toàn, hỗ trợ hoàn tiền đối soát. |
 | **6. Đội ngũ Kỹ sư (Dev Team)** | Xây dựng, kiểm thử, vận hành | Kiến trúc phân tầng rõ ràng, 100% Type-safety, CI/CD tự động hóa, độ bao phủ kiểm thử cao. |
 | **7. Hội đồng Nghiệm thu (SGU)** | Đánh giá chất lượng kỹ nghệ | Tuân thủ 5 Task chuẩn mực, truy vết hai chiều (RTM), vượt qua 4 bài kiểm toán khắc nghiệt (Audit Tests). |
 
-### 1.3. Phạm vi Hệ thống & Phân bổ MoSCoW
-* **IN-SCOPE (MVP Cốt lõi):**
-  * `FR-01 (Must)`: Duyệt danh mục đồ uống phân tầng (Cà phê, Trà, Topping) kèm trạng thái tồn kho.
-  * `FR-02 (Must)`: Tùy biến món: Chọn Size (Regular +0đ, Large +10.000đ) và Toppings (Trân châu, Kem cheese, Thạch đào).
-  * `FR-03 (Must)`: Giỏ hàng phía Client, tự động gộp món trùng cấu hình, lưu trữ bền vững trên LocalStorage.
-  * `FR-04 (Must)`: Xác thực phân quyền JWT Bearer Token, mã hóa mật khẩu Bcrypt 12 rounds, chống phân quyền trái phép (RBAC).
-  * `FR-05 (Must)`: Đặt hàng & Trừ kho nguyên tử (Atomic CAS), tính giá độc quyền phía Server (Server-Authoritative Pricing).
-  * `FR-06 (Must)`: Tích hợp Cổng thanh toán giả lập có khóa chống trùng lặp `Idempotency-Key` chuẩn UUID v4.
-  * `FR-07 (Should)`: Máy trạng thái vòng đời đơn hàng (`PAID ➔ PREPARING ➔ READY ➔ COMPLETED`) và Hủy đơn hoàn kho.
-* **DEFERRED (Chủ động hoãn lại):**
-  * `FR-08 (Could/Deferred)`: Mã khuyến mãi/Voucher giảm giá $\to$ Chủ động hoãn theo `docs/architecture/api-contracts.md` để tập trung 100% tài nguyên kỹ thuật hoàn thiện độ tin cậy của Core POS & Concurrency.
-* **NFRs Cốt lõi:**
-  * `NFR-01 (Performance)`: API P95 Response Time $< 200\text{ms}$; thời gian trừ kho trong Transaction $< 50\text{ms}$.
+### 1.3. Phạm vi Hệ thống & Phân bổ MoSCoW (Scope Management)
+Nhóm áp dụng phương pháp luận quản lý phạm vi **MoSCoW Prioritization** nhằm cân bằng giữa thời hạn bàn giao và độ hoàn thiện kỹ thuật cao nhất:
+
+* **IN-SCOPE ASSIGNMENT 2 (MVP & Production Hardening):**
+  * `FR-01 (Must)`: Xác thực phân quyền JWT Bearer Token, mã hóa mật khẩu Bcrypt 12 rounds, phân quyền vai trò (RBAC: `CUSTOMER`, `BARISTA`, `MANAGER`, `ADMIN`).
+  * `FR-02 (Must)`: Duyệt danh mục đồ uống phân tầng (Cà phê, Trà, Bánh ngọt) kèm trạng thái tồn kho thời gian thực.
+  * `FR-03 (Must)`: Tùy biến món: Chọn Size (Regular +0đ, Large +10.000đ), Toppings (Trân châu, Kem cheese, Thạch đào), mức đường, mức đá.
+  * `FR-04 (Must)`: Giỏ hàng phía Client, tự động chuẩn hóa và gộp món trùng cấu hình (`sanitizeToppings`), lưu trữ bền vững trên LocalStorage.
+  * `FR-05 (Must)`: Đặt hàng & Trừ kho nguyên tử (Atomic CAS), tính giá độc quyền phía Server (Server-Authoritative Pricing), thanh toán mô phỏng có khóa chống trùng lặp `Idempotency-Key` chuẩn UUID v4.
+  * `FR-06 (Must)`: Theo dõi trạng thái đơn hàng thời gian thực qua Stepper 4 bước (`PAID ➔ PREPARING ➔ READY ➔ COMPLETED`) và tra cứu lịch sử đơn hàng.
+  * `FR-07 (Should)`: Hủy đơn hàng (PENDING hoặc PAID) kèm hoàn trả tồn kho nguyên tử và chuyển trạng thái thanh toán `REFUND_PENDING`.
+  * `FR-08 (Should)`: Quản lý Mã khuyến mãi / Vouchers (Giảm phần trăm, giảm cố định, điều kiện đơn tối thiểu, bật/tắt kích hoạt).
+  * `FR-09 (Should)`: Quản trị Thực đơn Admin (Thêm món mới, Chỉnh sửa thông tin món modal, Bật/tắt bán, Xóa món).
+  * `FR-10 (Should)`: Dashboard Doanh thu Executive & KDS Barista quản lý đơn hàng trực quan.
+
+* **SCOPE BOUNDARY & ROADMAP ASSIGNMENT 3 (Could / Deferred):**
+  * **Test D – Định lượng nguyên vật liệu (Bill of Materials - BOM):** Đã mô hình hóa toán học nguyên lý Bottleneck $\min(\text{Kho}_i / \text{Định mức}_i) = 20$ ly (nghẽn tại sữa tươi). Tuy nhiên, trạng thái kiểm thử kỹ thuật trên cơ sở dữ liệu được xác lập là **`NOT EXECUTED trên Database Engine`** (Ref: [test-d-bom-2026-11-11/README.md](evidence/test-d-bom-2026-11-11/README.md)). Lý do: Schema A2 chủ động giới hạn ở cấp độ **Tồn kho Thành phẩm (SKU Inventory)** để tập trung giải quyết bài toán cốt lõi là Race Condition Concurrency (Test C). Mô hình BOM chi tiết với các bảng `Ingredient`, `Recipe` được quy hoạch bàn giao trong Assignment 3 khi mở rộng sang phân hệ Kho vận chuỗi.
+
+* **NFRs Cốt lõi (Non-Functional Requirements):**
+  * `NFR-01 (Performance)`: API P95 Response Time $< 500\text{ms}$ (theo đúng chỉ tiêu SRS; kết quả đo kiểm 50 request thực tế trên Render Cloud ghi nhận p95 đạt **~420ms**, p50 đạt **~345ms** theo [render-products-latency.csv](evidence/api-latency-2026-11-10/render-products-latency.csv)). Thời gian thực thi Atomic CAS trừ kho nội bộ trong PostgreSQL transaction $< 50\text{ms}$.
   * `NFR-02 (Data Integrity)`: Tuân thủ tuyệt đối chuẩn ACID; 0% sai lệch tồn kho khi chịu tải đồng thời (Race Condition).
-  * `NFR-03 (Security)`: Chống tấn công sửa giá (Price Tampering), chống duyệt ID tuần tự (IDOR) qua CUID, chặn Payload độc hại qua Global Validation Pipe.
-  * `NFR-04 (Reliability)`: Hệ thống CI/CD tự động 4 bước; máy chủ Cloud duy trì trạng thái nóng (Keep-Alive Cron 24/7).
+  * `NFR-03 (Security)`: Phòng vệ 2 lớp (Defense-in-Depth): Object-Level Authorization (`order.userId === currentUser.id`) ngăn chặn triệt để IDOR/BOLA; kết hợp chuỗi CUID ngẫu nhiên chống vét cạn tuần tự (Sequential ID Enumeration); Server-Authoritative Pricing; Whitelist ValidationPipe.
+  * `NFR-04 (Reliability & DevOps)`: Hệ thống CI/CD tự động 4 bước (Lint, Type-check, Unit Test, Build); khắc phục Cold-Start trên Render Cloud bằng Uptime Keep-Alive Ping định kỳ 10 phút.
 
 ---
 
@@ -72,21 +79,22 @@ flowchart LR
         CUST["👤 Khách Hàng (Customer)"]
         BARI["☕ Barista (Pha Chế)"]
         CASH["💵 Thu Ngân (Cashier)"]
-        MGR["👔 Quản Lý Cửa Hàng (Manager)"]
-        CRON["⏰ Hệ Thống Tự Động (Keep-Alive Cron)"]
+        MGR["👔 Quản Lý / Admin"]
+        CRON["⏰ Hệ Thống Tự Động (Uptime Cron)"]
     end
 
     subgraph SYSTEM_BOUNDARY [Hệ Thống Bán Lẻ BrewLite A2]
-        UC01(["UC-01: Duyệt Menu & Tùy Biến Món (FR-01, FR-02)"])
-        UC02(["UC-02: Quản Lý Giỏ Hàng LocalStorage (FR-03)"])
-        UC03(["UC-03: Đăng Ký / Đăng Nhập JWT (FR-04)"])
+        UC01(["UC-01: Đăng Ký / Đăng Nhập JWT (FR-01)"])
+        UC02(["UC-02: Duyệt Thực Đơn & Tùy Biến (FR-02, FR-03)"])
+        UC03(["UC-03: Quản Lý Giỏ Hàng LocalStorage (FR-04)"])
         UC04(["UC-04: Đặt Hàng & Trừ Kho Nguyên Tử (FR-05)"])
-        UC05(["UC-05: Thanh Toán VietQR / Idempotency (FR-06)"])
-        UC06(["UC-06: Cập Nhật Tiến Độ Pha Chế KDS (FR-07)"])
-        UC07(["UC-07: Hủy Đơn & Hoàn Tiền REFUND_PENDING (FR-09)"])
-        UC08(["UC-08: Theo Dõi Stepper Đơn Hàng Thời Gian Thực"])
-        UC09(["UC-09: Quản Trị Danh Mục & Khóa Hết Hàng (FR-10)"])
-        UC10(["UC-10: Kiểm Tra Sức Khỏe & Giữ Ấm API /health"])
+        UC05(["UC-05: Thanh Toán Mô Phỏng & Idempotency (FR-05)"])
+        UC06(["UC-06: Theo Dõi Đơn Hàng & Lịch Sử (FR-06)"])
+        UC07(["UC-07: Hủy Đơn & Hoàn Tiền REFUND_PENDING (FR-07)"])
+        UC08(["UC-08: Áp Dụng & Quản Trị Vouchers (FR-08)"])
+        UC09(["UC-09: Quản Trị Thực Đơn & Khóa Hết Hàng (FR-09)"])
+        UC10(["UC-10: Dashboard Doanh Thu & KDS Barista (FR-10)"])
+        UC11(["UC-11: Giữ Ấm Container Anti-Cold-Start /health"])
     end
 
     CUST --> UC01
@@ -94,72 +102,74 @@ flowchart LR
     CUST --> UC03
     CUST --> UC04
     CUST --> UC05
+    CUST --> UC06
     CUST --> UC07
     CUST --> UC08
 
-    BARI --> UC06
-    BARI --> UC08
-
+    BARI --> UC10
     CASH --> UC05
     CASH --> UC07
 
+    MGR --> UC08
     MGR --> UC09
-    MGR --> UC07
+    MGR --> UC10
 
-    CRON --> UC10
+    CRON --> UC11
 
     UC04 -.->|"<<include>>"| UC05
-    UC04 -.->|"<<include>>"| UC02
+    UC04 -.->|"<<include>>"| UC03
     UC07 -.->|"<<extend>>"| UC04
 ```
 
 * **Thuyết minh chuyên sâu về Use Case:**
-  * **Khách hàng:** Tự phục vụ (Self-service) từ khâu duyệt món, tùy biến size/topping, lưu giỏ hàng bền vững đến thanh toán trực tuyến không tiền mặt.
-  * **Barista:** Tiếp nhận đơn hàng tự động sau khi thanh toán thành công (`PAID`), điều phối chế biến qua màn hình KDS không cần phiếu giấy.
-  * **Tính cô lập phân quyền (RBAC):** Khách hàng chỉ có quyền gọi `UC-04` (Tạo đơn) và `UC-07` (Hủy đơn PENDING/PAID của chính mình). Quyền chuyển trạng thái chế biến `UC-06` (`PREPARING`, `READY`, `COMPLETED`) bị chặn ở tầng `RolesGuard`, chỉ cho phép `BARISTA` và `ADMIN`.
+  * **Khách hàng:** Tự phục vụ (Self-service) từ duyệt món, tùy biến size/topping, lưu giỏ hàng bền vững đến thanh toán trực tuyến.
+  * **Barista:** Tiếp nhận đơn hàng tự động qua màn hình KDS thời gian thực (`PAID ➔ PREPARING ➔ READY ➔ COMPLETED`), không dùng phiếu giấy.
+  * **Tính cô lập phân quyền (RBAC):** Khách hàng chỉ có quyền xem đơn hàng của chính mình (Object-Level Authorization) và hủy đơn khi chưa chế biến. Quyền đổi trạng thái pha chế và truy cập trang quản trị bị chặn ở tầng `RolesGuard`, chỉ cấp phép cho `BARISTA`, `MANAGER` và `ADMIN`.
 
 ---
 
-### 2.2. Sơ đồ Hoạt động Đa làn (Activity Diagram - Swimlanes)
-Quy trình từ lúc khách duyệt món đến khi bếp hoàn thành, thể hiện rõ ranh giới phân định trách nhiệm:
+### 2.2. Sơ đồ Hoạt động Phân Làn (Activity Diagram - Swimlanes)
+Quy trình từ lúc khách duyệt món đến khi bếp hoàn thành, thể hiện rõ ranh giới trách nhiệm giữa các phân làn:
 
 ```mermaid
 flowchart TD
     START((Bắt đầu)) --> SCAN["Khách truy cập Web / PWA"]
-    SCAN --> VIEW_MENU["Duyệt Menu đồ uống (FR-01)"]
-    VIEW_MENU --> SELECT_ITEM["Tùy biến Size & Topping (FR-02)"]
-    SELECT_ITEM --> ADD_CART["Thêm vào Giỏ hàng (FR-03)"]
+    SCAN --> VIEW_MENU["Duyệt Menu đồ uống (FR-02)"]
+    VIEW_MENU --> SELECT_ITEM["Tùy biến Size & Topping (FR-03)"]
+    SELECT_ITEM --> ADD_CART["Thêm vào Giỏ hàng (FR-04)"]
     ADD_CART --> CHECK_AUTH{"Đã đăng nhập?"}
     
-    CHECK_AUTH -- Chưa --> AUTH["Đăng nhập / Đăng ký (JWT Guard) (FR-04)"]
+    CHECK_AUTH -- Chưa --> AUTH["Đăng nhập / Đăng ký (JWT Guard) (FR-01)"]
     AUTH --> CHECK_AUTH
     CHECK_AUTH -- Đã có JWT --> SUBMIT_ORDER["Bấm Xác nhận đặt hàng (FR-05)"]
     
-    SUBMIT_ORDER --> CLIENT_LOCK["Client sinh Idempotency-Key & Khóa nút bấm"]
+    SUBMIT_ORDER --> CLIENT_LOCK["Client sinh Idempotency-Key UUID & Khóa nút bấm"]
     CLIENT_LOCK --> API_POST["POST /orders (Payload CHỈ GỬI ID, KHÔNG GỬI GIÁ)"]
     
     API_POST --> DB_TX["Postgres: BEGIN TRANSACTION (ISOLATION READ COMMITTED)"]
-    DB_TX --> FETCH_PRICE["Tra cứu BasePrice từ DB & Tính toán tổng tiền Server"]
+    DB_TX --> FETCH_PRICE["Tra cứu BasePrice từ DB & Tính đơn giá Server (Test A)"]
     FETCH_PRICE --> CAS_STOCK{"Trừ kho có điều kiện (WHERE stockQuantity >= qty)?"}
     
-    CAS_STOCK -- Thất bại (Hết kho) --> TX_ROLLBACK["ROLLBACK & Trả về 400 OUT_OF_STOCK"]
+    CAS_STOCK -- Thất bại (Hết kho) --> TX_ROLLBACK["ROLLBACK & Trả về 400 OUT_OF_STOCK (Test C)"]
     TX_ROLLBACK --> CLIENT_ALERT["Client báo lỗi món đã hết hàng"]
     
     CAS_STOCK -- Thành công --> CREATE_ORDER["Tạo Order (PENDING) & OrderItems"]
     CREATE_ORDER --> COMMIT_TX["COMMIT TRANSACTION"]
     
-    COMMIT_TX --> PAYMENT_GATEWAY["Khách thanh toán qua VietQR/MoMo (FR-06)"]
+    COMMIT_TX --> PAYMENT_GATEWAY["Khách thanh toán quét mã QR (FR-05)"]
     PAYMENT_GATEWAY --> CHECK_PAY{"Giao dịch thành công?"}
     
     CHECK_PAY -- Thất bại --> PAY_RETRY["Giữ đơn PENDING, cho phép thử lại"]
     CHECK_PAY -- Thành công --> ORDER_PAID["Cập nhật Order: PAID & Payment: SUCCESS"]
     
-    ORDER_PAID --> BARISTA_KDS["Màn hình Barista nhận đơn (FR-07)"]
+    ORDER_PAID --> BARISTA_KDS["Màn hình Barista nhận đơn (FR-10)"]
     BARISTA_KDS --> BREAD_PREP["Chuyển PREPARING (Đang pha chế)"]
     BREAD_PREP --> BREAD_READY["Chuyển READY (Mời khách nhận món)"]
     BREAD_READY --> BREAD_DONE["Chuyển COMPLETED (Hoàn tất giao dịch)"]
     BREAD_DONE --> END_FLOW((Kết thúc))
 ```
+
+---
 
 ### 2.3. Sơ đồ Tuần tự Giao dịch ACID & Idempotency (Sequence Diagram)
 Minh chứng luồng xử lý Transaction và cơ chế bảo vệ kép chống tấn công giá và chống trùng lặp đơn hàng:
@@ -177,7 +187,7 @@ sequenceDiagram
     Customer->>Cart: Bấm nút "Đặt hàng & Thanh toán"
     Note over Cart: Client tạo Idempotency-Key UUIDv4<br/>Loại bỏ hoàn toàn price ra khỏi payload
     Cart->>Controller: POST /orders (Header: Idempotency-Key)
-    Controller->>Pipe: Kiểm tra tính hợp lệ DTO
+    Controller->>Pipe: Kiểm tra tính hợp lệ DTO (whitelist: true)
     alt Payload chứa trường price giả mạo
         Pipe-->>Customer: 400 Bad Request: "property price should not exist"
     end
@@ -191,13 +201,13 @@ sequenceDiagram
 
     Note over Service,DB: KHỞI TẠO PRISMA TRANSACTION (ACID)
     Service->>DB: tx.product.findMany(IDs) -> Lấy basePrice từ DB
-    Service->>Service: calculateUnitPrice() trên Server
+    Service->>Service: calculateUnitPrice() trên Server (Test A)
     
     Service->>DB: UPDATE "Product" SET stockQuantity = stockQuantity - Qty WHERE id = :id AND stockQuantity >= Qty
     alt Row Affected == 0 (Overselling / Race Condition thất bại)
         DB-->>Service: count = 0
         Service->>DB: ROLLBACK TRANSACTION
-        Service-->>Customer: 400 Bad Request: "OUT_OF_STOCK"
+        Service-->>Customer: 400 Bad Request: "OUT_OF_STOCK" (Test C)
     end
 
     Service->>DB: tx.order.create({ code, totalAmount, items, status: 'PENDING' })
@@ -206,14 +216,16 @@ sequenceDiagram
     Service-->>Customer: HTTP 201 Created: Trả về đơn hàng & Mã QR thanh toán
 ```
 
-### 2.4. Sơ đồ Máy Trạng Thái (State Machine Diagram)
+---
+
+### 2.4. Sơ đồ Máy Trạng Thái Đơn Hàng (State Machine Diagram)
 Vòng đời trạng thái đơn hàng kết hợp trạng thái thanh toán và luồng xử lý Hoàn tiền:
 
 ```mermaid
 stateDiagram-v2
     [*] --> PENDING: Khách tạo đơn (Trừ kho tạm thời)
     
-    PENDING --> CANCELLED: Khách hủy đơn chưa trả tiền (Hoàn kho ngay lập tức)
+    PENDING --> CANCELLED: Khách hủy đơn chưa thanh toán (Hoàn kho ngay lập tức)
     PENDING --> PAID: Cổng thanh toán báo SUCCESS
     
     PAID --> PREPARING: Barista tiếp nhận chế biến
@@ -226,8 +238,10 @@ stateDiagram-v2
     COMPLETED --> [*]
 ```
 
+---
+
 ### 2.5. Sơ Đồ Lớp & Thực Thể Cơ Sở Dữ Liệu (Class Diagram / ERD)
-Mô hình hóa toàn bộ cấu trúc dữ liệu thực tế tại [schema.prisma](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/prisma/schema.prisma) thể hiện rõ ràng các quan hệ 1-N, 1-1, khóa chính CUID và kiểu số thực chính xác Decimal:
+Mô hình hóa toàn bộ cấu trúc dữ liệu thực tế tại [schema.prisma](../apps/api/prisma/schema.prisma) thể hiện rõ ràng các quan hệ 1-N, 1-1, khóa chính CUID và kiểu số thực chính xác Decimal:
 
 ```mermaid
 classDiagram
@@ -254,6 +268,7 @@ classDiagram
         +Boolean isAvailable
         +Int stockQuantity
         +DateTime createdAt
+        +DateTime updatedAt
     }
 
     class Order {
@@ -261,12 +276,9 @@ classDiagram
         +String code (Unique)
         +String userId FK
         +OrderStatus status
-        +Decimal subTotal
-        +Decimal discountAmount
         +Decimal totalAmount
-        +String deliveryNote
         +String idempotencyKey (Unique)
-        +String promotionId FK
+        +String orderNote
         +DateTime createdAt
         +DateTime updatedAt
     }
@@ -276,95 +288,112 @@ classDiagram
         +String orderId FK
         +String productId FK
         +Int quantity
-        +Decimal unitPrice
-        +String selectedSize
+        +ProductSize selectedSize
         +String[] selectedToppings
+        +Decimal unitPrice
         +Decimal itemTotal
     }
 
     class Payment {
         +String id (CUID) PK
         +String orderId FK
-        +PaymentMethod method
+        +PaymentMethod paymentMethod
         +PaymentStatus status
         +Decimal amount
-        +String transactionRef
         +String idempotencyKey (Unique)
-        +Json paymentGatewayResponse
+        +String transactionRef
         +DateTime createdAt
+        +DateTime updatedAt
     }
 
     class Promotion {
         +String id (CUID) PK
         +String code (Unique)
-        +String description
-        +PromotionType type
-        +Decimal value
+        +String name
+        +DiscountType discountType
+        +Decimal discountValue
         +Decimal minOrderValue
-        +Decimal maxDiscount
-        +DateTime validFrom
-        +DateTime validTo
+        +Int maxUsage
+        +Int usedCount
         +Boolean isActive
-    }
-
-    class LoyaltyTransaction {
-        +String id (CUID) PK
-        +String userId FK
-        +String orderId (Unique) FK
-        +Int pointsChange
-        +Int balanceAfter
-        +String description
-        +DateTime createdAt
+        +DateTime startDate
+        +DateTime endDate
     }
 
     User "1" --> "0..*" Order : places
-    User "1" --> "0..*" LoyaltyTransaction : earns
+    Product "1" --> "0..*" OrderItem : referenced_in
     Order "1" --> "1..*" OrderItem : contains
-    Product "1" --> "0..*" OrderItem : ordered_as
-    Order "1" --> "0..*" Payment : paid_by
-    Promotion "1" --> "0..*" Order : applied_to
-    Order "1" --> "0..1 LoyaltyTransaction : triggers
+    Order "1" --> "0..*" Payment : billed_by
 ```
 
-* **Thuyết minh chuyên sâu về Thiết kế Dữ liệu:**
-  1. **Quan hệ Order - OrderItem - Product:** 1 Đơn hàng gồm nhiều OrderItems. Mỗi OrderItem lưu bản snapshot `unitPrice` và `itemTotal` tại thời điểm mua (dưới dạng `Decimal`). Dù sau này giá gốc `Product.basePrice` có tăng giảm, lịch sử tài chính của Order cũ vẫn không bao giờ bị sai lệch.
-  2. **Quan hệ Order - Payment:** Quan hệ 1 - Nhiều (1..*) cho phép một đơn hàng có thể thanh toán nhiều lần nếu lần đầu thất bại (ví dụ: thẻ hết hạn $\to$ thử lại bằng VietQR), hoặc xử lý thanh toán từng phần/hoàn tiền.
-  3. **Khóa chống trùng lặp IdempotencyKey:** Cả bảng `Order` và `Payment` đều sở hữu cột `idempotencyKey String? @unique` ở tầng Database Index, đảm bảo cơ sở dữ liệu sẽ tự động từ chối (Unique Constraint Violation) bất kỳ giao dịch nào bị gửi lặp do lỗi mạng.
+* **Thuyết minh chuyên sâu về Mô hình Thực thể:**
+  1. **Quan hệ Order - OrderItem - Product:** Một Đơn hàng gồm nhiều OrderItems. Mỗi OrderItem lưu bản snapshot `unitPrice` và `itemTotal` tại thời điểm mua (dưới dạng `Decimal`). Dù sau này giá gốc `Product.basePrice` có điều chỉnh, lịch sử tài chính của Order cũ vẫn được bảo toàn nguyên vẹn.
+  2. **Quan hệ Order - Payment:** Cho phép một đơn hàng có thể thanh toán lại nếu lần đầu thất bại, hoặc ghi nhận trạng thái hoàn tiền đối soát `REFUND_PENDING`.
+  3. **Ràng buộc duy nhất IdempotencyKey:** Cả bảng `Order` và `Payment` đều sở hữu cột `idempotencyKey String? @unique` ở tầng Database Index, đảm bảo cơ sở dữ liệu sẽ tự động từ chối (Unique Constraint Violation) bất kỳ giao dịch nào bị gửi lặp.
 
 ---
 
 # PHẦN III: THIẾT KẾ KIẾN TRÚC & HẠ TẦNG CLOUD (TASK 3)
 
-### 3.1. 5 Bản Ghi Quyết Định Kiến Trúc (Architecture Decision Records - ADRs)
+### 3.1. Các Bản Ghi Quyết Định Kiến Trúc (Architecture Decision Records - ADRs)
+Hệ thống tuân thủ nghiêm ngặt các quyết định kiến trúc đã được lập biên bản tại thư mục `docs/architecture/adr/`:
 
-#### ADR-001: Chuyển đổi từ Polyrepo sang Turborepo Monorepo
-* **Bối cảnh:** Ở A1, Backend và Frontend nằm ở 2 repo tách biệt, dẫn đến tình trạng sai lệch DTO, trôi phiên bản API contract và phải chạy script test thủ công ở từng nơi.
-* **Quyết định:** Gom toàn bộ hệ thống về **Turborepo Monorepo** (`apps/api`, `apps/web`).
-* **Hệ quả:** Chia sẻ kiểu dữ liệu End-to-End TypeScript; tận dụng cơ chế Remote Cache của Turborepo giúp tốc độ build CI/CD giảm từ 4 phút xuống còn 45 giây; 1 lệnh `npm run test` chạy toàn bộ 128 tests trong dự án.
+#### ADR-001: Kiến trúc Monorepo với npm Workspaces
+* **Tài liệu gốc:** [001-monorepo.md](architecture/adr/001-monorepo.md)
+* **Bối cảnh:** Ở A1, Backend và Frontend nằm ở 2 repo tách biệt, dẫn đến sai lệch DTO, trôi phiên bản API contract và khó khăn khi đồng bộ mã nguồn.
+* **Quyết định:** Hợp nhất hệ thống về **Monorepo với npm Workspaces** (`apps/api`, `apps/web`).
+* **Hệ quả:** Chia sẻ kiểu dữ liệu End-to-End TypeScript; đồng bộ CI/CD 1 lệnh `npm test` chạy toàn bộ 243 tests; quy trình pull/push và giải quyết xung đột diễn ra trên một cây lịch sử Git duy nhất.
 
-#### ADR-002: Kiểm soát Đồng thời bằng Atomic SQL CAS Update thay cho Optimistic Lock Retry Loop
-* **Bối cảnh:** A1 sử dụng cột `@version` và vòng lặp thử lại 3 lần trong Node.js. Khi có Flash Sale (50 người tranh chấp 2 ly nước), 48 request bị từ chối và chạy retry liên tục, làm nghẽn CPU Event Loop và cạn kiệt DB Connection Pool.
+#### ADR-002: Kiến trúc Frontend Next.js App Router & Progressive Web App (PWA)
+* **Tài liệu gốc:** [002-frontend-nextjs-pwa.md](architecture/adr/002-frontend-nextjs-pwa.md)
+* **Bối cảnh:** Khách hàng tại quán cần trải nghiệm mượt mà trên di động mà không muốn tải ứng dụng native từ App Store.
+* **Quyết định:** Sử dụng **Next.js 15 (App Router)** kết hợp Pure Context API (`CartContext`) và tiêu chuẩn PWA.
+* **Hệ quả:** Thời gian tương tác nhanh, hỗ trợ cài đặt Add to Home Screen, tránh lỗi Hydration Mismatch bằng cơ chế mounted flag chuẩn mực.
+
+#### ADR-003: Kiến trúc Backend NestJS Modular Architecture
+* **Tài liệu gốc:** [003-backend-nestjs-modular.md](architecture/adr/003-backend-nestjs-modular.md)
+* **Bối cảnh:** Cần hệ thống backend dễ mở rộng, kiểm thử độc lập và quản lý phụ thuộc (Dependency Injection) chặt chẽ.
+* **Quyết định:** Áp dụng **NestJS Modular Architecture** với các module độc lập: `AuthModule`, `CatalogModule`, `OrdersModule`, `PaymentsModule`, `PromotionsModule`.
+* **Hệ quả:** Dễ dàng viết Unit Test (Jest) cho từng Service/Controller, áp dụng Interceptor, Guard và ValidationPipe toàn cục.
+
+#### ADR-004: Tầng Lưu Trữ với PostgreSQL & Prisma ORM
+* **Tài liệu gốc:** [004-postgresql-and-prisma.md](architecture/adr/004-postgresql-and-prisma.md)
+* **Bối cảnh:** Cần cơ sở dữ liệu quan hệ mạnh mẽ hỗ trợ giao dịch ACID, di chuyển schema tự động (Migrations) và Type-safe Client.
+* **Quyết định:** Sử dụng **PostgreSQL Managed Cloud** kết hợp **Prisma ORM**.
+* **Hệ quả:** Schema được kiểm soát phiên bản qua Prisma Migrations; hỗ trợ transaction `$transaction` và các câu lệnh cập nhật có điều kiện Atomic CAS.
+
+#### ADR-005: Cổng Thanh Toán Giả Lập & Khóa Idempotency-Key
+* **Tài liệu gốc:** [005-mock-payment-service.md](architecture/adr/005-mock-payment-service.md)
+* **Bối cảnh:** Cần thử nghiệm các kịch bản thanh toán phức tạp (thành công, thất bại, mạng chập chờn, hủy đơn) mà không phụ thuộc vào tiền tệ thật.
+* **Quyết định:** Xây dựng **Mock Gateway Service** kết hợp tiêu chuẩn **Idempotency-Key UUIDv4** (RFC 7231).
+* **Hệ quả:** Chống trừ tiền đúp khi người dùng bấm nút nhiều lần; hỗ trợ giả lập thẻ từ chối khi số tài khoản kết thúc bằng `0000`.
+
+#### ADR-006: Kiểm soát Tranh chấp Đồng thời bằng Atomic SQL CAS Update
+* **Bối cảnh:** A1 sử dụng vòng lặp thử lại (Retry Loop) 3 lần ở tầng Node.js. Khi nhiều người cùng tranh mua các suất cuối cùng, các request retry làm nghẽn CPU Event Loop và cạn kiệt DB Connection Pool.
 * **Quyết định:** Áp dụng **Atomic Conditional CAS (Compare-And-Swap)** trực tiếp trong câu lệnh SQL:
   ```sql
   UPDATE "Product" SET "stockQuantity" = "stockQuantity" - $qty 
   WHERE "id" = $id AND "stockQuantity" >= $qty AND "isAvailable" = true;
   ```
-* **Hệ quả:** Phân định tranh chấp trực tiếp tại tầng Disk Storage Engine thông qua cơ chế Row-Level Exclusive Lock của PostgreSQL. Không tốn chu kỳ CPU để retry ở tầng ứng dụng, đảm bảo tính đúng đắn 100%, chịu tải tăng gấp 10 lần.
+* **Hệ quả:** Phân định tranh chấp trực tiếp tại tầng Storage Engine thông qua cơ chế Row-Level Exclusive Lock của PostgreSQL. Không tốn chu kỳ CPU để retry ở tầng ứng dụng, đảm bảo tính đúng đắn 100%, tồn kho không bao giờ âm.
 
-#### ADR-003: Định dạng Tiền tệ chuẩn Tài chính bằng Decimal (NUMERIC 12,2)
-* **Bối cảnh:** A1 lưu số nguyên VND (`Int`), gây bất khả thi khi tính thuế VAT lẻ, tỷ lệ phần trăm chiết khấu hoặc mở rộng ra thị trường quốc tế (USD). Nếu dùng `Float` trong JavaScript sẽ dính lỗi trôi dấu chấm động IEEE 754 (ví dụ: `0.1 + 0.2 = 0.30000000000000004`).
-* **Quyết định:** Định nghĩa toàn bộ thuộc tính tiền tệ (`basePrice`, `subTotal`, `totalAmount`) bằng kiểu **`Decimal`** trong Prisma Schema, ánh xạ thành kiểu `NUMERIC(12, 2)` trong PostgreSQL.
-* **Hệ quả:** Độ chính xác tài chính đạt mức tuyệt đối, sẵn sàng cho kiểm toán doanh thu doanh nghiệp.
+#### ADR-007: Chiến lược Phòng vệ Đa tầng (Defense-in-Depth) Chống Lỗ Hổng IDOR
+* **Bối cảnh:** Lỗ hổng Insecure Direct Object References (IDOR / BOLA) cho phép người dùng trái phép truy cập dữ liệu của người khác nếu hệ thống chỉ dựa vào tính khó đoán của ID.
+* **Quyết định:** Thiết lập chiến lược **Phòng vệ 2 lớp (Defense-in-Depth)**:
+  * **Lớp 1 (Chính yếu - Object-Level Authorization):** Tại `OrdersService.findUserOrderById`, hệ thống luôn đối chiếu quyền sở hữu:
+    ```typescript
+    if (order.userId !== userId && !['ADMIN', 'MANAGER', 'BARISTA'].includes(userRole)) {
+      throw new ForbiddenException({ errorCode: 'ORDER_ACCESS_DENIED' });
+    }
+    ```
+  * **Lớp 2 (Hỗ trợ - Anti-Enumeration):** Khóa chính sử dụng chuỗi **`CUID`** ngẫu nhiên có độ entropy cao (`cm3u...`) thay cho số nguyên tự tăng, triệt tiêu hoàn toàn nguy cơ quét vét URL tuần tự (`/orders/1`, `/orders/2`).
 
-#### ADR-004: Định danh Thực thể an toàn bảo mật bằng CUID
-* **Bối cảnh:** A1 sử dụng khóa chính số nguyên tự tăng `Int @id @default(autoincrement())`.
-* **Quyết định:** Thay thế toàn bộ bằng chuỗi định danh ngẫu nhiên chống va chạm **`CUID`** (`String @id @default(cuid())`).
-* **Hệ quả:** Triệt tiêu hoàn toàn lỗ hổng **IDOR (Insecure Direct Object References)**. Kẻ tấn công không thể đoán được URL đơn hàng `order/101`, `order/102` để khai thác dữ liệu người dùng khác.
+#### ADR-008: Chuẩn hóa Định dạng Tiền tệ với Decimal (NUMERIC 12,2)
+* **Bối cảnh:** Kiểu `Float` trong JavaScript dính lỗi trôi dấu chấm động IEEE 754 (ví dụ `0.1 + 0.2 = 0.30000000000000004`), trong khi kiểu `Int` không hỗ trợ tính toán thuế/chiết khấu thập phân lẻ.
+* **Quyết định:** Chuẩn hóa toàn bộ trường tiền tệ sang kiểu **`Decimal`** trong Prisma Schema, ánh xạ thành `NUMERIC(12,2)` trong PostgreSQL.
+* **Hệ quả:** Độ chính xác tài chính đạt mức tuyệt đối, phù hợp chuẩn mực kế toán kiểm toán.
 
-#### ADR-005: Bảo vệ Giao dịch kép bằng Idempotency-Key chuẩn RFC 7231
-* **Bối cảnh:** Khách hàng sử dụng mạng di động 4G chập chờn thường có xu hướng bấm nút "Thanh toán" liên tục nhiều lần khi ứng dụng bị xoay vòng tải.
-* **Quyết định:** Sinh mã UUIDv4 tại Web Client làm `Idempotency-Key`, lưu trữ độc bản có ràng buộc `@unique` tại bảng `Order` và `Payment`.
-* **Hệ quả:** Dù mạng gửi trùng 10 request, chỉ có 1 đơn hàng duy nhất được tạo ra và 1 lần trừ tiền duy nhất được thực thi.
+---
 
 ### 3.2. Sơ đồ Kiến trúc Phân tầng & Hạ tầng Cloud
 
@@ -375,14 +404,14 @@ graph TB
     end
 
     subgraph Security_Gate [Security & Ingress]
-        CORS["Strict CORS & Helmet"]
+        CORS["Strict CORS & Security Headers"]
         PIPE["Global ValidationPipe (whitelist: true)"]
         JWT["JWT Bearer Authentication Guard"]
     end
 
     subgraph Service_Tier [Backend Application Layer - Render Cloud]
-        API["NestJS Monolith API<br/>OrdersService & PaymentsService"]
-        CRON["Uptime Keep-Alive Cron<br/>Ping /health mỗi 10 phút"]
+        API["NestJS Monolith API<br/>OrdersService, CatalogService, PaymentsService"]
+        CRON["Uptime Keep-Alive Ping<br/>HTTP GET /health mỗi 10 phút"]
     end
 
     subgraph Database_Tier [Persistence Layer - Managed Cloud]
@@ -399,438 +428,192 @@ graph TB
     PRISMA --> PG
 ```
 
+* **Cơ chế Uptime Keep-Alive Ping:** Trên hạ tầng Render Cloud gói miễn phí, container sẽ rơi vào chế độ ngủ (Sleep Mode) sau 15 phút không có traffic, gây độ trễ khởi động nguội (Cold Start) lên tới 50 giây. Nhóm thiết lập Cron Job gửi HTTP GET vào `/health` mỗi 10 phút để giữ container luôn ở trạng thái "ấm" (Warm State), đảm bảo sẵn sàng phục vụ cho các buổi đánh giá nghiệm thu.
+
 ---
 
 # PHẦN IV: ĐỐI CHIẾU TẬN LÕI CODEBASE: A1 vs A2 (TIẾN HÓA KỸ THUẬT)
 
-Để chứng minh năng lực hiểu sâu tận lõi mã nguồn trước Hội đồng, bảng đối chiếu sau đây bóc tách sự khác biệt kỹ thuật giữa 2 repository:
-
 ### 4.1. Bảng So Sánh Toàn Diện A1 vs A2
-| Tiêu chí | Assignment 1 (BrewLite Prototype) | Assignment 2 (BrewLite Enterprise) | Đánh giá Chuyên môn |
+| Tiêu chí Kỹ nghệ | Assignment 1 (BrewLite Prototype) | Assignment 2 (BrewLite Enterprise) | Đánh giá Chuyên môn |
 | :--- | :--- | :--- | :--- |
-| **Mô hình Quản lý Repo** | Polyrepo (`backend/` riêng, `frontend/` riêng) | Turborepo Monorepo (`apps/api`, `apps/web`) | A2 vượt trội về CI/CD và tái sử dụng Contract. |
-| **Khóa chính Database** | `id Int @default(autoincrement())` | `id String @default(cuid())` | A2 triệt tiêu hoàn toàn lỗ hổng IDOR. |
-| **Kiểu dữ liệu Tiền tệ** | `Int` (chỉ hỗ trợ số nguyên VND) | `Decimal` (`NUMERIC(12,2)` Postgres) | A2 đạt chuẩn kiểm toán tài chính quốc tế. |
-| **Xử lý Tranh chấp Kho** | Optimistic Lock (`@version` + Retry Loop) | Atomic SQL CAS (`WHERE stockQuantity >= qty`) | A2 xử lý tải cao tức thì, không nghẽn Event Loop. |
-| **Frontend State Management** | Zustand Store (`persist` middleware) | Pure React Context API + LocalStorage | A2 tối ưu hoàn hảo cho Next.js 15 App Router & RSC. |
-| **Bảo mật Payload Đặt hàng** | Dễ bị tiêm trường giá nếu DTO lỏng | `whitelist: true, forbidNonWhitelisted: true` | A2 chặn đứng 100% tấn công giả mạo giá (Test A). |
-| **Cổng thanh toán & Hủy đơn** | 3 trạng thái (`PENDING, SUCCESS, FAILED`) | 5 trạng thái (Thêm `REFUND_PENDING, REFUNDED`) | A2 xử lý trọn vẹn kịch bản Hủy đơn hoàn kho (Test B). |
-| **Kiểm định & Tự động hóa** | Script Node.js thủ công (`verify-foundation.mjs`) | Pipeline 4 bước GitHub Actions tự động | A2 đạt chuẩn mực DevOps Continuous Delivery. |
-
-### 4.2. So Sánh Mã Nguồn Lõi (Code Diffs)
-
-#### 1. Sự Khác Biệt về Data Modeling (Prisma Schema)
-* **Code A1 (`brewlite/backend/prisma/schema.prisma`):**
-  ```prisma
-  model Product {
-    id            Int      @id @default(autoincrement())
-    basePrice     Int      // Nguy cơ mất độ chính xác, không hỗ trợ lẻ
-    version       Int      @default(0) // Dùng cho Optimistic Lock
-    stockQuantity Int      @default(0)
-  }
-  ```
-* **Code A2 ([apps/api/prisma/schema.prisma](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/prisma/schema.prisma#L71-L85)):**
-  ```prisma
-  model Product {
-    id            String   @id @default(cuid()) // An toàn IDOR
-    code          String   @unique
-    basePrice     Decimal  // Chuẩn NUMERIC(12,2) ngân hàng
-    isAvailable   Boolean  @default(true)
-    stockQuantity Int      @default(0)
-    createdAt     DateTime @default(now())
-  }
-  ```
-
-#### 2. Sự Khác Biệt về Trừ Kho & Concurrency
-* **Code A1 (Vòng lặp thử lại 3 lần trong Node.js):**
-  ```typescript
-  // A1: stock.service.ts
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const item = await prisma.product.findUnique({ where: { id } });
-    if (item.stockQuantity < qty) throw new Error("OUT_OF_STOCK");
-    const updated = await prisma.product.updateMany({
-      where: { id, version: item.version },
-      data: { stockQuantity: item.stockQuantity - qty, version: { increment: 1 } }
-    });
-    if (updated.count > 0) return true; // Thành công
-  }
-  throw new ConflictException("Hệ thống bận, vui lòng thử lại");
-  ```
-* **Code A2 ([apps/api/src/orders/orders.service.ts](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.ts#L162-L178)):**
-  ```typescript
-  // A2: Trừ kho nguyên tử bằng 1 câu lệnh có điều kiện (Zero-retry CAS)
-  const updateResult = await tx.product.updateMany({
-    where: {
-      id: productId,
-      stockQuantity: { gte: requiredQty }, // Điều kiện CAS
-      isAvailable: true,
-    },
-    data: {
-      stockQuantity: { decrement: requiredQty }, // Trừ kho nguyên tử
-    },
-  });
-
-  if (updateResult.count === 0) {
-    throw new BadRequestException({
-      errorCode: "OUT_OF_STOCK",
-      message: `Sản phẩm "${product.name}" không đủ tồn kho`,
-    });
-  }
-  ```
+| **Cấu trúc Kho mã nguồn** | Polyrepo rời rạc (2 repository riêng cho web và api) | Monorepo hợp nhất với npm Workspaces | Giải quyết triệt để trôi lệch DTO Contract, đồng bộ CI/CD 1 lệnh test. |
+| **Kiểm soát Tranh chấp Kho** | Optimistic Lock (cột `@version` + vòng lặp retry 3 lần) | Atomic SQL CAS (`UPDATE ... WHERE stockQuantity >= qty`) | Loại bỏ lãng phí chu kỳ CPU, phân định tranh chấp tại đĩa cứng bằng Row Lock. |
+| **Khóa chính Thực thể** | `Int @default(autoincrement())` | `String @default(cuid())` | Triệt tiêu nguy cơ đoán số tuần tự (Sequential ID Enumeration). |
+| **Độ chính xác Tiền tệ** | `Int` (VND nguyên) | `Decimal` (`NUMERIC(12,2)` trong PostgreSQL) | Loại bỏ hoàn toàn lỗi trôi dấu chấm động IEEE 754, chuẩn hóa tính toán chiết khấu. |
+| **Bảo vệ Giao dịch kép** | Không có khóa chống trùng | `Idempotency-Key` UUIDv4 (@unique trong DB) | Chống trừ tiền đúp khi người dùng bấm nút nhiều lần trên mạng di động. |
+| **Tính toán Đơn giá** | Client gửi giá hoặc tính toán lỏng lẻo | Server-Authoritative Pricing 100% | Máy chủ tự tra cứu Database tính tiền; ValidationPipe chặn trường `price` từ Client. |
+| **Quản lý Trạng thái UI** | Zustand trên Client Component | Pure React Context API + LocalStorage | Tối ưu hóa cho Next.js 15 App Router, triệt tiêu lỗi Hydration Mismatch. |
+| **Độ bao phủ Kiểm thử** | Kiểm thử thủ công hoặc rời rạc | **243 automated tests** (135 API + 108 Web) | Đạt độ tin cậy hồi quy 100%, bảo vệ toàn diện các luồng nghiệp vụ cốt lõi. |
 
 ---
 
 # PHẦN V: GIẢI MÃ TẬN LÕI BỘ TỨ THẨM TRA NGHIỆM THU (TEST A, B, C, D)
-### Kèm Mã Nguồn Capture, Assertions Sát Thủ, Console Log & Kịch Bản Thuyết Trình Từng Bước
 
-Khi Hội đồng SGU yêu cầu kiểm tra các ca "sát thủ", đây là cẩm nang toàn diện với đầy đủ mã nguồn test chụp lại nguyên văn, kết quả log và lời thoại thuyết trình tương ứng:
+### 5.1. Kịch Bản A: Tấn Công Sửa Giá Phía Client (Price Tampering)
+
+#### 1. Bối cảnh & Bài toán:
+Kẻ tấn công sử dụng công cụ can thiệp HTTP (như Postman hoặc DevTools) để sửa giá món từ 45.000đ thành 1.000đ rồi gửi lệnh đặt hàng.
+
+#### 2. Cơ chế Phòng vệ 2 Tầng:
+1. **Tầng Ingress (ValidationPipe):** DTO `CreateOrderDto` hoàn toàn không khai báo trường `price`. Với cấu hình `whitelist: true` và `forbidNonWhitelisted: true`, nếu payload cố tình gửi trường `price`, NestJS ném ngay lỗi `400 Bad Request: property price should not exist`.
+2. **Tầng Nghiệp vụ (Server-Authoritative Pricing):** `OrdersService` tự truy vấn `basePrice` từ bảng `Product` trong Database và tính toán phụ thu Size/Topping theo công thức chuẩn:
+   $$\text{unitPrice} = \text{basePrice} + \text{sizeExtra} + \sum \text{toppingExtras}$$
+   Giá gửi từ Client (nếu có) bị bỏ qua hoàn toàn.
+
+#### 3. Bằng chứng Mã nguồn Kiểm thử ([orders.security.spec.ts](../apps/api/src/orders/orders.security.spec.ts)):
+```typescript
+it('rejects order payload containing unauthorized price property (TEST A)', async () => {
+  const tamperedDto = {
+    items: [{ productId: 'prod-milk-coffee', quantity: 1, price: 1000 }],
+  };
+  await request(app.getHttpServer())
+    .post('/orders')
+    .set('Authorization', `Bearer ${token}`)
+    .send(tamperedDto)
+    .expect(400); // Bị chặn đứng bởi ValidationPipe
+});
+```
+* Bằng chứng hình ảnh: [test-a-hack-price-rejected.jpg](evidence/test-a-hack-price-rejected.jpg) và [test-a-security-suite-pass.jpg](evidence/test-a-security-suite-pass.jpg).
 
 ---
 
-### 5.1. Kịch Bản A: Tấn Công Giả Mạo Giá (Price Tampering Attack)
+### 5.2. Kịch Bản B: Hủy Đơn Hàng Đã Thanh Toán (Paid Cancellation & Restock)
 
-#### 1. Bối cảnh & Hành vi Tấn công:
-Kẻ tấn công dùng Postman hoặc can thiệp DevTools trên trình duyệt, cố tình chèn thêm trường `price: 1000` vào payload đặt hàng của ly Cà phê sữa đá (giá gốc niêm yết là 35.000đ):
-```json
-{
-  "deliveryNote": "Hacking price",
-  "items": [
-    {
-      "productId": "cuid_cf_milk",
-      "quantity": 1,
-      "selectedSize": "REGULAR",
-      "price": 1000
-    }
-  ]
-}
-```
+#### 1. Bối cảnh & Bài toán:
+Khách hàng đã thanh toán thành công đơn hàng (trạng thái `PAID`), nhưng đổi ý và bấm "Hủy đơn" trước khi Barista bắt đầu pha chế.
 
-#### 2. Ảnh Chụp Mã Nguồn Kiểm Thử Thực Tế ([orders.security.spec.ts L85-L112](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.security.spec.ts#L85-L112)):
+#### 2. Cơ chế Xử lý Giao dịch Nguyên tử (Atomic Transaction):
+Hệ thống mở một Prisma Transaction thực thi 3 hành động đồng thời:
+1. **Kiểm tra điều kiện:** Chỉ cho phép hủy khi đơn ở trạng thái `PENDING` hoặc `PAID`. Nếu đơn đã sang `PREPARING`, `READY`, hoặc `COMPLETED`, lệnh hủy bị từ chối với lỗi `ORDER_CANNOT_BE_CANCELLED`.
+2. **Cập nhật trạng thái:** Chuyển `Order.status` sang `CANCELLED`.
+3. **Hoàn trả tồn kho:** Thực thi câu lệnh `increment` cho từng sản phẩm trong đơn:
+   ```typescript
+   await tx.product.update({
+     where: { id: item.productId },
+     data: { stockQuantity: { increment: item.quantity } },
+   });
+   ```
+4. **Chuyển trạng thái dòng tiền:** Bản ghi thanh toán `Payment` có trạng thái `SUCCESS` được chuyển sang `REFUND_PENDING` (chờ xử lý đối soát hoàn tiền từ bộ phận kế toán / cổng ngân hàng).
+
+#### 3. Bằng chứng Mã nguồn Kiểm thử ([orders.service.spec.ts](../apps/api/src/orders/orders.service.spec.ts)):
 ```typescript
-describe('TEST A — Bảo vệ giá API (Chống sửa giá phía client)', () => {
-  it('chặn 400 Bad Request ngay lập tức khi client cố tình gửi kèm trường price', async () => {
-    const hackPayload = {
-      deliveryNote: 'Hacking price',
-      items: [
-        {
-          productId: 'cly123',
-          quantity: 1,
-          selectedSize: 'REGULAR',
-          price: 1000, // Trường giả mạo giá rẻ
-        },
-      ],
-    };
-
-    await request(app.getHttpServer())
-      .post('/orders')
-      .set('Authorization', `Bearer ${customerToken}`)
-      .send(hackPayload)
-      .expect(400)
-      .expect(({ body }) => {
-        expect(body.message).toEqual(
-          expect.arrayContaining([expect.stringContaining('price should not exist')]),
-        );
-      });
-
-    // Đảm bảo request độc hại không bao giờ lọt vào tầng Service
-    expect(mockOrdersService.createOrder).not.toHaveBeenCalled();
-  });
+it('cancels a PAID order, restores stock and marks payment REFUND_PENDING', async () => {
+  const result = await service.cancelOrder('user-1', 'order-paid-1');
+  expect(result.status).toBe('CANCELLED');
+  expect(txMock.product.update).toHaveBeenCalledWith(
+    expect.objectContaining({ data: { stockQuantity: { increment: 2 } } }),
+  );
+  expect(txMock.payment.updateMany).toHaveBeenCalledWith(
+    expect.objectContaining({ data: { status: 'REFUND_PENDING' } }),
+  );
 });
 ```
-
-#### 3. Các Dòng Assertions Kiểm Định Mấu Chốt:
-* `.expect(400)`: Khẳng định HTTP Status trả về bắt buộc phải là `400 Bad Request`.
-* `expect(body.message).toEqual(expect.arrayContaining([expect.stringContaining('price should not exist')]))`: Khẳng định NestJS ValidationPipe phát hiện chính xác thuộc tính `price` trái phép.
-* `expect(mockOrdersService.createOrder).not.toHaveBeenCalled()`: Khẳng định request bị bẻ gãy ngay tại Ingress Pipeline, hàm tạo đơn trong Service tuyệt đối **không bao giờ được gọi**.
-
-#### 4. Log Kết Quả Màn Hình Console:
-```text
-PASS src/orders/orders.security.spec.ts
-  Orders Security & Validation HTTP Integration
-    TEST A — Bảo vệ giá API (Chống sửa giá phía client)
-      ✓ chặn 400 Bad Request ngay lập tức khi client cố tình gửi kèm trường price (28 ms)
-      ✓ chặn 400 Bad Request khi client gửi selectedSize không hợp lệ (14 ms)
-      ✓ chặn 401 Unauthorized khi không gửi Bearer token (9 ms)
-```
-
-#### 5. 🎤 Kịch Bản Thuyết Trình Từng Bước Trước Hội Đồng:
-* **Hành động:** Bạn mở sẵn tab [orders.security.spec.ts](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.security.spec.ts#L85), trỏ chuột vào dòng 94.
-* **Lời thoại:**
-  > *"Kính thưa Thầy Cô, đối với bài toán gian lận giá (Test A), nhóm chúng em thiết lập cơ chế phòng thủ 2 lớp:*  
-  > *Lớp 1: Tại dòng 94, em mô phỏng một hacker gửi trường `price: 1000`. Do file main.ts cấu hình `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })`, NestJS phát hiện trường `price` không nằm trong DTO và ngắt kết nối ngay lập tức với mã lỗi 400: `price should not exist` tại dòng 106. Dòng 111 chứng minh hàm createOrder hoàn toàn không bị kích hoạt.*  
-  > *Lớp 2: Ngay cả khi hacker không gửi trường price thì tại orders.service.ts dòng 185, Server tự truy vấn Database để lấy basePrice tính toán độc quyền. Khách hàng hoàn toàn không có quyền can thiệp vào giá tiền!"*
-
----
-
-### 5.2. Kịch Bản B: Hủy Đơn Đã Thanh Toán & Hoàn Kho (Paid Cancellation & Restock)
-
-#### 1. Bối cảnh & Quy Trình Nghiệp Vụ:
-Khách hàng đã thanh toán thành công đơn hàng qua MoMo/VietQR (`order.status = PAID`). Trước khi Barista chuyển sang chế biến (`PREPARING`), khách bấm Hủy đơn. Hệ thống phải đảm bảo 3 điều kiện:
-1. Trả lại chính xác số lượng tồn kho của từng món vào cơ sở dữ liệu.
-2. Đổi trạng thái đơn hàng sang `CANCELLED`.
-3. Ghi nhận giao dịch thanh toán chuyển thành `REFUND_PENDING` (chờ hoàn tiền) để kế toán đối soát.
-
-#### 2. Ảnh Chụp Mã Nguồn Kiểm Thử Thực Tế ([orders.service.spec.ts L527-L570](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.spec.ts#L527-L570)):
-```typescript
-describe("cancelOrder (TEST B - Hủy đơn & Hoàn kho)", () => {
-  it("cancels a PAID order, restores stock and marks payment REFUND_PENDING", async () => {
-    const orderToCancel = {
-      id: "ord-paid-1",
-      userId: "user-1",
-      status: "PAID",
-      items: [{ productId: "prod-milk-coffee", quantity: 2 }],
-    };
-
-    txMock.order.findUnique = jest.fn().mockResolvedValueOnce(orderToCancel);
-    txMock.product.update = jest.fn().mockResolvedValue({ id: "prod-milk-coffee" });
-    txMock.order.update = jest.fn().mockResolvedValueOnce({
-      ...orderToCancel,
-      status: "CANCELLED",
-      subTotal: new Prisma.Decimal(70000),
-      discountAmount: new Prisma.Decimal(0),
-      totalAmount: new Prisma.Decimal(70000),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      items: [],
-    });
-
-    const res = await service.cancelOrder("ord-paid-1", "user-1");
-
-    // 1. Kiểm tra trạng thái đơn đổi thành CANCELLED
-    expect(res.status).toBe("CANCELLED");
-
-    // 2. Kiểm tra tồn kho được cộng trả lại nguyên tử (increment: 2)
-    expect(txMock.product.update).toHaveBeenCalledWith({
-      where: { id: "prod-milk-coffee" },
-      data: { stockQuantity: { increment: 2 } },
-    });
-
-    // 3. Kiểm tra thanh toán chuyển sang trạng thái REFUND_PENDING
-    expect(txMock.payment.updateMany).toHaveBeenCalledWith({
-      where: {
-        orderId: "ord-paid-1",
-        status: "SUCCESS",
-      },
-      data: {
-        status: "REFUND_PENDING",
-      },
-    });
-  });
-});
-```
-
-#### 3. Các Dòng Assertions Kiểm Định Mấu Chốt:
-* `expect(res.status).toBe("CANCELLED")`: Xác nhận đơn hàng đã bị hủy.
-* `expect(txMock.product.update).toHaveBeenCalledWith({ data: { stockQuantity: { increment: 2 } } })`: Xác nhận PostgreSQL thực thi lệnh `increment: 2` hoàn trả tồn kho.
-* `expect(txMock.payment.updateMany).toHaveBeenCalledWith({ data: { status: "REFUND_PENDING" } })`: Xác nhận trạng thái dòng tiền chuyển sang chờ hoàn tất đối soát ngân quỹ.
-
-#### 4. Log Kết Quả Màn Hình Console:
-```text
-PASS src/orders/orders.service.spec.ts
-  OrdersService
-    cancelOrder (TEST B - Hủy đơn & Hoàn kho)
-      ✓ cancels a PENDING order and restores stock (18 ms)
-      ✓ rejects cancellation from another user with ForbiddenException (8 ms)
-      ✓ cancels a PAID order, restores stock and marks payment REFUND_PENDING (22 ms)
-```
-
-#### 5. 🎤 Kịch Bản Thuyết Trình Từng Bước Trước Hội Đồng:
-* **Hành động:** Mở tab [orders.service.spec.ts](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.spec.ts#L527), trỏ vào dòng 557 và dòng 567.
-* **Lời thoại:**
-  > *"Thưa Thầy Cô, ở Kịch bản B (Hủy đơn đã thanh toán), hệ thống thực thi 1 Transaction nguyên tử gồm 3 bước:  
-  > Bước 1: Kiểm tra trạng thái đơn, nếu đang là PAID thì tại dòng 557, hệ thống gọi lệnh `increment: 2` để hoàn trả đúng số lượng ly nước vào kho.  
-  > Bước 2: Cập nhật đơn hàng sang CANCELLED tại dòng 554.  
-  > Bước 3: Tại dòng 567, giao dịch thanh toán có trạng thái SUCCESS lập tức được chuyển thành REFUND_PENDING. Điều này giúp bộ phận kế toán có căn cứ đối soát để giải ngân hoàn tiền vào ví MoMo/tài khoản ngân hàng của khách hàng, đảm bảo 100% tính toàn vẹn tài chính!"*
+* Báo cáo kiểm định thực tế: [test-b-paid-cancel-2026-11-11/README.md](evidence/test-b-paid-cancel-2026-11-11/README.md).
 
 ---
 
 ### 5.3. Kịch Bản C: Tranh Chấp Đặt Hàng Đồng Thời (High-Concurrency Race Condition)
 
-#### 1. Bối cảnh & Bài toán:
-Trong kho chỉ còn duy nhất **2 ly Cà phê sữa**. Đúng thời điểm $t_0$, Khách 1 gửi request mua 2 ly và Khách 2 gửi request mua 2 ly. Cả 2 request đi vào hệ thống cùng lúc.
+#### 1. Bối cảnh & Kịch bản Chuẩn Giảng viên (2/2 Scenario):
+Tồn kho ban đầu trong cơ sở dữ liệu đúng **2 sản phẩm** (`stockQuantity = 2`). Đúng thời điểm $t_0$, hai tài khoản độc lập gửi đồng thời hai yêu cầu đặt hàng, mỗi yêu cầu đặt đúng 2 sản phẩm qua `Promise.all`.
 
-#### 2. Ảnh Chụp Mã Nguồn Kiểm Thử Thực Tế ([orders.service.spec.ts L200-L216](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.spec.ts#L200-L216)):
-```typescript
-it("throws BadRequestException OUT_OF_STOCK when updateMany affected count is 0", async () => {
-  // Giả lập tình huống tranh chấp: Transaction khác đã nhanh tay trừ hết kho -> count trả về 0
-  txMock.product.updateMany.mockResolvedValueOnce({ count: 0 });
+#### 2. Diễn biến Kỹ thuật tại Tầng Database:
+* **Giao dịch 1:** Chạm tới đĩa cứng trước, chiếm Row-Level Exclusive Lock. Điều kiện `stockQuantity >= 2` (2 >= 2) thỏa mãn $\to$ Trừ kho về 0, `count = 1`. Đơn hàng tạo thành công mã `BL-YYYYMMDD-XXXX`.
+* **Giao dịch 2:** Chờ khóa nhả ra. Lúc này tồn kho đã về 0, điều kiện `stockQuantity >= 2` (0 >= 2) không thỏa mãn $\to$ Không có dòng nào được cập nhật, `count = 0`.
+* **Xử lý tại Service:** Khi `updateResult.count === 0`, `OrdersService` lập tức ném lỗi `BadRequestException('OUT_OF_STOCK')` và Rollback toàn bộ Transaction.
+* **Kết quả cuối cùng:** Tồn kho trong PostgreSQL dừng lại chính xác tại con số **0**, tuyệt đối không bao giờ bị âm kho.
 
-  const dto: CreateOrderDto = {
-    items: [
-      {
-        productId: "prod-milk-coffee",
-        quantity: 2, // Khách đặt 2 ly nhưng kho đã bị người khác mua hết
-        selectedSize: "REGULAR",
-      },
-    ],
-  };
-
-  // Khẳng định hệ thống lập tức ném lỗi BadRequestException (OUT_OF_STOCK) và Rollback
-  await expect(service.createOrder("user-1", dto)).rejects.toThrow(
-    BadRequestException,
-  );
-});
-```
-
-#### 3. Các Dòng Assertions Kiểm Định Mấu Chốt:
-* `txMock.product.updateMany.mockResolvedValueOnce({ count: 0 })`: Mô phỏng đúng cơ chế của PostgreSQL khi câu lệnh `UPDATE ... WHERE stockQuantity >= 2` không tìm thấy bản ghi thỏa mãn (do người khác đã trừ về 0).
-* `await expect(...).rejects.toThrow(BadRequestException)`: Khẳng định giao dịch đến sau bị từ chối ngay lập tức, ném mã lỗi `OUT_OF_STOCK` và kích hoạt Rollback toàn bộ Transaction.
-
-#### 4. Log Kết Quả Màn Hình Console:
-```text
-PASS src/orders/orders.service.spec.ts
-  OrdersService
-    createOrder (Atomic Stock & Concurrency)
-      ✓ creates order successfully and decrements stock atomically (45 ms)
-      ✓ throws BadRequestException OUT_OF_STOCK when updateMany affected count is 0 (12 ms)
-      ✓ throws BadRequestException when product is unavailable (isAvailable: false) (9 ms)
-```
-
-#### 5. 🎤 Kịch Bản Thuyết Trình Từng Bước Trước Hội Đồng:
-* **Hành động:** Mở file [orders.service.ts Dòng 162](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.ts#L162) song song với file test [orders.service.spec.ts Dòng 200](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.spec.ts#L200).
-* **Lời thoại:**
-  > *"Kính thưa Thầy Cô, đây chính là lời giải cho Kịch bản C mà Thầy Cô yêu cầu:  
-  > Ở Assignment 1, nhóm dùng vòng lặp Retry 3 lần làm nghẽn CPU. Ở Assignment 2, tại dòng 162 của `orders.service.ts`, nhóm dùng **Atomic SQL CAS**: `UPDATE Product SET stockQuantity = stockQuantity - Qty WHERE id = ... AND stockQuantity >= Qty`.  
-  > Khi 2 khách cùng đặt 2 ly nước cuối cùng: Khách 1 đến trước, chiếm Row-Level Exclusive Lock của Postgres, điều kiện 2 >= 2 đúng $\to$ trừ kho về 0, count = 1 thành công.  
-  > Khách 2 đến sau, lúc này kho đã về 0, điều kiện 0 >= 2 sai $\to$ count = 0.  
-  > Tại dòng 173 của service và dòng 200 của file test, khi `updateResult.count === 0`, hệ thống ném ngay lỗi `OUT_OF_STOCK` và Rollback. Kết quả: 1 người mua được, 1 người nhận thông báo hết hàng, tồn kho dừng lại đúng số 0, **tuyệt đối không bị âm kho!**"*
+#### 3. Bằng chứng Kiểm thử 2 Tầng:
+1. **Tầng Unit Test Mock CAS:** [orders.service.spec.ts](../apps/api/src/orders/orders.service.spec.ts) kiểm tra logic ném lỗi khi `updateMany` trả về `{ count: 0 }`.
+2. **Tầng Integration Test trên PostgreSQL Thật (Task C-30):** [apps/api/src/orders/orders.concurrency.spec.ts](../apps/api/src/orders/orders.concurrency.spec.ts) và [tests/integration/orders.spec.ts](../tests/integration/orders.spec.ts) chạy trực tiếp trên cơ sở dữ liệu thật:
+   * Khách B tạo đơn thành công mã `BL-20261115-BLSK` (HTTP 201).
+   * Khách A bị từ chối với lỗi `OUT_OF_STOCK` (HTTP 400).
+   * Tồn kho cuối cùng giảm từ **2 về chính xác 0**.
+* Báo cáo nghiệm thu chi tiết: [c30-orders-concurrency-regression-2026-11-12/report.md](evidence/c30-orders-concurrency-regression-2026-11-12/report.md) và ảnh kết quả: [test-c-concurrency-postgres-pass.jpg](evidence/test-c-concurrency-postgres-pass.jpg).
 
 ---
 
 ### 5.4. Kịch Bản D: Khấu Trừ Định Lượng Nguyên Vật Liệu (Bill of Materials - BOM)
 
-#### 1. Mô Hình Toán Học & Công Thức Xác Định Điểm Nghẽn (Bottleneck):
-Khả năng phục vụ tối đa $Q$ của một sản phẩm phức hợp được xác định bởi nguyên vật liệu cạn kiệt đầu tiên:
+#### 1. Mô Hình Toán Học & Công Thức Điểm Nghẽn (Bottleneck Principle):
+Khả năng phục vụ tối đa $Q$ của một sản phẩm phức hợp được xác định bởi nguyên vật liệu chạm đáy đầu tiên:
 $$Q = \min_{i=1}^{n} \left( \left\lfloor \frac{\text{Kho}_i}{\text{Định mức}_i} \right\rfloor \right)$$
 
-#### 2. Bảng Phân Tích Định Lượng Pha Chế:
-| Sản phẩm / Thành phần | Cốt trà Oolong ($ml$) | Sữa đặc ($ml$) | Trân châu (phần) |
+Áp dụng vào bộ dữ liệu kiểm định giả lập của Giảng viên:
+| Nguyên liệu | Tồn kho thực tế | Định mức / 1 ly | Số ly tối đa khả dĩ |
 | :--- | :---: | :---: | :---: |
-| **Định mức 1 ly Trà sữa Oolong** | **150 ml** | **30 ml** | **1 phần** |
-| **Tồn kho nguyên liệu hiện tại** | **500 ml** | **100 ml** | **10 phần** |
-| **Khả năng pha chế theo từng loại** | $\lfloor 500 / 150 \rfloor = \mathbf{3}$ ly | $\lfloor 100 / 30 \rfloor = \mathbf{3}$ ly | $\lfloor 10 / 1 \rfloor = \mathbf{10}$ ly |
-| $\implies$ **Khả năng cung ứng tối đa:** | \multicolumn{3}{c|}{$Q = \min(3, 3, 10) = \mathbf{3}$ ly (Nghẽn tại Trà & Sữa)} |
+| **Cà phê** | 500 g | 10 g | $\lfloor 500 / 10 \rfloor = 50$ ly |
+| **Sữa tươi** | 1.000 ml | 50 ml | $\lfloor 1000 / 50 \rfloor = \mathbf{20}$ ly (Bottleneck) |
+| **Đường** | 200 g | 5 g | $\lfloor 200 / 5 \rfloor = 40$ ly |
+| $\implies$ **Khả năng phục vụ tối đa:** | \multicolumn{3}{c|}{$Q = \min(50, 20, 40) = \mathbf{20}$ ly (Giới hạn bởi Sữa tươi)} |
 
-#### 3. Diễn Biến Khi Thực Thi Giao Dịch:
-1. **Khách 1 đặt 2 ly:** Nhu cầu: $300ml$ trà, $60ml$ sữa, $2$ phần trân châu. Tồn kho sau đó: Trà còn $200ml$, Sữa còn $40ml$, Trân châu còn $8$ phần. Giao dịch COMMIT.
-2. **Khách 2 đặt tiếp 2 ly:** Nhu cầu: $300ml$ trà (Kho chỉ còn $200ml$), $60ml$ sữa (Kho chỉ còn $40ml$).
-3. **Kết quả:** Câu lệnh Atomic CAS cập nhật nguyên liệu trà thất bại (`count = 0`) $\implies$ Toàn bộ Transaction bị **ROLLBACK**, bảo toàn định lượng kho.
-
-#### 4. 🎤 Kịch Bản Thuyết Trình Từng Bước Trước Hội Đồng:
-* **Lời thoại:**
-  > *"Thưa Thầy Cô, đối với Kịch bản D (Khấu trừ định lượng BOM), nhóm áp dụng nguyên lý Bottleneck: Khả năng cung ứng ly nước phụ thuộc vào nguyên liệu chạm đáy đầu tiên. Toàn bộ thao tác trừ nhiều nguyên vật liệu (cốt trà, sữa, trân châu) được gom chung vào một Prisma Transaction duy nhất. Nếu bất kỳ nguyên liệu nào không đủ định lượng thì toàn bộ giao dịch sẽ Rollback ngay lập tức, không bao giờ xảy ra tình trạng trừ thiếu nguyên liệu!"*
+#### 2. Trạng thái Thực thi Kỹ thuật & Quản trị Phạm vi (Scope Management):
+* **Trạng thái Biên bản:** **`NOT EXECUTED trên Database Engine`** (Minh xác tại [test-d-bom-2026-11-11/README.md](evidence/test-d-bom-2026-11-11/README.md)).
+* **Lý do Kiến trúc:** Trong phạm vi Assignment 2 (Enterprise MVP POS), nhóm chủ động giới hạn quản lý tồn kho tại cấp độ **Thành phẩm (SKU Inventory)** để tập trung giải quyết triệt để bài toán khó nhất là Concurrency / Race Condition (Audit Test C).
+* **Lộ trình Kế thừa Assignment 3 (Future Scope):** Thiết kế ERD mở rộng bổ sung bảng `Ingredient` (Nguyên vật liệu) và `ProductRecipe` (Định mức BOM) có liên kết khóa ngoại với `Product`, thực thi trừ kho đa nguyên liệu trong một `$transaction` duy nhất.
 
 ---
 
-### 5.5. Kiểm Thử Giỏ Hàng & Tùy Biến Món Phía Web (Frontend Cart UI & Zero Price Leakage)
+# PHẦN VI: MA TRẬN TRUY VẾT & DANH MỤC 243 TEST CASES (TASK 5)
 
-#### 1. Ảnh Chụp Mã Nguồn Kiểm Thử ([cart.test.tsx L66-L81 & L380-L400](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/web/__tests__/cart.test.tsx#L66-L81)):
-```typescript
-describe('WEB-T02: Pricing Formula & Input Validation Helpers', () => {
-  it('calculates unitPrice and itemTotal accurately for Regular/Large and toppings', () => {
-    // 1. Regular (+0) không topping: 35.000đ
-    expect(calculateUnitPrice('35000', 'REGULAR', [])).toBe(35000);
+Hệ thống được bảo vệ vững chắc bởi **243 bài kiểm thử tự động**, đạt tỷ lệ **100% PASS** trên toàn bộ monorepo:
 
-    // 2. Large (+10.000) không topping: 45.000đ
-    expect(calculateUnitPrice('35000', 'LARGE', [])).toBe(45000);
-
-    // 3. Large (+10.000) + Trân châu (+5.000) + Kem Cheese (+10.000) + Thạch đào (+7.000) = 67.000đ
-    const fullUnit = calculateUnitPrice('35000', 'LARGE', [
-      'TRAN_CHAU',
-      'KEM_CHEESE',
-      'THACH_DAO',
-    ]);
-    expect(fullUnit).toBe(67000);
-    expect(calculateItemTotal(fullUnit, 3)).toBe(201000);
-  });
-
-  it('sanitizes toppings: deduplicates, sorts, and filters invalid codes', () => {
-    // Tự động khử trùng lặp và sắp xếp thứ tự ổn định
-    expect(
-      sanitizeToppings(['THACH_DAO', 'INVALID_NOTE', 'TRAN_CHAU', 'THACH_DAO']),
-    ).toEqual(['THACH_DAO', 'TRAN_CHAU']);
-  });
-});
-```
-
-#### 2. Các Dòng Assertions Kiểm Định Mấu Chốt:
-* `expect(calculateUnitPrice('35000', 'LARGE', [...])).toBe(67000)`: Khẳng định công thức tính tạm tính phía Client khớp 100% với công thức niêm yết tại Mục 1.3 của `api-contracts.md`.
-* `expect(sanitizeToppings(...)).toEqual(['THACH_DAO', 'TRAN_CHAU'])`: Khẳng định hệ thống tự động loại bỏ mã topping rác và khử trùng lặp.
-* `getOrderItemsPayload()`: Khẳng định payload gửi sang API **chỉ có `productId, quantity, selectedSize, selectedToppings` — hoàn toàn không có trường `price`**.
-
-#### 3. Log Kết Quả Màn Hình Console:
 ```text
-✓ __tests__/cart.test.tsx (12 tests) 1130ms
-  ✓ Role E — Product Options & Cart Management (WEB-T02 & WEB-T03)
-    ✓ WEB-T02: Pricing Formula & Input Validation Helpers
-      ✓ calculates unitPrice and itemTotal accurately for Regular/Large and toppings (24 ms)
-      ✓ sanitizes toppings and rejects invalid CartItem configurations (15 ms)
-    ✓ WEB-T03: CartContext State Management
-      ✓ merges same configuration and separates different configuration (38 ms)
+========================================================================================
+                      TỔNG HỢP KIỂM THỬ TỰ ĐỘNG TOÀN HỆ THỐNG
+========================================================================================
+  • Backend API (@brewlite/api):  16 test suites | 135 tests passed (100%)
+  • Frontend Web (@brewlite/web): 16 test suites | 108 tests passed (100%)
+  • Tổng cộng Monorepo:           32 test suites | 243 tests passed (100%)
+========================================================================================
 ```
 
-#### 4. 🎤 Kịch Bản Thuyết Trình Từng Bước Trước Hội Đồng:
-* **Hành động:** Mở tab [cart.test.tsx Dòng 66](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/web/__tests__/cart.test.tsx#L66).
-* **Lời thoại:**
-  > *"Thưa Thầy Cô, tại giao diện Web, phân hệ CartContext đảm bảo 2 nguyên tắc vàng:  
-  > Thứ nhất: Thuật toán `sanitizeToppings` tự động chuẩn hóa và gộp món trùng size/topping.  
-  > Thứ hai: Hàm `getOrderItemsPayload` được thiết kế chỉ trích xuất thông tin định danh sản phẩm. Giá hiển thị trên Web chỉ là con số tạm tính cho khách hàng xem trước. Máy chủ Backend mới là nơi tính toán giá tiền cuối cùng, triệt tiêu mọi khả năng gian lận giá!"*
+### 6.1. Bảng Tọa Độ 16 Test Suites Backend API (135 Tests - Jest)
+| Nhóm Kiểm Thử | Tên File Mã Nguồn | Số Tests | Nội dung kiểm tra chuyên sâu |
+| :--- | :--- | :---: | :--- |
+| **Orders Concurrency** | `orders.concurrency.spec.ts`<br>`orders-customization.spec.ts` | 14 tests | Kịch bản 2/2 trên PostgreSQL thật, kiểm soát đường, đá, size, topping. |
+| **Orders Demo Progress** | `orders-demo-progress.service.spec.ts` | 6 tests | Worker mô phỏng tiến trình KDS tự động chuyển trạng thái. |
+| **Promotions Module** | `promotions.controller.spec.ts`<br>`promotions.service.spec.ts` | 14 tests | Tạo voucher, áp dụng chiết khấu %, giảm cố định, giới hạn lượt dùng. |
+| **Catalog & Products** | `products.service.spec.ts`<br>`products.controller.spec.ts`<br>`products.security.spec.ts` | 24 tests | Lấy danh mục, chi tiết món, chặn quyền sửa menu của Customer. |
+| **Payments & Mock** | `payments.service.spec.ts`<br>`mock-gateway.service.spec.ts` | 18 tests | Khóa Idempotency-Key UUID, hủy đơn hoàn tiền `REFUND_PENDING`, thẻ lỗi `0000`. |
+| **Orders Security & Core** | `orders.security.spec.ts`<br>`orders.service.spec.ts`<br>`orders.controller.spec.ts` | 33 tests | **Test A** (chống sửa giá), **Test B** (hủy đơn hoàn kho), **Test C** (Atomic CAS), chặn IDOR. |
+| **Auth & Security** | `auth.security.spec.ts`<br>`jwt.config.spec.ts` | 22 tests | Bcrypt 12 rounds, chặn role injection, token hết hạn, sai chữ ký, duplicate email. |
+| **Health Check** | `health.controller.spec.ts` | 4 tests | Endpoint `/health` kiểm tra kết nối cơ sở dữ liệu sống/chết. |
+
+### 6.2. Bảng Tọa Độ 16 Test Suites Frontend Web (108 Tests - Vitest)
+| Nhóm Giao Diện | Tên File Mã Nguồn | Số Tests | Nội dung kiểm tra chuyên sâu |
+| :--- | :--- | :---: | :--- |
+| **Admin Back-office** | `admin-dashboard.test.tsx`<br>`admin-orders.test.tsx`<br>`admin-products.test.tsx`<br>`admin-promotions.test.tsx` | 19 tests | Dashboard doanh thu, KDS Barista 1 chạm, thêm/sửa món modal, quản lý voucher. |
+| **Cart & Options** | `cart.test.tsx`<br>`customization.test.tsx` | 18 tests | Tùy biến size Regular/Large (+10k), toppings, đường đá, gộp dòng, LocalStorage. |
+| **Checkout Flow** | `checkout.test.tsx`<br>`tests/checkout.test.tsx`<br>`checkout-api.test.ts` | 24 tests | Khóa nút Submit chống double-click, sinh Idempotency-Key, điều phối thanh toán. |
+| **Orders & Stepper** | `orders.test.tsx`<br>`order-detail.test.tsx`<br>`order-stepper.test.tsx` | 20 tests | Lịch sử đơn hàng, chi tiết đơn, Stepper 4 bước thời gian thực, retry khi lỗi mạng. |
+| **Auth Contract & UI** | `auth.test.tsx`<br>`auth-contract.test.tsx` | 17 tests | Form đăng nhập/đăng ký, xử lý token hết hạn, đăng xuất an toàn. |
+| **Menu & Catalog** | `menu.test.tsx`<br>`catalog-api.test.ts` | 10 tests | Hiển thị Grid món, phân loại, trạng thái Loading, Empty, Error + Retry. |
+
+### 6.3. Kiểm Thử Giao Diện Trình Duyệt Thật (Playwright)
+* **Playwright UI Fixture Test ([tests/e2e/checkout-flow.spec.ts](../tests/e2e/checkout-flow.spec.ts)):** Chạy 5 test cases ở chế độ UI Fixture nhằm kiểm tra hành vi tương tác giao diện (hiển thị danh sách, chi tiết đơn hàng, xử lý đơn thất bại, cách ly dữ liệu mẫu).
+* **Live Browser Acceptance ([tests/real-browser/demo-acceptance.spec.ts](../tests/real-browser/demo-acceptance.spec.ts)):** Kiểm tra trực tiếp trên trình duyệt Chrome kết nối với cơ sở dữ liệu thật: kiểm tra luồng đặt hàng, ngắt kết nối mạng mô phỏng, khôi phục và đồng bộ tiến độ đơn hàng.
 
 ---
 
-# PHẦN VI: MA TRẬN TRUY VẾT & DANH MỤC 128 TEST CASES (TASK 5)
+# PHẦN VII: TỪ ĐIỂN THUẬT NGỮ CHUẨN KỸ SƯ PHẦN MỀM
 
-Hệ thống được bảo vệ bằng **128 bài kiểm thử tự động**, đạt độ bao phủ toàn diện từ Unit Test đến E2E:
-
-### 6.1. Bảng Tọa Độ 68 Tests Backend API (Jest & Supertest)
-| Nhóm Kiểm Thử | Tên File Mã Nguồn | Số Lượng Test | Chức năng kiểm tra chuyên sâu |
-| :--- | :--- | :---: | :--- |
-| **Catalog & Products** | `apps/api/src/catalog/products.service.spec.ts`<br>`apps/api/src/catalog/products.controller.spec.ts` | 14 tests | Lấy danh mục, chi tiết món, bộ lọc category, kiểm tra cờ isAvailable. |
-| **Auth & Security** | `apps/api/src/auth/auth.security.spec.ts`<br>`apps/api/src/auth/jwt.config.spec.ts` | 18 tests | Băm mật khẩu bcrypt 12 vòng, chặn role injection, token hết hạn, sai chữ ký, duplicate email (409 Conflict). |
-| **Orders & Concurrency** | `apps/api/src/orders/orders.service.spec.ts`<br>`apps/api/src/orders/orders.security.spec.ts` | 22 tests | Server-authoritative pricing (**Test A**), Atomic CAS trừ kho (**Test C**), Race condition, chặn đơn hàng rỗng. |
-| **Payments & Refund** | `apps/api/src/payments/payments.service.spec.ts`<br>`apps/api/src/payments/mock-gateway.service.spec.ts` | 10 tests | Khóa Idempotency-Key UUID, hủy đơn hoàn kho (**Test B**), giả lập lỗi số dư thẻ. |
-| **Health & Smoke** | `apps/api/src/health/health.controller.spec.ts` | 4 tests | Endpoint `/health` kiểm tra kết nối Database sống/chết. |
-
-### 6.2. Bảng Tọa Độ 60 Tests Frontend Web (Vitest & React Testing Library)
-| Nhóm Giao Diện | Tên File Mã Nguồn | Số Lượng Test | Chức năng kiểm tra chuyên sâu |
-| :--- | :--- | :---: | :--- |
-| **Menu & Catalog UI** | `apps/web/__tests__/menu.test.tsx` | 12 tests | Hiển thị Grid món, 3 trạng thái giao diện: Loading (Skeleton), Empty, Error + Nút Thử lại (Retry). |
-| **Cart & Customization** | `apps/web/__tests__/cart.test.tsx` | 16 tests | Tùy biến size Regular/Large (+10k), Toppings, preview giá, gộp/tách dòng, đồng bộ LocalStorage, **Payload không lộ giá**. |
-| **Authentication UI** | `apps/web/__tests__/auth.test.tsx` | 12 tests | Form đăng nhập/đăng ký, validate format email/phone, xử lý lỗi 401 Unauthorized và 409 Conflict. |
-| **Checkout & Submit** | `apps/web/__tests__/checkout.test.tsx` | 10 tests | Khóa nút Submit chống double-click, sinh Idempotency-Key, điều hướng thanh toán. |
-| **Orders & Stepper** | `apps/web/__tests__/orders.test.tsx`<br>`apps/web/__tests__/order-stepper.test.tsx` | 10 tests | Lịch sử đơn hàng, Stepper 4 bước thời gian thực, bảo vệ riêng tư chặn xem trộm đơn khách khác. |
-
-### 6.3. Playwright End-to-End Test (`tests/e2e/checkout-flow.spec.ts`)
-Mô phỏng 1 kịch bản người dùng hoàn chỉnh trên trình duyệt thật (Chromium Headless):
-1. Mở trang chủ $\to$ Duyệt qua món "Trà Đào Cam Sả".
-2. Bấm chọn Size Large (+10.000đ) và thêm Topping Thạch đào (+7.000đ).
-3. Bấm "Thêm vào giỏ" $\to$ Kiểm tra Drawer giỏ hàng hiển thị đúng tổng tiền tạm tính.
-4. Bấm "Đặt hàng" $\to$ Giao diện khóa nút bấm và gửi request.
-5. Kiểm tra hệ thống nhận mã đơn `BL-YYYYMMDD-XXXX` và thanh tiến độ hiển thị đúng `PAID`.
-
----
-
-# PHẦN VII: TỪ ĐIỂN "MÚA CÔNG NGHỆ" CHUẨN KỸ SƯ QUỐC TẾ
-
-Khi bảo vệ trước Hội đồng, sử dụng chính xác các thuật ngữ chuyên ngành này sẽ lập tức định vị bạn ở đẳng cấp Senior Engineer:
-
-1. **ACID Transaction Guarantees:** 4 thuộc tính đảm bảo giao dịch cơ sở dữ liệu: *Atomicity* (Nguyên tử - hoặc tất cả thành công hoặc rollback toàn bộ), *Consistency* (Nhất quán - không vi phạm ràng buộc schema), *Isolation* (Cô lập - các transaction đồng thời không can thiệp bẩn vào nhau), *Durability* (Bền vững - dữ liệu ghi xuống đĩa không bị mất khi sập nguồn).
-2. **Atomic CAS (Compare-And-Swap):** Kỹ thuật kiểm tra điều kiện và cập nhật trực tiếp trong một chu kỳ xung nhịp của Storage Engine: `WHERE stockQuantity >= qty`.
-3. **Idempotency (Tính bất biến của API):** Đảm bảo việc gửi lại cùng một yêu cầu nhiều lần sẽ cho ra kết quả duy nhất không thay đổi, bảo vệ hệ thống tài chính không bị trừ tiền 2 lần.
-4. **Server-Authoritative Pricing:** Triết lý kiến trúc quy định Máy chủ là nguồn chân lý duy nhất về tính toán giá cả; Web Client chỉ gửi mã sản phẩm và tùy biến.
-5. **IDOR (Insecure Direct Object References):** Lỗ hổng bảo mật khi hệ thống dùng ID tự tăng tuyến tính, cho phép kẻ xấu đổi ID trên thanh địa chỉ để xem lén dữ liệu của người khác.
-6. **Decimal Arbitrary-Precision:** Kiểu dữ liệu số thực chính xác tuyệt đối ở tầng cơ sở dữ liệu (`NUMERIC(12,2)`), loại bỏ hoàn toàn lỗi trôi dấu chấm động IEEE 754 của kiểu `Float`.
-7. **Two-Phase Commit State Machine:** Mô hình máy trạng thái quản lý đơn hàng kết hợp giữa trạng thái hoàn thành món ăn và trạng thái dòng tiền thanh toán.
-8. **Event Loop Non-Blocking:** Tối ưu hóa luồng xử lý đơn luồng của Node.js bằng cách đẩy việc giải quyết tranh chấp xuống Database, không chạy vòng lặp retry gây nghẽn Event Loop.
-9. **Defense-in-Depth (Phòng thủ đa tầng):** Chiến lược bảo mật nhiều lớp: Chặn DTO lạ tại Ingress Pipe $\to$ Xác thực JWT Guard $\to$ Kiểm tra quyền RBAC $\to$ Tra cứu giá Database.
-10. **Hydration Mismatch Prevention:** Kỹ thuật khử lỗi bất đồng bộ giữa mã HTML sinh ra từ Server và cây DOM render tại Client trong Next.js 15 App Router.
+1. **ACID Guarantees:** 4 đặc tính bảo vệ giao dịch cơ sở dữ liệu: *Atomicity* (Nguyên tử - hoặc tất cả thành công hoặc rollback toàn bộ), *Consistency* (Nhất quán - không vi phạm ràng buộc toàn vẹn), *Isolation* (Cô lập - các transaction đồng thời không can thiệp bẩn vào nhau), *Durability* (Bền vững - dữ liệu ghi xuống đĩa không bị mất khi sập nguồn).
+2. **Atomic CAS (Compare-And-Swap):** Kỹ thuật kiểm tra điều kiện và cập nhật trực tiếp trong một chu kỳ xung nhịp của Storage Engine: `WHERE stockQuantity >= qty`, tận dụng Row-Level Exclusive Lock của PostgreSQL.
+3. **Idempotency (Tính bất biến của API):** Đảm bảo việc gửi lại cùng một yêu cầu nhiều lần sẽ cho ra kết quả duy nhất không đổi, bảo vệ hệ thống tài chính không bị trừ tiền 2 lần khi mạng chập chờn.
+4. **Server-Authoritative Pricing:** Triết lý kiến trúc quy định Máy chủ là nguồn chân lý duy nhất về tính toán giá cả; Web Client chỉ gửi mã sản phẩm và tùy biến, không gửi giá.
+5. **IDOR / BOLA (Broken Object Level Authorization):** Lỗ hổng bảo mật khi hệ thống không kiểm tra quyền sở hữu của người dùng đối với đối tượng được yêu cầu. Phòng vệ chính là Object-Level Authorization (`order.userId === currentUser.id`); CUID đóng vai trò lớp đệm chống vét cạn tuần tự.
+6. **Decimal Arbitrary-Precision:** Kiểu dữ liệu số thực chính xác ở tầng cơ sở dữ liệu (`NUMERIC(12,2)`), loại bỏ hoàn toàn lỗi trôi dấu chấm động IEEE 754 của kiểu `Float`.
+7. **Defense-in-Depth (Phòng thủ đa tầng):** Chiến lược bảo mật nhiều lớp: Chặn DTO lạ tại Ingress ValidationPipe $\to$ Xác thực JWT Guard $\to$ Phân quyền RBAC $\to$ Kiểm tra quyền sở hữu Object-Level $\to$ Tra cứu giá Database.
+8. **Uptime Keep-Alive Ping:** Cơ chế định kỳ gửi HTTP request vào `/health` để ngăn chặn Container Sleep trên nền tảng Cloud miễn phí (khắc phục Cold Start), duy trì sẵn sàng cao cho môi trường demo.
 
 ---
 
 # PHẦN VIII: KỊCH BẢN THUYẾT TRÌNH & PHẢN ĐÒN VẤN ĐÁP (30 - 60 PHÚT)
 
-### 8.1. Cú Hook Mở Màn 90 Giây "Thôi Miên" Hội Đồng
-*(Đứng thẳng người, phong thái đĩnh đạc, ánh mắt bao quát toàn thể Hội đồng, giọng nói dõng dạc và truyền cảm)*
+### 8.1. Cú Hook Mở Màn 90 Giây Thu Hút Hội Đồng
+*(Đứng thẳng người, phong thái đĩnh đạc, ánh mắt bao quát Hội đồng, giọng nói dõng dạc và truyền cảm)*
 
 > *"Kính thưa Thầy Chủ tịch Hội đồng và quý Thầy Cô trong Hội đồng phản biện,*
 > 
@@ -840,137 +623,60 @@ Khi bảo vệ trước Hội đồng, sử dụng chính xác các thuật ng�
 > 
 > Đó chính là sứ mệnh mà dự án **BrewLite** giải quyết.
 > 
-> Đặc biệt, khi bước từ Assignment 1 sang Assignment 2, nhóm chúng em không tiếp cận theo tư duy 'gõ thêm tính năng'. Nhóm em tiếp cận theo đúng **chuẩn mực Kỹ nghệ Phần mềm chuyên nghiệp (From Requirements to Deployment)**: Tái cấu trúc từ Polyrepo sang Turborepo Monorepo, nâng cấp cơ chế trừ kho từ vòng lặp Optimistic Lock sang **Atomic SQL Compare-And-Swap**, chuẩn hóa hệ thống kiểm toán bằng **128 bài test tự động pass 100%**, và triển khai môi trường Cloud Production có giám sát Zero-Downtime.
+> Bước từ Assignment 1 sang Assignment 2, nhóm chúng em tiếp cận theo đúng **chuẩn mực Kỹ nghệ Phần mềm chuyên nghiệp**: Tái cấu trúc từ Polyrepo sang Monorepo với npm Workspaces, nâng cấp cơ chế trừ kho từ vòng lặp Optimistic Lock sang **Atomic SQL Compare-And-Swap**, chuẩn hóa hệ thống kiểm toán bằng **243 bài test tự động pass 100%**, và triển khai môi trường Cloud Production có giám sát Anti-Cold-Start.
 > 
 > Sau đây, chúng em xin phép được dẫn dắt Thầy Cô đi qua từng tầng kiến trúc và chứng minh mã nguồn thực chiến của hệ thống!"*
 
 ---
 
-### 8.2. Kịch Bản Phân Vai 7 Thành Viên (A $\to$ G) Chi Tiết Từng Phút
-
-#### Phút 00:00 – 04:00 | Thành viên A: Tổng quan Kiến trúc & Hạ tầng Cloud
-* **Lời thoại:**
-  > *"Em là [Tên], đảm nhận vai trò Tech Lead và Kỹ sư DevOps. Em xin trình bày về bước nhảy vọt kiến trúc từ A1 sang A2.
-  > Ở Assignment 1, việc sử dụng Polyrepo rời rạc khiến chúng em gặp rủi ro trôi lệch Contract giữa Frontend và Backend. Do đó, bước vào Assignment 2, quyết định kiến trúc đầu tiên của nhóm theo **ADR-001** là quy hoạch toàn bộ hệ thống về **Turborepo Monorepo**. Toàn bộ kiểu dữ liệu DTO được chia sẻ an toàn End-to-End TypeScript.
-  > Về hạ tầng triển khai, Frontend Next.js 15 PWA được đặt tại Vercel Edge Network, Backend NestJS đóng gói Docker Multi-stage triển khai trên Render Cloud, kết nối với cơ sở dữ liệu PostgreSQL Managed. Để khắc phục hiện tượng Sleep Mode của các gói Cloud miễn phí, em đã thiết lập một Uptime Cron Job ping định kỳ vào endpoint `/health` mỗi 10 phút, đảm bảo hệ thống luôn ở trạng thái 'nóng' sẵn sàng phục vụ với thời gian phản hồi dưới 200ms.
-  > Sau đây, xin mời bạn [Tên Thành viên B] trình bày về phân hệ Xác thực và An ninh bảo mật."*
-
-#### Phút 04:00 – 08:00 | Thành viên B: Xác thực Phân quyền & Phòng thủ Bảo mật
-* **Lời thoại:**
-  > *"Em là [Tên], phụ trách phân hệ Xác thực & An toàn thông tin.
-  > Trọng tâm của phân hệ này là nguyên lý **Phòng thủ đa tầng (Defense-in-Depth)**. Mật khẩu người dùng được băm an toàn bằng thuật toán Bcrypt với hệ số Salt Round là 12. Khi đăng nhập thành công, hệ thống cấp phát JWT Bearer Token phi trạng thái (Stateless), giải phóng cơ sở dữ liệu khỏi việc phải lưu trữ Session.
-  > Để bảo vệ hệ thống trước lỗ hổng phân quyền trái phép, em thiết lập cơ chế phân quyền dựa trên vai trò **RBAC (Role-Based Access Control)**. Các API quan trọng như đổi trạng thái đơn hàng được bảo vệ nghiêm ngặt qua `@Roles('BARISTA', 'ADMIN')`.
-  > Đặc biệt, toàn bộ mã nguồn của nhóm đã vượt qua 18 bài kiểm tra bảo mật tự động: từ kiểm tra token hết hạn, sai chữ ký số, cho đến chặn đứng nguy cơ SQL Injection nhờ tầng ánh xạ Prisma ORM.
-  > Tiếp theo, xin mời bạn [Tên Thành viên C] trình bày về trái tim của hệ thống: Đặt hàng và Xử lý tồn kho nguyên tử."*
-
-#### Phút 08:00 – 14:00 | Thành viên C: Đặt Hàng, Trừ Kho Nguyên Tử & 4 Bài Audit Tests
-* **Lời thoại:**
-  > *"Kính thưa Thầy Cô, em là [Tên], phụ trách nghiệp vụ Đơn hàng và Quản lý Kho - đây chính là nơi xử lý các yêu cầu khắt khe nhất của đồ án.
-  > Ở Assignment 1, nhóm sử dụng Optimistic Lock với vòng lặp thử lại 3 lần. Nhưng trong môi trường thực tế khi Flash Sale, việc thử lại liên tục sẽ làm nghẽn Event Loop của Node.js. Vì vậy, ở A2, em đã cải tiến thành **Atomic Conditional CAS Update**: `UPDATE Product SET stockQuantity = stockQuantity - Qty WHERE stockQuantity >= Qty`.
-  > Cơ chế này giải quyết triệt để **Kịch bản Thẩm tra C**: Khi 2 khách hàng cùng tranh chấp 2 ly nước cuối cùng, PostgreSQL sẽ kích hoạt Row-Level Exclusive Lock. Giao dịch đến sau lập tức thấy số lượng cập nhật bằng 0 và bị Rollback ngay lập tức, đảm bảo tồn kho tuyệt đối không bao giờ bị âm.
-  > Đồng thời, để giải quyết **Kịch bản Thẩm tra A về chống sửa giá**, em áp dụng triết lý **Server-Authoritative Pricing**: Client tuyệt đối không được gửi giá lên Server. Server tự tra cứu Database và tính toán đơn giá. Nếu Client cố tình truyền trường `price`, `ValidationPipe` toàn cục sẽ ngắt kết nối ngay lập tức với mã lỗi 400 Bad Request.
-  > Với **Kịch bản Thẩm tra B**, khi khách hủy đơn đã thanh toán, hệ thống mở một Transaction tự động hoàn trả tồn kho và chuyển trạng thái giao dịch sang `REFUND_PENDING`.
-  > Sau đây, xin mời bạn [Tên Thành viên D] trình bày về Cổng thanh toán và Idempotency."*
-
-#### Phút 14:00 – 18:00 | Thành viên D: Cổng Thanh Toán & Cơ Chế Chống Trùng Lặp Idempotency
-* **Lời thoại:**
-  > *"Em là [Tên], phụ trách Cổng thanh toán giả lập và tính toán độ tin cậy giao dịch.
-  > Thách thức lớn nhất trong thanh toán trực tuyến là mạng di động của khách hàng bị giật lag, dẫn đến việc người dùng nhấn nút thanh toán nhiều lần. Nếu không có biện pháp phòng ngừa, khách hàng sẽ bị trừ tiền nhiều lần cho cùng một đơn hàng.
-  > Để khắc phục, em đã hiện thực chuẩn **Idempotency RFC 7231**. Mỗi phiên đặt hàng, Client sinh một khóa `Idempotency-Key` dạng UUIDv4. Tại `orders.service.ts`, trước khi chạy transaction trừ kho, hệ thống kiểm tra khóa này trong bảng Order. Nếu khóa đã tồn tại và khớp payload, hệ thống trả về ngay đơn hàng cũ mà không thực thi lại giao dịch trừ tiền.
-  > Cổng thanh toán Mock Gateway còn hỗ trợ đầy đủ các kịch bản kiểm thử: từ chối giao dịch khi tài khoản có đuôi `0000` (mô phỏng không đủ số dư) và sinh mã tham chiếu duy nhất `MOCK-TIMESTAMP-METHOD`.
-  > Tiếp theo, xin mời bạn [Tên Thành viên E] trình bày về kiến trúc Giỏ hàng và Trải nghiệm người dùng."*
-
-#### Phút 18:00 – 22:00 | Thành viên E: Giao Diện Tùy Biến Món & CartContext
-* **Lời thoại:**
-  > *"Em là [Tên], phụ trách giao diện Giỏ hàng và Tùy biến món ăn.
-  > Ở Assignment 1, nhóm sử dụng thư viện Zustand. Tuy nhiên, khi chuyển sang Next.js 15 App Router ở Assignment 2, để tận dụng tối đa sức mạnh của **React Server Components (RSC)** và tránh lỗi Hydration Mismatch, em đã kiến trúc lại toàn bộ tầng quản trị trạng thái giỏ hàng bằng **Pure React Context API** kết hợp LocalStorage.
-  > Điểm đặc biệt trong `CartContext.tsx` là thuật toán chuẩn hóa dữ liệu: Hệ thống tự động khử trùng lặp và sắp xếp danh sách Topping (`sanitizeToppings`), giúp việc so sánh hai món đồ uống đạt độ chính xác tuyệt đối. Nếu khách chọn cùng một món, cùng Size Large và cùng Topping Trân châu, hệ thống sẽ tự động gộp dòng và tăng số lượng.
-  > Quan trọng nhất, hàm `getOrderItemsPayload()` được thiết kế tuân thủ nghiêm ngặt nguyên tắc bảo mật: Chỉ trích xuất `productId, quantity, selectedSize, selectedToppings` để bàn giao cho API, tuyệt đối không đính kèm giá tiền từ Client.
-  > Sau đây, xin mời bạn [Tên Thành viên F] trình bày về Luồng Đặt hàng và Chống Double-Click."*
-
-#### Phút 22:00 – 26:00 | Thành viên F: Luồng Checkout An Toàn & Trải Nghiệm Khách Hàng
-* **Lời thoại:**
-  > *"Em là [Tên], phụ trách Giao diện Đặt hàng và Tối ưu hóa trải nghiệm Checkout.
-  > Tại trang Thanh toán, em thiết lập cơ chế **Khóa nút bấm Submit tức thì** ngay khi người dùng chạm vào màn hình, chuyển trạng thái sang Spinner Loading để chặn đứng hành vi Double-Click của người dùng.
-  > Giao diện Checkout hiển thị bảng phân rã chi phí chi tiết, minh bạch phụ thu Size Large (+10.000đ) và từng loại Topping để khách hàng dễ dàng đối soát trước khi quét mã QR.
-  > Trong trường hợp thanh toán thất bại (ví dụ tài khoản không đủ số dư), hệ thống giữ nguyên mã đơn hàng và cho phép khách hàng chọn phương thức thanh toán khác hoặc quét lại mã mà không làm mất giỏ hàng hay phát sinh đơn rác.
-  > Cuối cùng, xin mời bạn [Tên Thành viên G] trình bày về Quản trị chất lượng QA, Stepper thời gian thực và Ma trận truy vết."*
-
-#### Phút 26:00 – 30:00 | Thành viên G: KDS Barista, Ma Trận Truy Vết & Tổng Kết Nghiệm Thu
-* **Lời thoại:**
-  > *"Kính thưa Thầy Cô, em là [Tên], phụ trách Giao diện Theo dõi đơn hàng (KDS) và Đảm bảo chất lượng (QA).
-  > Phân hệ theo dõi đơn hàng được trang bị thanh tiến trình **Stepper 4 bước thời gian thực**: `PAID ➔ PREPARING ➔ READY ➔ COMPLETED`. Khi Barista chuyển trạng thái trên tablet tại quầy, màn hình điện thoại của khách hàng sẽ cập nhật trạng thái tương ứng, tối ưu hóa quy trình nhận đồ uống không chạm.
-  > Về công tác QA, nhóm em không kiểm thử ngẫu hứng. Tuân thủ mục 8.1 của đề bài Assignment 2, em đã xây dựng **Ma trận truy vết hai chiều (Traceability Matrix)** liên kết 100% các yêu cầu SRS sang từng dòng code hiện thực và từng bài test tự động.
-  > Toàn bộ hệ thống được bảo vệ bởi **128 bài test tự động**: 68 tests API Backend, 60 tests UI Frontend và 1 kịch bản End-to-End Playwright hoàn chỉnh, tất cả đều đạt trạng thái Passed 100% trên GitHub Actions.
-  > Chúng em xin trân trọng cảm ơn Thầy Cô đã lắng nghe và sẵn sàng trả lời các câu hỏi phản biện của Hội đồng!"*
+### 8.2. Kịch Bản Phân Vai 7 Thành Viên (A $\to$ G) Chi Tiết
+* **Thành viên A (Tech Lead & DevOps | 4 phút):** Tổng quan kiến trúc Monorepo, CI/CD Pipeline 4 bước, hạ tầng Cloud Vercel + Render + PostgreSQL, giải pháp giữ ấm container `/health`.
+* **Thành viên B (Auth & Security | 4 phút):** Xác thực JWT Stateless, mã hóa Bcrypt 12 rounds, phân quyền vai trò RBAC (`BARISTA`, `ADMIN`), phòng vệ 2 lớp chống IDOR.
+* **Thành viên C (Orders & Concurrency | 6 phút):** Trái tim hệ thống: Atomic SQL CAS trừ kho có điều kiện, **Test A** (Server-Authoritative Pricing), **Test B** (Hủy đơn hoàn kho `REFUND_PENDING`), **Test C** (Tranh chấp 2 ly nước cuối trên PostgreSQL thật), giải trình phạm vi MoSCoW đối với **Test D** (BOM).
+* **Thành viên D (Payments & Gateway | 4 phút):** Cổng thanh toán giả lập, cơ chế Idempotency-Key UUIDv4 chống trừ tiền 2 lần, kiểm tra khớp payload `isPayloadMatch`.
+* **Thành viên E (Cart & Customization | 4 phút):** Giao diện giỏ hàng Pure React Context API + LocalStorage, thuật toán chuẩn hóa `sanitizeToppings`, hàm trích xuất payload tuyệt đối không gửi giá lên server.
+* **Thành viên F (Checkout & UX | 4 phút):** Trải nghiệm Checkout, cơ chế khóa nút bấm Submit chống double-click, phân rã chi phí minh bạch.
+* **Thành viên G (KDS, Admin & QA | 4 phút):** Stepper 4 bước thời gian thực, Admin Back-office (Dashboard doanh thu, quản lý menu, vouchers), ma trận truy vết RTM và tổng kết 243 bài test tự động.
 
 ---
 
-### 8.3. Bảng Dẫn Dắt Mã Nguồn Trực Tiếp (Live Code Traceability)
-Khi Hội đồng yêu cầu "mở code cho xem", người thuyết trình chỉ cần bấm vào các liên kết sau:
+### 8.3. Bộ 10 Câu Hỏi Phản Biện Chuyên Sâu Của Hội Đồng & Đáp Án Chuẩn Mực
 
-1. **Trừ kho nguyên tử & Chống Oversell (Test C):**
-   👉 [apps/api/src/orders/orders.service.ts (Dòng 162-178)](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.ts#L162-L178)
-2. **Server tính toán đơn giá độc quyền (Test A):**
-   👉 [apps/api/src/orders/orders.service.ts (Dòng 181-202)](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.ts#L181-L202)
-3. **Hủy đơn hoàn kho & REFUND_PENDING (Test B):**
-   👉 [apps/api/src/orders/orders.service.ts (Dòng 348-417)](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.ts#L348-L417)
-4. **Kiểm tra trùng lặp đơn hàng Idempotency-Key:**
-   👉 [apps/api/src/orders/orders.service.ts (Dòng 63-107)](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.ts#L63-L107)
-5. **Client tuyệt đối không gửi giá lên Server:**
-   👉 [apps/web/context/CartContext.tsx (Dòng 454-465)](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/web/context/CartContext.tsx#L454-L465)
-6. **Cấu hình Global ValidationPipe chặn thuộc tính lạ:**
-   👉 [apps/api/src/main.ts (Dòng 20-28)](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/main.ts#L20-L28)
-7. **Định dạng tiền tệ Decimal & Khóa chính CUID:**
-   👉 [apps/api/prisma/schema.prisma (Dòng 71-120)](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/prisma/schema.prisma#L71-L120)
-8. **Quy trình Tự động hóa CI/CD 4 Tầng:**
-   👉 [.github/workflows/ci.yml](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/.github/workflows/ci.yml)
-
----
-
-### 8.4. Bộ 10 Câu Hỏi Bẫy Khó Nhất Của Hội Đồng & Câu Trả Lời "Triệt Hạ" Mọi Thắc Mắc
-
-#### Câu 1: *"Tại sao nhóm không dùng Microservices mà lại chọn Monorepo Modular Monolith?"*
+#### Câu 1: *"CUID có thực sự triệt tiêu được lỗ hổng IDOR không?"*
 > **Trả lời:**
-> *"Thưa Thầy Cô, quyết định này được nhóm em cân nhắc kỹ lưỡng theo **Định luật thứ nhất về Hệ phân tán của Martin Fowler: 'Don't distribute your objects until you must'**.
-> Với quy mô một chuỗi F&B ở giai đoạn MVP đến quy mô vừa, Microservices sẽ đem lại nhiều tác hại hơn lợi ích: phức tạp hóa hạ tầng, chi phí mạng giữa các service làm tăng độ trễ p95 vượt quá 500ms, và rủi ro mất nhất quán dữ liệu do phải áp dụng Distributed Transactions (Saga Pattern).
-> Mô hình **Modular Monolith trong Turborepo** của nhóm em chia tách ranh giới các module (Auth, Catalog, Orders, Payments) cực kỳ rõ ràng, chia sẻ Type an toàn 100%, triển khai đơn giản, hiệu năng tối đa và chi phí vận hành gần như bằng 0. Khi tải tăng lên hàng trăm nghìn đơn/ngày, từng module này có thể bóc tách thành Microservice độc lập mà không cần viết lại mã nguồn."*
+> *"Thưa Thầy Cô, nhóm xin làm rõ ranh giới kỹ thuật: **Bản thân CUID không thể triệt tiêu IDOR nếu thiếu kiểm tra phân quyền**. CUID chỉ là một chuỗi ngẫu nhiên có độ entropy cao giúp chống lại tấn công vét cạn tuần tự (Sequential ID Enumeration) như `/orders/1`, `/orders/2`.
+> Để triệt tiêu hoàn toàn lỗ hổng IDOR (hay BOLA theo chuẩn OWASP API Security), nhóm thiết lập chiến lược **Phòng vệ 2 lớp (Defense-in-Depth)**: Biện pháp bảo vệ cốt lõi nằm ở tầng Service và Guard, nơi hệ thống luôn đối chiếu quyền sở hữu đối tượng: `if (order.userId !== currentUser.id && !isAdmin) throw new ForbiddenException('ORDER_ACCESS_DENIED')`. CUID đóng vai trò lớp bảo vệ thứ hai ngăn chặn việc phỏng đoán ID."*
 
-#### Câu 2: *"Cơ chế Atomic CAS của nhóm có gây ra Deadlock khi nhiều người cùng đặt giỏ hàng chứa nhiều món khác nhau không?"*
+#### Câu 2: *"Tại sao Test D (Định lượng BOM) lại ghi trạng thái NOT EXECUTED trong biên bản kiểm thử?"*
 > **Trả lời:**
-> *"Thưa Thầy Cô, đây là một câu hỏi rất sâu sắc về tối ưu hóa Database!
-> Nguy cơ Deadlock xảy ra khi Giao dịch 1 khóa Sản phẩm A rồi chờ Sản phẩm B, trong khi Giao dịch 2 khóa Sản phẩm B rồi chờ Sản phẩm A.
-> Trong mã nguồn [orders.service.ts](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.ts#L110-L117), nhóm em đã chủ động phòng chống Deadlock bằng cách: **Gộp nhóm số lượng theo từng sản phẩm duy nhất thông qua `demandMap` và duyệt trừ kho theo thứ tự ổn định**. Khi mọi Transaction đều yêu cầu lock tài nguyên theo cùng một thứ tự định sẵn, đồ thị chờ tài nguyên không bao giờ hình thành chu trình (No Circular Wait), triệt tiêu hoàn toàn nguy cơ Deadlock ở tầng cơ sở dữ liệu."*
+> *"Thưa Thầy Cô, đây là quyết định quản lý phạm vi có chủ đích theo phương pháp **MoSCoW Prioritization**:
+> Trong Assignment 2, mục tiêu số một của nhóm là làm chủ bài toán khó nhất: Xử lý tranh chấp đồng thời (Race Condition) và trừ kho nguyên tử cấp độ SKU thành phẩm (đã kiểm chứng thành công qua Test C trên PostgreSQL thật).
+> Đối với bài toán định lượng BOM (Test D), nhóm đã mô hình hóa toán học công thức Bottleneck $\min(\text{Kho}_i / \text{Định mức}_i)$ và giải toán thành công (20 ly bị giới hạn bởi sữa tươi). Tuy nhiên, nhóm minh bạch ghi rõ trạng thái `NOT EXECUTED trên Database Engine` vì cơ sở dữ liệu A2 hiện chỉ quản lý `stockQuantity` thành phẩm. Việc đưa bảng Ingredient/Recipe vào lúc này sẽ là over-engineering khi chưa có phân hệ quản lý kho nguyên liệu thô, và nhóm đã quy hoạch nội dung này cho Assignment 3."*
 
-#### Câu 3: *"Tại sao trong Schema A2, nhóm lại hoãn (Deferred) tính năng Voucher (FR-08) mà không làm hết?"*
+#### Câu 3: *"Tại sao nhóm đo độ trễ p95 đạt ~420ms mà không phải dưới 200ms như một số hệ thống lớn?"*
 > **Trả lời:**
-> *"Thưa Thầy Cô, đây là quyết định chiến lược có chủ đích dựa trên phương pháp luận **Agile MoSCoW Prioritization**:
-> Mục tiêu cốt lõi của Assignment 2 là chuyển hóa hệ thống từ prototype học thuật sang **nền tảng Production có khả năng chịu tải và chống gian lận tài chính tuyệt đối** (Hardening Core POS: ACID, CUID, Monorepo, Atomic CAS, CI/CD).
-> Module Voucher (`FR-08`) được xếp vào nhóm *Could Have / Deferred* để nhóm dồn 100% ngân sách kỹ thuật vào việc hoàn thiện vượt mức 4 bài kiểm toán khắt khe (Audit A, B, C, D) và xây dựng 128 bài test tự động. Cấu trúc Schema và DTO của Promotion vẫn được định nghĩa sẵn sàng tại [schema.prisma](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/prisma/schema.prisma#L137-L150) để kích hoạt ngay trong Sprint tiếp theo mà không làm xáo trộn kiến trúc lõi."*
+> *"Thưa Thầy Cô, con số **p95 ~ 420ms** (p50 ~ 345ms) là **số liệu đo kiểm thực tế trên môi trường Cloud Render (Free Tier)** đối với 50 request qua mạng Internet công cộng (ghi nhận tại file `render-products-latency.csv`), hoàn toàn đạt chỉ tiêu NFR của SRS là p95 < 500ms.
+> Độ trễ này bao gồm cả thời gian truyền gói tin qua mạng (Network Round-Trip Time) từ Việt Nam sang máy chủ Cloud quốc tế. Nếu xét riêng thời gian thực thi câu lệnh SQL Atomic CAS nội bộ trong cơ sở dữ liệu PostgreSQL, độ trễ chỉ mất dưới **15ms**."*
 
-#### Câu 4: *"Nếu kẻ xấu biết được URL của đơn hàng người khác, làm sao hệ thống ngăn chặn việc xem trộm thông tin (IDOR)?"*
+#### Câu 4: *"Cơ chế Atomic CAS của nhóm có gây ra Deadlock khi nhiều người cùng đặt giỏ hàng chứa nhiều món khác nhau không?"*
 > **Trả lời:**
-> *"Thưa Thầy Cô, hệ thống bảo vệ 2 lớp vững chắc:
-> 1. **Khóa ngẫu nhiên CUID:** Hệ thống không dùng ID tự tăng `1, 2, 3` mà dùng chuỗi CUID ngẫu nhiên chống va chạm dạng `cm3u...`, khiến kẻ xấu không thể đoán hoặc vét ID theo thứ tự.
-> 2. **Kiểm tra quyền sở hữu tại Controller/Service:** Trong hàm `findOrderById` tại [orders.service.ts](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.ts#L331-L340), hệ thống luôn đối chiếu: Nếu `order.userId !== currentUser.id` và người gọi không có vai trò `BARISTA`, `ADMIN` hay `MANAGER`, hệ thống lập tức ném ra lỗi `403 Forbidden: ORDER_ACCESS_DENIED`."*
+> *"Thưa Thầy Cô, nguy cơ Deadlock xảy ra khi Giao dịch 1 khóa Sản phẩm A rồi chờ Sản phẩm B, trong khi Giao dịch 2 khóa Sản phẩm B rồi chờ Sản phẩm A (Circular Wait).
+> Trong mã nguồn [orders.service.ts](../apps/api/src/orders/orders.service.ts), nhóm đã chủ động phòng chống Deadlock bằng cách: **Gộp nhóm số lượng theo từng sản phẩm duy nhất qua `demandMap` và duyệt trừ kho theo thứ tự ID sản phẩm ổn định**. Khi mọi Transaction đều yêu cầu lock tài nguyên theo cùng một thứ tự định sẵn, đồ thị chờ tài nguyên không bao giờ hình thành chu trình, triệt tiêu hoàn toàn nguy cơ Deadlock ở tầng cơ sở dữ liệu."*
 
-#### Câu 5: *"JWT Token lưu ở đâu trên Client và làm sao chống tấn công XSS / CSRF?"*
+#### Câu 5: *"Việc lưu JWT ở LocalStorage có rủi ro bị tấn công XSS đánh cắp token không?"*
 > **Trả lời:**
-> *"Thưa Thầy Cô, Token JWT được lưu an toàn trong bộ nhớ State của ứng dụng và LocalStorage kèm thời gian sống (TTL) ngắn hạn.
-> Về mặt phòng thủ: Hệ thống cấu hình **CORS nghiêm ngặt** chỉ chấp nhận origin từ domain chính thức, áp dụng thư viện **Helmet** để bật các HTTP Security Headers (chặn Clickjacking, ép buộc HTTPS HSTS), và toàn bộ chuỗi đầu vào đều được khử khuẩn tự động qua `ValidationPipe` giúp triệt tiêu nguy cơ tiêm mã độc XSS."*
+> *"Thưa Thầy Cô, nhóm nhận thức rất rõ rằng lưu JWT trong `localStorage` có rủi ro nếu ứng dụng bị dính lỗ hổng Stored XSS.
+> Ở phiên bản hiện tại, nhóm giảm thiểu rủi ro bằng cách: (1) React tự động escape HTML entities để ngăn Reflected XSS; (2) NestJS ValidationPipe cấu hình `whitelist: true` loại bỏ các trường payload độc hại; (3) Áp dụng HTTP Security Headers qua Helmet.
+> Trong kiến trúc mở rộng tiếp theo cho môi trường Enterprise, nhóm đã lập kế hoạch chuyển cơ chế lưu trữ JWT sang **HttpOnly, Secure, SameSite=Strict Cookie** để trình duyệt hoàn toàn ngăn chặn JavaScript truy cập token."*
 
-#### Câu 6: *"Làm sao nhóm biết hệ thống chạy được trên môi trường thực tế chứ không phải chỉ chạy trên máy Local?"*
+#### Câu 6: *"Test B về hủy đơn hàng đã chứng minh tiền thật được hoàn trả về tài khoản khách hàng chưa?"*
 > **Trả lời:**
-> *"Thưa Thầy Cô, hệ thống hiện đang chạy thật trên môi trường Cloud với tên miền HTTPS công khai:
-> - Frontend PWA triển khai trên **Vercel Global Edge Network**.
-> - Backend API triển khai dưới dạng Docker Container trên **Render Cloud**.
-> - Cơ sở dữ liệu là **PostgreSQL Managed Database**.
-> - Bằng chứng là Pipeline CI/CD trên **GitHub Actions** tự động chạy kiểm thử 128 tests và tự động Deploy lên Cloud mỗi khi có commit mới vào nhánh `main`."*
+> *"Thưa Thầy Cô, Test B chứng minh **Tính toàn vẹn giao dịch của State Machine nội bộ**: Hệ thống hoàn trả tồn kho nguyên tử bằng lệnh `increment` và chuyển trạng thái thanh toán sang `REFUND_PENDING`.
+> Việc hoàn tiền thực tế về tài khoản ngân hàng của khách (Bank Reconciliation & Wire Reversal) là một quy trình bất đồng bộ phụ thuộc vào cổng thanh toán bên thứ ba (thường mất từ vài giờ đến 1-3 ngày làm việc). Hệ thống POS nội bộ đảm bảo ghi nhận đúng trạng thái chờ hoàn để bộ phận kế toán có căn cứ đối soát dòng tiền."*
 
 #### Câu 7: *"Nếu máy chủ Cloud Render bị rơi vào trạng thái ngủ (Sleep Mode) thì sao?"*
 > **Trả lời:**
-> *"Thưa Thầy Cô, các nền tảng Cloud miễn phí thường đưa container về trạng thái ngủ sau 15 phút không có traffic.
-> Nhóm em đã giải quyết triệt để vấn đề này bằng một **Uptime Cron Job** tự động gửi HTTP Request định kỳ mỗi 10 phút vào endpoint `/health` của backend. Nhờ đó, máy chủ luôn được giữ 'ấm' (Warm Container), loại bỏ hoàn toàn độ trễ khởi động nguội (Cold Start) khi người dùng truy cập."*
+> *"Thưa Thầy Cô, để khắc phục hiện tượng Container Sleep sau 15 phút không có traffic của gói Cloud miễn phí, nhóm đã thiết lập một **Uptime Cron Job** tự động gửi HTTP Request định kỳ mỗi 10 phút vào endpoint `/health`. Nhờ đó, máy chủ luôn được giữ 'ấm' (Warm Container), loại bỏ hoàn toàn độ trễ khởi động nguội (Cold Start) khi người dùng truy cập."*
 
 #### Câu 8: *"Tại sao nhóm lại dùng Decimal trong Prisma mà không dùng Float hay BigInt?"*
 > **Trả lời:**
@@ -981,301 +687,103 @@ Khi Hội đồng yêu cầu "mở code cho xem", người thuyết trình chỉ
 
 #### Câu 9: *"Nếu khách hàng gửi lại đúng Idempotency-Key cũ nhưng lại thay đổi món trong giỏ hàng thì hệ thống xử lý ra sao?"*
 > **Trả lời:**
-> *"Thưa Thầy Cô, tại [orders.service.ts](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.ts#L83-L103), nhóm em có hàm kiểm tra khớp Payload `isPayloadMatch`.
-> Hệ thống so sánh từng sản phẩm, số lượng và kích thước của đơn hàng cũ với request mới. Nếu phát hiện kẻ gian cố tình dùng lại Key cũ để tráo đổi đơn hàng, hệ thống lập tức từ chối và ném lỗi `409 Conflict: IDEMPOTENCY_KEY_PAYLOAD_MISMATCH`."*
+> *"Thưa Thầy Cô, tại [orders.service.ts](../apps/api/src/orders/orders.service.ts), nhóm có hàm kiểm tra khớp Payload `isPayloadMatch`.
+> Hệ thống so sánh từng sản phẩm, số lượng và kích thước của đơn hàng cũ với request mới. Nếu phát hiện người dùng dùng lại Key cũ nhưng thay đổi nội dung đơn, hệ thống lập tức từ chối và ném lỗi `409 Conflict: IDEMPOTENCY_KEY_PAYLOAD_MISMATCH`."*
 
 #### Câu 10: *"Điểm tâm đắc nhất của nhóm về mặt Kỹ nghệ Phần mềm trong đồ án này là gì?"*
 > **Trả lời:**
-> *"Thưa Thầy Cô, điểm nhóm tâm đắc nhất chính là **Tính Nhất Quán Tuyệt Đối (High Traceability & Engineering Discipline)**.
-> Chúng em không viết code theo cảm tính. Mọi chức năng đều bắt nguồn từ một Yêu cầu trong SRS $\to$ được mô hình hóa qua các Sơ đồ UML $\to$ được ghi nhận quyết định qua các bản ADRs $\to$ hiện thực bằng mã nguồn Type-Safe $\to$ và được bảo vệ bằng ma trận kiểm thử 128 tests tự động. Đó chính là tinh thần chuẩn mực của một Kỹ sư Phần mềm thực thụ mà chúng em được đào tạo tại Khoa CNTT - Đại học Sài Gòn!"*
+> *"Thưa Thầy Cô, điểm nhóm tâm đắc nhất chính là **Tính Trung Thực & Kỷ Luật Kỹ Nghệ (Engineering Integrity & Traceability)**.
+> Chúng em không viết code theo cảm tính và không phóng đại tính năng. Mọi chức năng đều có ma trận truy vết SRS $\to$ UML $\to$ Code $\to$ Test; các giới hạn kỹ thuật như BOM đều được lập biên bản minh bạch; và toàn bộ 243 bài test tự động đều có thể chạy lại để kiểm chứng bất kỳ lúc nào."*
 
 ---
 
-### 8.5. Checklist Thao Tác Kỹ Thuật Trước Giờ G
-- [ ] Bật sẵn Docker Desktop và chạy lệnh `docker compose up -d` ở máy cá nhân (phòng trường hợp mất mạng trường).
-- [ ] Mở sẵn 4 tab trình duyệt:
-  1. Ứng dụng Web trên Vercel ở chế độ giả lập Mobile (F12 $\to$ kích thước 375px $\times$ 667px).
-  2. Trang Endpoint Health Check của Backend trên Render.
-  3. Giao diện GitHub Actions với tích xanh 100% của workflow gần nhất.
-  4. File tài liệu Ma trận Truy vết [`docs/traceability-matrix.md`](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/docs/traceability-matrix.md).
-- [ ] Mở sẵn Terminal tại thư mục gốc, gõ sẵn lệnh `npm run test` để sẵn sàng bấm Enter biểu diễn toàn bộ bài kiểm tra xanh lá trước mắt Hội đồng.
-- [ ] Mở sẵn Postman với kịch bản hack giá 1.000đ để sẵn sàng biểu diễn cho Thầy Cô xem cơ chế phòng thủ khi được hỏi.
+# PHẦN IX: CHIẾN THUẬT PHÒNG CHỐNG BIẾN CỐ & KỊCH BẢN TEST CHỦ ĐỘNG
 
----
+### 9.1. Ma Trận Xử Lý 5 Biến Cố Khẩn Cấp "Giờ G"
 
-# PHẦN IX: CHIẾN THUẬT PHÒNG CHỐNG MỌI BIẾN CỐ & KỊCH BẢN TEST CHỦ ĐỘNG
-
-> *"Kẻ nghiệp dư chờ đợi câu hỏi để phòng thủ. Kỹ sư chuyên nghiệp chủ động tấn công và định hướng sàn diễn!"*
-
-### 9.1. Ma Trận Xử Lý 6 Biến Cố Khẩn Cấp "Giờ G" (The Crisis Defense Matrix)
-
-| Tình huống biến cố | Mức độ rủi ro | Hành động phản ứng tức thì trong 5 giây | Lời thoại giải thích chuyên nghiệp |
+| Tình huống biến cố | Mức độ rủi ro | Hành động phản ứng tức thì | Lời thoại giải thích chuyên nghiệp |
 | :--- | :---: | :--- | :--- |
-| **1. Wifi trường rớt mạng / Cloud Render bị lag 504** | 🔴 Cực cao | Chuyển ngay sang môi trường **Local Docker Fallback**: Chạy `docker compose up -d` hoặc truy cập `http://localhost:3000`. | *"Dạ thưa Thầy Cô, để đảm bảo tính sẵn sàng cao (High Availability) phòng trường hợp đường truyền mạng chập chờn, nhóm đã đóng gói toàn bộ hệ thống vào Docker Container và chạy song song ở môi trường Local ạ."* |
-| **2. Gõ lệnh trên PowerShell bị báo lỗi đỏ ExecutionPolicy** | 🟡 Trung bình | Tuyệt đối không hoảng loạn gõ lại. Bật ngay file **`test-suite.bat`** ngoài màn hình hoặc gõ lệnh qua CMD: `cmd.exe /c "npm test"`. | *(Thao tác dứt khoát không cần giải thích, màn hình chạy xanh rì lập tức lấy lại uy thế).* |
-| **3. Giảng viên bảo: "Mở Database xem có bị trừ âm kho thật không?"** | 🔴 Cực cao | Gõ lệnh bật **Prisma Studio**: `npx prisma studio` (hoặc bấm số `7` trong file `test-suite.bat`) $\to$ Mở ngay `http://localhost:5555`. | *"Dạ em xin phép mở Prisma Studio trực tiếp kết nối vào cơ sở dữ liệu. Thầy Cô có thể thấy bảng Product: stockQuantity dừng lại đúng bằng 0, không có bản ghi nào bị âm kho ạ."* |
-| **4. Giảng viên bảo: "Gửi request Postman hack giá trực tiếp xem?"** | 🔴 Cực cao | Mở Postman gửi `POST http://localhost:3000/orders` với body có `"price": 1000`. Server trả về ngay `400 Bad Request`. Hoặc mở ảnh bằng chứng tại `docs/evidence/test-a-hack-price-rejected.jpg`. | *"Dạ đây là request cố tình tiêm trường price: 1000. Do ValidationPipe áp dụng forbidNonWhitelisted: true, server từ chối ngay lập tức từ tầng Ingress, không cho phép lọt vào Service ạ."* |
-| **5. Giảng viên bắt bẻ: "Em chứng minh Test A, B, C nằm ở file nào?"** | 🟡 Trung bình | Bấm ngay vào **3 Tab đã Ghim (Pinned Tabs)** trên IDE: `orders.security.spec.ts` (Test A dòng 85) và `orders.service.spec.ts` (Test C dòng 200, Test B dòng 483). | *"Dạ toàn bộ kịch bản kiểm toán A, B, C của Thầy Cô đều được nhóm hiện thực thành các bài test tự động tại đây ạ..."* |
-| **6. Màn hình máy chiếu không nhận tỷ lệ hiển thị** | 🟢 Thấp | Nhấn tổ hợp phím `Windows + P` chọn **Duplicate**. Trên trình duyệt web bấm `F12` $\to$ chọn biểu tượng Toggle Device Toolbar (mô phỏng iPhone 14 Pro). | *"Dạ giao diện của nhóm được thiết kế chuẩn Mobile-first PWA, em xin phép bật chế độ giả lập điện thoại để Thầy Cô quan sát trực quan nhất ạ."* |
+| **1. Mất mạng trường / Cloud Render phản hồi chậm** | 🔴 Cực cao | Chuyển ngay sang môi trường **Local Docker**: Chạy `docker compose up -d` hoặc truy cập `http://localhost:3000`. | *"Dạ thưa Thầy Cô, để đảm bảo tính sẵn sàng cao (High Availability), nhóm đã chuẩn bị sẵn môi trường Docker Container chạy song song ở Local để không bị gián đoạn buổi bảo vệ ạ."* |
+| **2. PowerShell báo lỗi ExecutionPolicy** | 🟡 Trung bình | Bật ngay file **`test-suite.bat`** ngoài màn hình hoặc chạy qua CMD: `cmd.exe /c "npm test"`. | *(Thao tác dứt khoát, màn hình console chạy xanh 243 tests lấy lại uy thế).* |
+| **3. Giảng viên bảo: "Mở Database xem có bị trừ âm kho thật không?"** | 🔴 Cực cao | Bật **Prisma Studio**: `npx prisma studio` (hoặc bấm phím `7` trong file `test-suite.bat`) $\to$ Mở `http://localhost:5555`. | *"Dạ em xin phép mở Prisma Studio trực tiếp kết nối cơ sở dữ liệu. Thầy Cô có thể thấy bảng Product: stockQuantity dừng lại đúng bằng 0, không có bản ghi nào bị âm kho ạ."* |
+| **4. Giảng viên yêu cầu test thử sửa giá 1.000đ** | 🔴 Cực cao | Gửi Postman `POST /orders` có trường `"price": 1000`. Server trả về ngay `400 Bad Request`. Hoặc mở ảnh bằng chứng tại [test-a-hack-price-rejected.jpg](evidence/test-a-hack-price-rejected.jpg). | *"Dạ đây là request cố tình tiêm trường price: 1000. Do ValidationPipe áp dụng forbidNonWhitelisted: true, server từ chối ngay lập tức từ tầng Ingress ạ."* |
+| **5. Giảng viên hỏi vị trí file của Test A, B, C** | 🟡 Trung bình | Mở đúng 3 file đã ghim: `orders.security.spec.ts` (Test A), `orders.service.spec.ts` (Test B & C), `orders.concurrency.spec.ts` (Test C PostgreSQL thật). | *"Dạ toàn bộ kịch bản kiểm toán A, B, C đều được nhóm hiện thực thành các bài test tự động tại đây ạ..."* |
 
 ---
 
-### 9.2. Kịch Bản "Tấn Công Phủ Đầu Chủ Động" (Proactive Live-Testing Protocol)
-
-Thay vì kết thúc bài thuyết trình trong tư thế bị động chờ Hội đồng "xoay", người thuyết trình chính (Leader) hãy **CHỦ ĐỘNG ĐỀ NGHỊ TEST TRỰC TIẾP** ở 2 phút cuối của bài thuyết trình:
+### 9.2. Kịch Bản Tấn Công Phủ Đầu: Biểu Diễn Test Chủ Động 2 Phút Cuối
+Thay vì kết thúc trong thế bị động chờ hỏi, Leader hãy **chủ động đề xuất chạy test trực tiếp**:
 
 > *(Leader nhìn thẳng Hội đồng, mỉm cười tự tin)*  
 > *"Kính thưa Thầy Chủ tịch và quý Thầy Cô trong Hội đồng,*  
-> *Một hệ thống Kỹ nghệ Phần mềm đạt chuẩn không thể chỉ đánh giá qua slide thuyết trình hay vài trang tài liệu. Giá trị thực sự nằm ở khả năng chịu đựng các bài kiểm tra bảo mật và tải nặng trong thực tế.*  
-> 
-> *Vì vậy, thay vì để Thầy Cô phải băn khoăn, nhóm em xin phép **CHỦ ĐỘNG KÍCH HOẠT TRỰC TIẾP 3 BÀI TEST SÁT THỦ NGAY TRÊN MÀN HÌNH CHIẾU** để Thầy Cô cùng thẩm định:*  
-> 
-> *1. Đầu tiên, em xin chạy bài **TEST A - Tấn công sửa giá**: Em dùng Supertest bắn payload giả mạo giá 1.000đ vào API... (Bấm chạy lệnh `cmd.exe /c "npx jest -t 'TEST A'"` $\to$ Màn hình hiện PASS xanh trong 1.5s).*  
-> *$\implies$ Như Thầy Cô đã thấy: 400 Bad Request, ValidationPipe chặn đứng 100%!*  
-> 
-> *2. Thứ hai, em xin chạy bài **TEST C - Tranh chấp kho Concurrency**: Mô phỏng 2 khách hàng đồng thời vét sạch 2 ly nước cuối cùng... (Bấm chạy `cmd.exe /c "npx jest -t 'OUT_OF_STOCK'"` $\to$ PASS xanh).*  
-> *$\implies$ Đúng như thiết kế: 1 đơn thành công, 1 đơn nhận lỗi OUT_OF_STOCK, tồn kho không bao giờ âm!*  
-> 
-> *3. Và thứ ba, em xin chạy bài **TEST B - Hủy đơn sau thanh toán**: Hoàn trả tồn kho và kích hoạt trạng thái REFUND_PENDING... (Bấm chạy `cmd.exe /c "npx jest -t 'TEST B'"` $\to$ PASS xanh).*  
+> *Một hệ thống Kỹ nghệ Phần mềm đạt chuẩn không thể chỉ đánh giá qua slide thuyết trình. Giá trị thực sự nằm ở khả năng vượt qua các bài kiểm thử bảo mật và tải nặng.*
+>
+> *Vì vậy, nhóm em xin phép **CHỦ ĐỘNG KÍCH HOẠT 3 BÀI TEST NGAY TRÊN MÀN HÌNH** để Thầy Cô cùng thẩm định:*
+>
+> *1. **TEST A (Chống sửa giá):** Chạy lệnh kiểm tra ValidationPipe chặn trường price lạ... (Bấm chạy lệnh `cmd /c "npm test --workspace=@brewlite/api -- orders.security.spec.ts"` $\to$ PASS xanh trong 2 giây).*
+>
+> *2. **TEST C (Tranh chấp Concurrency 2/2 trên PostgreSQL thật):** Chạy kịch bản 2 khách cùng mua 2 ly cuối... (Bấm chạy `cmd /c "npm test --workspace=@brewlite/api -- orders.concurrency.spec.ts"` $\to$ PASS xanh).*
+> *$\implies$ Đúng như thiết kế: 1 đơn thành công, 1 đơn nhận lỗi OUT_OF_STOCK, tồn kho PostgreSQL dừng đúng số 0!*
+>
+> *3. **TEST B (Hủy đơn sau thanh toán):** Hoàn trả tồn kho và kích hoạt trạng thái REFUND_PENDING... (Bấm chạy `cmd /c "npm test --workspace=@brewlite/api -- -t 'TEST B'"` $\to$ PASS xanh).*
 > 
 > *Toàn bộ mã nguồn và dữ liệu đều hoàn toàn minh bạch. Nhóm em xin sẵn sàng lắng nghe các câu hỏi chuyên sâu từ Thầy Cô!"*
 
 ---
 
-### 9.3. Bảng Ghim 3 File Vàng Trên IDE (Pinned Tabs Survival Guide)
-
-Để không bao giờ phải mò mẫm thư mục trước mặt Hội đồng:
-1. Mở sẵn 3 file này trong Antigravity IDE:
-   * **Tab 1:** [orders.security.spec.ts](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.security.spec.ts)
-   * **Tab 2:** [orders.service.spec.ts](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/api/src/orders/orders.service.ts)
-   * **Tab 3:** [cart.test.tsx](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/apps/web/__tests__/cart.test.tsx)
-2. Chuột phải vào từng tab $\to$ Chọn **Pin Tab**.
-3. **Bảng định vị tọa độ thần tốc:**
-
-```
-[Tab 1: orders.security.spec.ts]  --> Dòng 85: TEST A (Chống sửa giá 1.000đ)
-                                  --> Dòng 142: FR-07 (Chặn khách đổi trạng thái đơn)
-[Tab 2: orders.service.spec.ts]   --> Dòng 200: TEST C (Trừ kho nguyên tử count = 0)
-                                  --> Dòng 483: TEST B (Hủy đơn & REFUND_PENDING)
-[Tab 3: cart.test.tsx]            --> Dòng 50: FR-02 (Tùy biến Size +10k & Toppings)
-```
-
----
-
-### 9.4. Cẩm Nang Sử Dụng Trình Điều Khiển 1-Click (`test-suite.bat`)
-
-Nhóm đã xây dựng sẵn file thực thi tự động [test-suite.bat](file:///c:/Users/Gtvkun/Documents/GitHub/brewlite-a2/test-suite.bat) ngay tại thư mục gốc. Khi cần biểu diễn, bạn chỉ cần mở file này lên:
-
-```
-===============================================================================
-            BREWLITE - TRÌNH ĐIỀU KHIỂN KIỂM THỬ CHỦ ĐỘNG & BẢO VỆ ĐỒ ÁN
-===============================================================================
-[1] Chạy TOÀN BỘ 128 bài test tự động (Backend Jest + Frontend Vitest)
-[2] Chạy TEST A: Chống sửa giá API & Phân quyền Barista (orders.security.spec.ts)
-[3] Chạy TEST B: Hủy đơn sau thanh toán & Hoàn tiền (cancelOrder - REFUND_PENDING)
-[4] Chạy TEST C: Tranh chấp tồn kho Concurrency 2 khách mua 2 ly cuối (OUT_OF_STOCK)
-[5] Chạy TOÀN BỘ 60 tests Giao diện Frontend Web (Cart, Menu, Auth, Stepper)
-[6] Bật Playwright UI Graphic Mode (Trình duyệt Chromium tự động click trực quan)
-[7] Mở PRISMA STUDIO (Xem Database trực quan trên giao diện Web localhost:5555)
-[8] Chạy Kiểm tra Khói API Cloud Live (curl health & products)
-[0] Thoát
-===============================================================================
-```
-* **Chỉ cần gõ số tương ứng (1, 2, 3, 4, 6, 7) rồi bấm Enter**: Mọi tác vụ sẽ tự động chạy trong tích tắc mà không cần nhớ cú pháp Terminal phức tạp!
-
----
-
-# PHẦN X: BỘ 13 SLIDE TRÌNH CHIẾU TỔNG QUÁT & KỊCH BẢN GIAO MIC ĐA NĂNG
-
-> **Mục đích tài liệu:** Bản thiết kế toàn bộ 13 Slide trình chiếu chuẩn Hội đồng SGU kèm kịch bản lời thoại kép:
-> * **Chế độ 1 (Giao Mic - 7 Người):** Phân vai chi tiết cho từng bạn nói từ 1.5 – 3 phút, có câu dẫn trao mic mượt mà.
-> * **Chế độ 2 (Leader "Cân Team" / Câu Giờ):** Nếu các bạn khác bị run, quên bài hoặc chỉ có 1 người nói được, Leader dùng kịch bản này để nói liền mạch 20–30 phút mà không bị khựng, không ai nhận ra nhóm bị bể bài!
-
----
+# PHẦN X: BỘ 13 SLIDE TRÌNH CHIẾU TỔNG QUÁT & KỊCH BẢN GIAO MIC
 
 ### SLIDE 01: TRANG TIÊU ĐỀ & ĐỘI NGŨ THỰC HIỆN
-* **Nội dung trên Slide:**
-  * Tên đề tài: **BrewLite – Hệ Thống Bán Lẻ & Thanh Toán Cà Phê Trực Tuyến**
-  * Chuyển hóa Kỹ nghệ Phần mềm: *Từ Assignment 1 (Prototype) đến Assignment 2 (Production-Ready)*
-  * Danh sách 7 Thành viên kèm Role chuẩn A–G:
-    * Thành viên A: Tech Lead & DevOps
-    * Thành viên B: Auth & Security
-    * Thành viên C: Orders & Inventory Concurrency
-    * Thành viên D: Payments & Mock Gateway
-    * Thành viên E: Options & Cart Management UI
-    * Thành viên F: Auth UI & Checkout Flow
-    * Thành viên G: Orders UI, KDS Stepper & QA
-
----
+* **Nội dung:** Tên đề tài: **BrewLite – Hệ Thống Bán Lẻ & Thanh Toán Cà Phê Trực Tuyến**; Phân vai 7 Thành viên A–G.
+* **Lời thoại mở màn (Leader | 1.5 phút):** Giới thiệu đề tài, tuyên bố mục tiêu chuyển đổi từ Prototype A1 sang Production-Ready A2.
 
 ### SLIDE 02: BỐI CẢNH THỰC TẾ & BÀI TOÁN TỬ HUYỆT F&B
-* **Nội dung trên Slide:**
-  * Nỗi đau giờ cao điểm F&B: Xếp hàng 10–15 phút, 30% khách rời đi vì chờ lâu.
-  * 3 Rủi ro Kỹ thuật cốt lõi:
-    1. **Gian lận giá:** Khách hàng can thiệp sửa giá rẻ trên Web Client.
-    2. **Âm kho do tranh chấp (Race Condition):** 50 người cùng tranh mua 2 ly nước cuối cùng.
-    3. **Lệch số liệu tồn kho & BOM:** Không đồng bộ giữa ly nước bán ra và nguyên vật liệu pha chế.
-* **🎤 LỜI THOẠI GIAO MIC (Thành viên A - Leader | 2 phút):**
-  > *"Kính thưa Thầy Cô trong Hội đồng phản biện, bài toán F&B giờ cao điểm không đơn thuần là dựng một website bán hàng. Thách thức kỹ thuật lớn nhất là: Làm sao phục vụ hàng trăm giao dịch đồng thời mà không bao giờ để âm kho, không bị gian lận giá và đảm bảo tính toàn vẹn tài chính ACID. Đó chính là lý do dự án BrewLite ra đời."*
-* **🛡️ KỊCH BẢN LEADER CÂU GIỜ (Nói sâu thêm 1 phút):**
-  > *"Tại Việt Nam, các chuỗi như The Coffee House hay Highlands từng đối mặt với tổn thất hàng tỷ đồng vì hệ thống POS bị treo lúc khuyến mãi. Vì vậy, nhóm chúng em tiếp cận đề tài này dưới góc độ Kỹ nghệ Phần mềm khắt khe: Không làm tính năng tràn lan, mà tập trung làm chủ hoàn toàn độ tin cậy của lõi giao dịch (Core POS Hardening)."*
-* **👉 CÂU GIAO MIC:** *"Sau đây, xin mời bạn [Tên Thành viên A/Leader] phân tích bước chuyển mình kiến trúc từ A1 sang A2."*
+* **Nội dung:** Nỗi đau giờ cao điểm F&B; 3 rủi ro kỹ thuật: Gian lận giá, Âm kho do Race Condition, Mất đồng bộ đơn hàng.
+* **Lời thoại (Leader | 2 phút):** Đặt vấn đề, nhấn mạnh việc tập trung vào độ tin cậy giao dịch cốt lõi (Core POS Hardening).
+
+### SLIDE 03: TIẾN HÓA KIẾN TRÚC: TỪ A1 SANG A2
+* **Nội dung:** Bảng so sánh 5 trụ cột: Monorepo Workspaces, Atomic SQL CAS, CUID + Object-Level Authorization, Decimal NUMERIC(12,2), Pure Context API.
+* **Lời thoại (Thành viên A | 2 phút):** Phân tích lợi ích kỹ thuật của việc xóa bỏ nợ công nghệ (Technical Debt) từ A1.
+
+### SLIDE 04: KIẾN TRÚC PHÂN TẦNG & MÔ HÌNH HÓA UML
+* **Nội dung:** Sơ đồ phân tầng kiến trúc; 5 sơ đồ UML: Use Case, Swimlane Activity, ACID Sequence, Class ERD, State Machine.
+* **Lời thoại (Thành viên B | 2.5 phút):** Trình bày luồng dữ liệu, ranh giới phân quyền RBAC và cấu hình ValidationPipe.
+
+### SLIDE 05: DATA MODELING AN TOÀN: PHÒNG VỆ IDOR & DECIMAL CHUẨN KẾ TOÁN
+* **Nội dung:** So sánh Prisma Schema; minh họa phòng vệ 2 lớp chống IDOR; giải thích độ chính xác Decimal loại bỏ sai số IEEE 754.
+* **Lời thoại (Thành viên C | 2 phút):** Chứng minh tính toàn vẹn dữ liệu ở tầng cơ sở dữ liệu.
+
+### SLIDE 06: CONCURRENCY CONTROL & ATOMIC SQL CAS
+* **Nội dung:** Câu lệnh `UPDATE ... WHERE stockQuantity >= qty`; so sánh Row-Level Lock của PostgreSQL với vòng lặp Retry; giải thuật chống Deadlock qua sắp xếp thứ tự duyệt.
+* **Lời thoại (Thành viên C | 3 phút):** Giải thích chi tiết cơ chế bảo vệ tồn kho không bao giờ âm.
+
+### SLIDE 07: BỘ TỨ THẨM TRA NGHIỆM THU (TEST A, B, C, D)
+* **Nội dung:** Báo cáo nghiệm thu 4 bài test: Test A (Server-Authoritative Pricing), Test B (Hủy đơn hoàn kho `REFUND_PENDING`), Test C (Concurrency 2/2 trên PostgreSQL thật), Test D (Phân định phạm vi MoSCoW đối với định lượng BOM).
+* **Lời thoại (Thành viên C / D | 3 phút):** Trình bày trung thực kết quả kiểm thử thực tế và biên bản nghiệm thu.
+
+### SLIDE 08: CỔNG THANH TOÁN MOCK GATEWAY & IDEMPOTENCY
+* **Nội dung:** Cơ chế Idempotency-Key UUIDv4 (RFC 7231); hàm so khớp `isPayloadMatch` chống tráo đổi đơn hàng; giả lập lỗi số dư thẻ.
+* **Lời thoại (Thành viên D | 2.5 phút):** Chứng minh giải pháp chống trừ tiền 2 lần khi mạng lag.
+
+### SLIDE 09: FRONTEND WEB PWA: CARTCONTEXT & CHUẨN HÓA DỮ LIỆU
+* **Nội dung:** Kiến trúc `CartContext` trên Next.js 15; thuật toán `sanitizeToppings`; hàm trích xuất payload tuyệt đối không gửi giá.
+* **Lời thoại (Thành viên E | 2.5 phút):** Trình bày trải nghiệm giỏ hàng và nguyên tắc an toàn dữ liệu phía Web.
+
+### SLIDE 10: CHECKOUT AN TOÀN & TRẢI NGHIỆM NGƯỜI DÙNG
+* **Nội dung:** Cơ chế khóa nút Submit chống double-click; hiển thị minh bạch phụ thu size/topping; kiểm thử Playwright UI.
+* **Lời thoại (Thành viên F | 2.5 phút):** Trình bày luồng đặt hàng và các biện pháp bảo vệ tương tác người dùng.
+
+### SLIDE 11: ĐẢM BẢO CHẤT LƯỢNG (QA), TRACEABILITY & 243 TESTS
+* **Nội dung:** Màn hình KDS Barista & Stepper thời gian thực; Ma trận truy vết RTM liên kết 100% yêu cầu; tổng kết 243 bài test tự động (135 API + 108 Web) pass 100%.
+* **Lời thoại (Thành viên G | 2 phút):** Chứng minh tính kỷ luật kỹ nghệ và độ bao phủ kiểm thử toàn diện.
+
+### SLIDE 12: HẠ TẦNG CLOUD PRODUCTION & ANTI-COLD-START
+* **Nội dung:** Sơ đồ Cloud Vercel + Render + PostgreSQL; Pipeline CI/CD 4 bước trên GitHub Actions; cơ chế Cron ping `/health` giữ ấm container.
+* **Lời thoại (Leader | 2 phút):** Báo cáo kết quả vận hành thực tế trên môi trường Cloud công khai.
+
+### SLIDE 13: BIỂU DIỄN KIỂM THỬ CHỦ ĐỘNG & BẮT ĐẦU VẤN ĐÁP
+* **Nội dung:** Bảng điều khiển kiểm thử `test-suite.bat`; trực quan hóa Prisma Studio; chuyển sang phần hỏi đáp Q&A.
+* **Lời thoại (Leader | 2 phút):** Thực hiện kịch bản tấn công phủ đầu, chạy trực tiếp test tự động trên màn hình chiếu và mời Hội đồng đặt câu hỏi.
 
 ---
-
-### SLIDE 03: BƯỚC NHẢY VỌT KIẾN TRÚC: TỪ PROTOTYPE A1 ĐẾN ENTERPRISE A2
-* **Nội dung trên Slide:** Bảng đối chiếu 5 trụ cột tiến hóa:
-  * *Repo Structure:* Polyrepo $\implies$ **Turborepo Monorepo** (Chia sẻ Type an toàn 100%).
-  * *Entity ID:* `Int` autoincrement $\implies$ **CUID** (Triệt tiêu lỗ hổng IDOR).
-  * *Currency:* `Int` VND $\implies$ **Decimal NUMERIC(12,2)** (Chuẩn ngân hàng, loại bỏ trôi dấu chấm động IEEE 754).
-  * *Concurrency:* Optimistic Lock (Retry loop 3 lần) $\implies$ **Atomic SQL CAS** (Zero-retry, không nghẽn Event Loop).
-  * *Frontend:* Zustand $\implies$ **Next.js 15 Pure Context API + React Server Components (RSC)**.
-* **🎤 LỜI THOẠI GIAO MIC (Thành viên A | 2 phút):**
-  > *"Ở Assignment 1, nhóm dừng lại ở mức mô phỏng học thuật: Polyrepo rời rạc, dùng ID tự tăng và vòng lặp thử lại 3 lần. Bước sang Assignment 2, nhóm tái cấu trúc toàn diện thành Enterprise Monorepo, chuyển sang mã hóa CUID chống đoán ID và dùng Atomic CAS trừ kho trực tiếp ở đĩa cứng, giúp hệ thống chịu tải tăng gấp 10 lần."*
-* **🛡️ KỊCH BẢN LEADER CÂU GIỜ:**
-  > *"Sự khác biệt lớn nhất giữa một lập trình viên học việc và một kỹ sư phần mềm chính là việc hiểu rõ tác hại của Technical Debt. Vòng lặp retry ở A1 ngốn cạn DB Connection Pool khi tải cao, trong khi Atomic CAS ở A2 giải quyết xung đột trong 1 chu kỳ máy tính của PostgreSQL."*
-* **👉 CÂU GIAO MIC:** *"Để bảo vệ người dùng và phân quyền, xin mời bạn [Tên Thành viên B] trình bày về Bảo mật & Xác thực."*
-
----
-
-### SLIDE 04: KIẾN TRÚC HỆ THỐNG PHÂN TẦNG & MÔ HÌNH HÓA UML
-* **Nội dung trên Slide:**
-  * Sơ đồ phân tầng: Client Layer (PWA Vercel) $\to$ Ingress Security (ValidationPipe, JWT) $\to$ Business Logic (NestJS) $\to$ Persistence (Prisma, PostgreSQL).
-  * 5 Sơ đồ UML chuẩn IEEE: Use Case, Activity (Swimlanes), Sequence (ACID), Class (ERD), State Machine.
-* **🎤 LỜI THOẠI GIAO MIC (Thành viên B | 2.5 phút):**
-  > *"Phân hệ Xác thực được xây dựng theo triết lý Phòng thủ đa tầng (Defense-in-Depth). Mật khẩu người dùng được băm an toàn qua thuật toán Bcrypt 12 vòng salt. Sau khi đăng nhập, hệ thống cấp phát JWT Bearer Token phi trạng thái (Stateless), giúp giải phóng Database khỏi Session. Các API quản trị được bảo vệ nghiêm ngặt qua RolesGuard RBAC, chỉ cấp quyền cho vai trò BARISTA và ADMIN."*
-* **🛡️ KỊCH BẢN LEADER CÂU GIỜ:**
-  > *"Đặc biệt, hệ thống áp dụng Global ValidationPipe cấu hình `whitelist: true` và `forbidNonWhitelisted: true`. Bất kỳ request nào chứa trường lạ ngoài DTO đều bị từ chối ngay từ cổng Ingress, không cho phép tiếp cận tầng nghiệp vụ."*
-* **👉 CÂU GIAO MIC:** *"Tiếp theo, xin mời bạn [Tên Thành viên C] trình bày về Trái tim của hệ thống: Đặt hàng và Concurrency."*
-
----
-
-### SLIDE 05: DATA MODELING AN TOÀN: CUID CHỐNG IDOR & DECIMAL NGÂN HÀNG
-* **Nội dung trên Slide:**
-  * Đoạn code so sánh Prisma Schema:
-    * A1: `id Int @default(autoincrement())` & `basePrice Int`.
-    * A2: `id String @default(cuid())` & `basePrice Decimal`.
-  * Minh họa lỗ hổng IDOR: Đoán link `order/101` $\to$ bị chặn hoàn toàn khi đổi sang `order/cm3u4k...`.
-  * Minh họa sai số IEEE 754: $0.1 + 0.2 = 0.30000000000000004$ bị triệt tiêu bởi `Decimal(12,2)`.
-* **🎤 LỜI THOẠI GIAO MIC (Thành viên C | 2 phút):**
-  > *"Tại tầng dữ liệu, nhóm quyết định thay thế toàn bộ khóa chính số nguyên tự tăng bằng CUID để triệt tiêu hoàn toàn lỗ hổng IDOR. Đồng thời, toàn bộ trường tiền tệ được chuẩn hóa thành Decimal kiểu NUMERIC(12,2) trong PostgreSQL, đảm bảo tính toán chiết khấu và thuế chính xác tuyệt đối đến từng đồng lẻ."*
-* **🛡️ KỊCH BẢN LEADER CÂU GIỜ:**
-  > *"Trong kiểm toán tài chính doanh nghiệp, việc trôi dấu chấm động là lỗi không thể chấp nhận. Việc dùng Decimal đảm bảo mọi con số xuất báo cáo tài chính khớp từng đồng với dữ liệu ghi nhận tại cổng thanh toán."*
-* **👉 CÂU GIAO MIC:** *"Bây giờ, chúng ta sẽ đi vào phần phức tạp nhất của đề tài: Cơ chế Trừ kho nguyên tử chống Race Condition."*
-
----
-
-### SLIDE 06: TRÁI TIM HỆ THỐNG: CONCURRENCY CONTROL & ATOMIC SQL CAS
-* **Nội dung trên Slide:**
-  * Sơ đồ Sequence Transaction trừ kho có điều kiện:
-    ```sql
-    UPDATE "Product" SET "stockQuantity" = "stockQuantity" - 2 
-    WHERE "id" = 'prod_123' AND "stockQuantity" >= 2 AND "isAvailable" = true;
-    ```
-  * So sánh cơ chế Row-Level Exclusive Lock của Postgres vs Vòng lặp Retry của Node.js.
-  * Bản đồ chống Deadlock: Sắp xếp tài nguyên đồng nhất qua `demandMap`.
-* **🎤 LỜI THOẠI GIAO MIC (Thành viên C | 3 phút):**
-  > *"Khi 2 khách hàng cùng tranh chấp 2 ly nước cuối cùng, Transaction nào chạm tới trước sẽ chiếm Row-Level Exclusive Lock. Transaction 1 kiểm tra 2 >= 2 thành công, trừ kho về 0. Transaction 2 chờ lock nhả ra thì thấy kho còn 0, điều kiện 0 >= 2 sai, số dòng cập nhật count = 0. Hệ thống lập tức Rollback và trả về 400 OUT_OF_STOCK, đảm bảo kho không bao giờ âm!"*
-* **🛡️ KỊCH BẢN LEADER CÂU GIỜ:**
-  > *"Đồng thời, để tránh nguy cơ Deadlock khi giỏ hàng có nhiều món khác nhau, nhóm đã nhóm số lượng theo demandMap và sắp xếp duyệt trừ kho theo thứ tự ID ổn định, triệt tiêu hoàn toàn chu trình chờ khóa (No Circular Wait)."*
-* **👉 CÂU GIAO MIC:** *"Đây cũng chính là nền tảng để giải quyết trọn vẹn Bộ Tứ Thẩm Tra Nghiệm Thu của Thầy Cô."*
-
----
-
-### SLIDE 07: BỘ TỨ THẨM TRA NGHIỆM THU (AUDIT TESTS A, B, C, D)
-* **Nội dung trên Slide:** 4 Khối hộp giải pháp cho 4 yêu cầu gắt gao của Giảng viên:
-  * **Test A (Chống sửa giá):** ValidationPipe chặn trường `price` lạ + Server tự tra cứu Database tính đơn giá.
-  * **Test B (Hủy đơn đã thanh toán):** Transaction hoàn kho + Đổi Payment sang `REFUND_PENDING`.
-  * **Test C (Tranh chấp 2 ly cuối):** Atomic CAS bảo vệ tồn kho dừng đúng số 0.
-  * **Test D (Định lượng BOM):** Khả năng phục vụ = $\min(\text{Kho}_i / \text{Định mức}_i)$, trừ cốt trà, sữa, trân châu đồng thời.
-* **🎤 LỜI THOẠI GIAO MIC (Thành viên C hoặc D | 3 phút):**
-  > *"Kính thưa Thầy Cô, 4 kịch bản này là linh hồn của hệ thống: Ở Test A, dù khách có sửa giá 1.000đ trên Web thì Server vẫn lấy giá niêm yết trong Database để nhân tiền. Ở Test B, khách hủy đơn đã trả tiền thì kho tự động cộng trả lại và kích hoạt luồng hoàn tiền. Ở Test C và D, mọi giao dịch đều tuân thủ nguyên tắc ACID tuyệt đối."*
-* **🛡️ KỊCH BẢN LEADER CÂU GIỜ:**
-  > *"Toàn bộ 4 kịch bản này không chỉ nằm trên giấy, mà đã được viết thành các bài test tự động Supertest pass 100%, sẵn sàng biểu diễn trước mắt Thầy Cô bất cứ lúc nào."*
-* **👉 CÂU GIAO MIC:** *"Tiếp theo, xin mời bạn [Tên Thành viên D] trình bày về Cổng thanh toán và Cơ chế chống trừ tiền 2 lần."*
-
----
-
-### SLIDE 08: CỔNG THANH TOÁN MOCK GATEWAY & IDEMPOTENCY CHỐNG TRỪ TIỀN 2 LẦN
-* **Nội dung trên Slide:**
-  * Cơ chế Idempotency RFC 7231 với khóa UUIDv4.
-  * Kiểm tra khớp Payload `isPayloadMatch` chống tráo đổi món cùng key.
-  * Giả lập thanh toán Mock Gateway: Thẻ kết thúc `0000` $\to$ Báo lỗi số dư; Thẻ hợp lệ $\to$ Sinh mã `MOCK-TIMESTAMP`.
-* **🎤 LỜI THOẠI GIAO MIC (Thành viên D | 2.5 phút):**
-  > *"Để chống tình trạng mạng lag khiến người dùng bấm nút thanh toán nhiều lần gây trừ tiền 2 lần, mỗi phiên đặt hàng Web sinh một mã Idempotency-Key UUIDv4. Tại orders.service.ts, nếu key đã tồn tại và khớp payload, hệ thống trả về ngay đơn hàng cũ mà không trừ kho hay trừ tiền lần hai. Nếu dùng lại key cũ nhưng sửa món, hệ thống ném lỗi 409 Conflict chống gian lận."*
-* **🛡️ KỊCH BẢN LEADER CÂU GIỜ:**
-  > *"Khóa Idempotency-Key còn được đặt ràng buộc @unique ở tầng Database, tạo nên lớp bảo vệ phần cứng vững chắc ngăn chặn hoàn toàn các request trùng lọt lưới."*
-* **👉 CÂU GIAO MIC:** *"Về phía người dùng, giao diện Web được thiết kế an toàn như thế nào? Xin mời bạn [Tên Thành viên E]."*
-
----
-
-### SLIDE 09: FRONTEND WEB PWA: CARTCONTEXT & SERVER-AUTHORITATIVE PRICING
-* **Nội dung trên Slide:**
-  * Kiến trúc `CartContext.tsx` trên Next.js 15 App Router & React Server Components.
-  * Thuật toán `sanitizeToppings`: Khử trùng lặp và sắp xếp Topping để so sánh gộp món chuẩn xác.
-  * Hàm `getOrderItemsPayload()`: **Chỉ gửi `productId, quantity, size, toppings` — Tuyệt đối 0% gửi giá.**
-* **🎤 LỜI THOẠI GIAO MIC (Thành viên E | 2.5 phút):**
-  > *"Ở Frontend, nhóm chuyển từ Zustand sang Pure React Context API để tối ưu hoàn hảo cho Next.js 15 và tránh lỗi Hydration Mismatch. Giỏ hàng hỗ trợ tùy biến Size Large cộng 10k, Toppings cộng 5k đến 10k. Điểm quan trọng nhất là hàm bàn giao payload cho API tuyệt đối không gửi giá từ Client, bảo vệ hệ thống ngay từ tầng gốc."*
-* **🛡️ KỊCH BẢN LEADER CÂU GIỜ:**
-  > *"Giỏ hàng còn có khả năng tự phục hồi khi F5 trang nhờ đồng bộ LocalStorage an toàn, và tự động đối soát với Catalog để cảnh báo nếu có món vừa hết hàng trong lúc khách đang chọn món."*
-* **👉 CÂU GIAO MIC:** *"Để xem luồng đặt hàng trực quan trên trình duyệt thật, xin mời bạn [Tên Thành viên F] trình bày về Checkout & Playwright."*
-
----
-
-### SLIDE 10: CHECKOUT AN TOÀN & TRÌNH DUYỆT THẬT PLAYWRIGHT E2E
-* **Nội dung trên Slide:**
-  * Cơ chế khóa nút Submit chống Double-Click tức thì.
-  * Màn hình Thanh toán quét mã VietQR tự động cập nhật trạng thái.
-  * Kiểm thử toàn trình E2E bằng Playwright: Mô phỏng người dùng thật click chuột từ A đến Z.
-* **🎤 LỜI THOẠI GIAO MIC (Thành viên F | 2.5 phút):**
-  > *"Tại màn hình Checkout, nút Đặt hàng lập tức bị khóa và chuyển sang trạng thái Loading khi người dùng bấm vào, ngăn chặn triệt để hành vi double-click. Toàn bộ luồng từ duyệt món đến thanh toán thành công đã được tự động hóa bằng bộ test Playwright E2E chạy trên trình duyệt Chromium thật."*
-* **🛡️ KỊCH BẢN LEADER CÂU GIỜ:**
-  > *"Nhóm đã cấu hình Playwright với chế độ UI tương tác, cho phép theo dõi từng mili-giây hành vi người dùng, bắt trọn các sự kiện mạng và chứng minh độ tin cậy tuyệt đối của giao diện Web."*
-* **👉 CÂU GIAO MIC:** *"Về công tác Đảm bảo chất lượng và KDS Barista, xin mời bạn [Tên Thành viên G] trình bày."*
-
----
-
-### SLIDE 11: ĐẢM BẢO CHẤT LƯỢNG (QA), MA TRẬN TRUY VẾT & 128 TESTS
-* **Nội dung trên Slide:**
-  * KDS Barista: Màn hình điều phối chế biến, thanh Stepper 4 bước thời gian thực (`PAID ➔ PREPARING ➔ READY ➔ COMPLETED`).
-  * Ma trận truy vết hai chiều (Traceability Matrix RTM): 100% Yêu cầu SRS $\to$ Mã nguồn $\to$ Test Case.
-  * Tổng kết 128 bài test tự động: 68 API Tests + 60 Web Tests + 1 E2E Suite $\implies$ **100% PASS**.
-* **🎤 LỜI THOẠI GIAO MIC (Thành viên G | 2 phút):**
-  > *"Phân hệ KDS giúp Barista cập nhật tiến độ chế biến và khách hàng theo dõi đơn hàng thời gian thực qua Stepper 4 bước. Về mặt QA, nhóm đã hoàn thiện Ma trận truy vết hai chiều liên kết toàn bộ 10 FRs và 5 NFRs sang mã nguồn và 128 bài test tự động, bảo vệ hệ thống toàn diện trước mọi nguy cơ hồi quy (Regression)."*
-* **🛡️ KỊCH BẢN LEADER CÂU GIỜ:**
-  > *"Tính truy vết hai chiều đảm bảo mỗi dòng code sinh ra đều phục vụ một yêu cầu nghiệp vụ cụ thể, không có code thừa và không có tính năng nào bị bỏ sót kiểm thử."*
-* **👉 CÂU GIAO MIC:** *"Hệ thống này được triển khai trên môi trường Cloud như thế nào? Xin mời Leader tổng kết."*
-
----
-
-### SLIDE 12: HẠ TẦNG CLOUD PRODUCTION & ZERO-DOWNTIME KEEP-ALIVE
-* **Nội dung trên Slide:**
-  * Sơ đồ Hạ tầng Đám mây: Vercel Edge (Frontend) + Render Cloud (Backend Docker) + PostgreSQL Managed DB.
-  * Pipeline CI/CD 4 bước tự động trên GitHub Actions (Lint, Type-check, Unit Test, Build).
-  * Giải pháp Zero-Downtime: Uptime Cron Job ping `/health` mỗi 10 phút, loại bỏ hoàn toàn Cold Start.
-* **🎤 LỜI THOẠI TỔNG KẾT (Leader | 2 phút):**
-  > *"Hệ thống BrewLite hiện đang chạy thật 100% trên Cloud với tên miền HTTPS công khai. Để khắc phục hiện tượng Sleep Mode của Cloud miễn phí, nhóm đã lập trình một Cron Job tự động ping endpoint `/health` mỗi 10 phút, giữ cho máy chủ luôn ở trạng thái 'nóng' sẵn sàng phục vụ với độ trễ dưới 200ms."*
-
----
-
-### SLIDE 13: BIỂU DIỄN KIỂM THỬ CHỦ ĐỘNG & BẮT ĐẦU VẤN ĐÁP Q&A
-* **Nội dung trên Slide:**
-  * Bảng điều khiển kiểm thử tự động `test-suite.bat`.
-  * Trực quan hóa Cơ sở dữ liệu Prisma Studio (`localhost:5555`).
-  * Tuyên bố chuyển sang phần Thẩm định & Hỏi đáp (Q&A).
-* **🎤 LỜI THOẠI "CHỦ ĐỘNG TẤN CÔNG" CỦA LEADER (2 phút):**
-  > *"Kính thưa Thầy Cô, thay vì chỉ nói lý thuyết, bây giờ nhóm em xin phép **CHỦ ĐỘNG BẬT BỘ KIỂM THỬ TỰ ĐỘNG** để Thầy Cô cùng chứng kiến:
-  > (Leader mở file `test-suite.bat`, bấm phím 1 chạy 128 tests pass xanh lá cây trong 20s).
-  > Toàn bộ 128 tests kiểm tra bảo mật, giao dịch tài chính và trừ kho đều vượt qua 100%. Nhóm chúng em xin chân thành cảm ơn Thầy Cô và sẵn sàng bước vào phần Vấn đáp ạ!"*
-
----
-
-### 🛡️ CẨM NANG "CỨU NGUY" KHI THÀNH VIÊN BỊ RUN HOẶC QUÊN BÀI:
-Khi bạn phụ trách một Slide bị ngập ngừng quá 3 giây, **Leader lập tức đưa tay ra hiệu và nói câu thần chú:**
-> *"Dạ xin phép Thầy Cô cho em xin bổ sung nhanh một chi tiết kỹ thuật cốt lõi ở phần này mà bạn [Tên] vừa nhắc đến..."*  
-*(Sau đó Leader đọc ngay **KỊCH BẢN CÂU GIỜ** đã viết sẵn ở Slide đó. Cả Hội đồng sẽ thấy nhóm cực kỳ đoàn kết, chuyên nghiệp và không hề có một giây chết nào trên sân khấu!)*
-
----
-**HỆ THỐNG PHÒNG THỦ TOÀN DIỆN HOÀN TẤT – BẢO VỆ ĐỒ ÁN TỰ TIN & CHIẾN THẮNG TUYỆT ĐỐI!**
-
-
+**TÀI LIỆU HOÀN TẤT CHUẨN KỸ NGHỆ PHẦN MỀM – TRUNG THỰC, CHẶT CHẼ VÀ TỰ TIN BẢO VỆ!**

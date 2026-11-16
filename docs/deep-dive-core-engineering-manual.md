@@ -20,7 +20,7 @@ Trong một buổi bảo vệ chuyên sâu 30–60 phút, Thầy Cô sẽ không
 [ GIAI ĐOẠN 2: LIVE DEMO TOÀN DIỆN ] (10 - 15 phút)
   - Demo luồng người dùng trên Mobile View (Vercel).
   - Demo 4 ca khó: Test A (sửa giá), Test B (hủy đơn), Test C (concurrency).
-  - Chạy toàn bộ 128 tests trên Terminal.
+  - Chạy toàn bộ 243 tests trên Terminal.
              │
              ▼
 [ GIAI ĐOẠN 3: VẤN ĐÁP KỸ THUẬT CHUYÊN SÂU (CODE & DB AUDIT) ] (20 - 30 phút)
