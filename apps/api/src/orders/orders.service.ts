@@ -227,6 +227,14 @@ export class OrdersService {
             },
           },
           include: {
+            user: {
+              select: {
+                fullName: true,
+                phone: true,
+                email: true,
+                address: true,
+              },
+            },
             items: {
               include: {
                 product: true,
@@ -249,6 +257,14 @@ export class OrdersService {
         const raceOrder = await this.prisma.order.findUnique({
           where: { idempotencyKey },
           include: {
+            user: {
+              select: {
+                fullName: true,
+                phone: true,
+                email: true,
+                address: true,
+              },
+            },
             items: {
               include: {
                 product: true,
@@ -290,6 +306,14 @@ export class OrdersService {
       where: { userId },
       orderBy: { createdAt: "desc" },
       include: {
+        user: {
+          select: {
+            fullName: true,
+            phone: true,
+            email: true,
+            address: true,
+          },
+        },
         items: {
           include: {
             product: { select: { name: true } },
@@ -312,6 +336,14 @@ export class OrdersService {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: {
+        user: {
+          select: {
+            fullName: true,
+            phone: true,
+            email: true,
+            address: true,
+          },
+        },
         items: {
           include: {
             product: { select: { name: true } },
@@ -425,6 +457,14 @@ export class OrdersService {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: {
+        user: {
+          select: {
+            fullName: true,
+            phone: true,
+            email: true,
+            address: true,
+          },
+        },
         items: {
           include: {
             product: { select: { name: true } },
@@ -492,6 +532,14 @@ export class OrdersService {
       totalAmount: order.totalAmount.toString(),
       deliveryNote: order.deliveryNote ?? null,
       idempotencyKey: order.idempotencyKey ?? null,
+      customer: order.user
+        ? {
+            fullName: order.user.fullName ?? '',
+            phone: order.user.phone ?? null,
+            email: order.user.email ?? '',
+            address: order.user.address ?? null,
+          }
+        : null,
       createdAt:
         order.createdAt instanceof Date
           ? order.createdAt.toISOString()

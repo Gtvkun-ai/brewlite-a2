@@ -17,6 +17,8 @@ import {
   LoginPayload,
   registerApi,
   RegisterPayload,
+  updateProfileApi,
+  changePasswordApi,
 } from '../lib/auth-api';
 import type { AuthResponse } from '../lib/types';
 
@@ -29,6 +31,8 @@ export interface AuthContextType {
   register: (payload: RegisterPayload) => Promise<AuthResponse>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  updateProfile: (data: { fullName?: string; phone?: string; address?: string }) => Promise<AuthResponse['user']>;
+  changePassword: (data: { currentPassword: string; newPassword: string }) => Promise<{ message: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -104,6 +108,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!fresh) setToken(null);
   }, []);
 
+  const updateProfile = useCallback(async (data: { fullName?: string; phone?: string; address?: string }) => {
+    const updated = await updateProfileApi(data);
+    setUser(updated);
+    return updated;
+  }, []);
+
+  const changePassword = useCallback(async (data: { currentPassword: string; newPassword: string }) => {
+    return await changePasswordApi(data);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -115,6 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         logout,
         refreshUser,
+        updateProfile,
+        changePassword,
       }}
     >
       {children}

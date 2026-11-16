@@ -87,10 +87,15 @@ export function Navbar() {
           {/* User Auth Info */}
           {isAuthenticated && user ? (
             <div className="navbar__user" data-testid="user-info">
-              <span className="navbar__username" title={user.email}>
+              <Link
+                href="/profile"
+                className="navbar__username"
+                title="Quản lý tài khoản cá nhân"
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
                 <User size={15} className="navbar__user-icon" />
                 <span className="navbar__username-text">{user.fullName || user.email.split('@')[0]}</span>
-              </span>
+              </Link>
               <button
                 type="button"
                 onClick={logout}

@@ -95,3 +95,4 @@ describe('Auth Roles Matrix RBAC Test (Lecturer Audit 2026-11-15)', () => {
     });
   });
 });
+

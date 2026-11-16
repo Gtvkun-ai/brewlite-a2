@@ -51,14 +51,19 @@ export interface UserPayload {
   role: Role;
 }
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  fullName: string;
+  phone?: string | null;
+  address?: string | null;
+  role: Role;
+  createdAt?: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
-  user: {
-    id: string;
-    email: string;
-    fullName: string;
-    role: Role;
-  };
+  user: UserProfile;
 }
 
 export interface CartItem {
@@ -103,6 +108,13 @@ export interface OrderItemResponse {
   itemTotal: string;
 }
 
+export interface OrderCustomerInfo {
+  fullName: string;
+  phone?: string | null;
+  email: string;
+  address?: string | null;
+}
+
 export interface OrderResponse {
   id: string;
   code: string;
@@ -113,6 +125,7 @@ export interface OrderResponse {
   deliveryNote?: string;
   createdAt: string;
   items: OrderItemResponse[];
+  customer?: OrderCustomerInfo | null;
 }
 
 export interface PaymentRequest {

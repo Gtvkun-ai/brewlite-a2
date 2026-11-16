@@ -109,6 +109,30 @@ export default function OrderDetailPage() {
             )}
           </section>
 
+          <section className="order-items order-customer-card" data-testid="order-customer-info">
+            <h2 className="order-section__title">Thông tin khách hàng & Giao nhận</h2>
+            <div className="order-customer-grid" style={{ display: 'grid', gap: '0.5rem', fontSize: '0.95rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', borderBottom: '1px dashed var(--border)' }}>
+                <span style={{ color: 'var(--muted)' }}>Người nhận:</span>
+                <strong>{state.order.customer?.fullName || "Khách hàng"}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', borderBottom: '1px dashed var(--border)' }}>
+                <span style={{ color: 'var(--muted)' }}>Số điện thoại:</span>
+                <strong>{state.order.customer?.phone || "Chưa cập nhật"}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', borderBottom: '1px dashed var(--border)' }}>
+                <span style={{ color: 'var(--muted)' }}>Email:</span>
+                <span>{state.order.customer?.email || "—"}</span>
+              </div>
+              {state.order.customer?.address && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0' }}>
+                  <span style={{ color: 'var(--muted)' }}>Địa chỉ:</span>
+                  <span style={{ textAlign: 'right', maxWidth: '60%' }}>{state.order.customer.address}</span>
+                </div>
+              )}
+            </div>
+          </section>
+
           <section className="order-items">
             <h2 className="order-section__title">Món đã đặt</h2>
             {state.order.items.length === 0 ? (
