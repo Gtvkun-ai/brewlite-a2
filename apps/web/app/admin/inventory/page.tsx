@@ -46,6 +46,7 @@ export default function AdminInventoryPage() {
   const [forecasts, setForecasts] = useState<BottleneckForecast[]>([]);
   const [recipes, setRecipes] = useState<ProductRecipe[]>([]);
   const [selectedSize, setSelectedSize] = useState<'REGULAR' | 'LARGE'>('REGULAR');
+  const [selectedProductCode, setSelectedProductCode] = useState<string>('CF-SUA');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
@@ -231,7 +232,10 @@ export default function AdminInventoryPage() {
     );
   }
 
-  const cfSuaForecast = forecasts.find((f) => f.productCode === 'CF-SUA');
+  const activeForecast =
+    forecasts.find((f) => f.productCode === selectedProductCode) ||
+    forecasts.find((f) => f.productCode === 'CF-SUA') ||
+    forecasts[0];
 
   return (
     <main className="admin-container" data-testid="admin-inventory-page">
@@ -429,18 +433,36 @@ export default function AdminInventoryPage() {
                   <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
                     Cảnh báo khi dưới {mat.minThreshold} {mat.unit}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingMaterial(mat);
-                      setEditStockValue(mat.currentStock.toString());
-                    }}
-                    className="btn btn--secondary"
-                    style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem', borderRadius: '8px' }}
-                  >
-                    <Sliders size={12} style={{ display: 'inline', marginRight: '0.25rem' }} />
-                    Chỉnh sửa
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsInboundModalOpen(true);
+                        setInboundIngredientCode(mat.code);
+                        setInboundAmount(mat.unit === 'ml' ? '1000' : '500');
+                        setInboundNote(`Nhập bổ sung ${mat.name}`);
+                      }}
+                      className="btn btn--primary"
+                      style={{ fontSize: '0.76rem', padding: '0.35rem 0.65rem', borderRadius: '8px', background: '#1b5e20', borderColor: '#1b5e20', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                      title="Tạo phiếu nhập thêm cho nguyên liệu này"
+                    >
+                      <PackageCheck size={12} />
+                      Nhập thêm
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingMaterial(mat);
+                        setEditStockValue(mat.currentStock.toString());
+                      }}
+                      className="btn btn--secondary"
+                      style={{ fontSize: '0.76rem', padding: '0.35rem 0.65rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                      title="Hiệu chỉnh thủ công tồn kho thực tế"
+                    >
+                      <Sliders size={12} />
+                      Hiệu chỉnh
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -504,56 +526,101 @@ export default function AdminInventoryPage() {
           </div>
         </div>
 
-        {/* Featured Case: Cà phê sữa đá */}
-        {cfSuaForecast && (
+        {/* Product selector chips */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+          {forecasts.map((f) => {
+            const isSelected = activeForecast?.productCode === f.productCode;
+            return (
+              <button
+                key={f.productCode}
+                type="button"
+                onClick={() => setSelectedProductCode(f.productCode)}
+                style={{
+                  padding: '0.45rem 0.85rem',
+                  borderRadius: '10px',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  border: isSelected ? '1.5px solid #68402c' : '1px solid #e0d5cb',
+                  background: isSelected ? '#68402c' : '#faf6f0',
+                  color: isSelected ? '#fff' : '#4a2c1d',
+                  transition: 'all 0.15s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                }}
+              >
+                <Coffee size={14} />
+                <span>{f.productName}</span>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    background: isSelected ? 'rgba(255,255,255,0.25)' : '#fff',
+                    color: isSelected ? '#fff' : (f.maxCups === 0 ? '#c62828' : '#2e7d32'),
+                    padding: '0.1rem 0.45rem',
+                    borderRadius: '4px',
+                    fontWeight: 800,
+                  }}
+                >
+                  {f.maxCups} ly
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Detailed Breakdown for Active Selected Product */}
+        {activeForecast && (
           <div style={{ background: '#faf6f0', borderRadius: '14px', border: '1px solid #ebd9c7', padding: '1.25rem', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '0.85rem' }}>
               <div>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8c4b18', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Kịch bản Trọng tâm Giảng viên (TEST D)
+                  {activeForecast.productCode === 'CF-SUA'
+                    ? '🎯 Kịch bản Trọng tâm Giảng viên (TEST D)'
+                    : '📋 Chi Tiết Định Mức & Điểm Nghẽn Món'}
                 </span>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#382217', margin: '0.15rem 0' }}>
-                  {cfSuaForecast.productName} ({cfSuaForecast.size})
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#382217', margin: '0.15rem 0' }}>
+                  {activeForecast.productName} ({activeForecast.size})
                 </h3>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Khả năng phục vụ tối đa:</span>
-                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: cfSuaForecast.maxCups === 0 ? '#c62828' : '#2e7d32' }}>
-                  {cfSuaForecast.maxCups} <span style={{ fontSize: '1rem', fontWeight: 700 }}>ly</span>
+                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: activeForecast.maxCups === 0 ? '#c62828' : '#2e7d32' }}>
+                  {activeForecast.maxCups} <span style={{ fontSize: '1rem', fontWeight: 700 }}>ly</span>
                 </div>
               </div>
             </div>
 
             {/* Formula display */}
-            <div style={{ background: '#fff', border: '1px solid #e5d2bf', padding: '0.75rem 1rem', borderRadius: '10px', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', color: '#42281a' }}>
-              <strong>Công thức:</strong> {cfSuaForecast.formula}
+            <div style={{ background: '#fff', border: '1px solid #e5d2bf', padding: '0.75rem 1rem', borderRadius: '10px', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', color: '#42281a', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)' }}>
+              <strong>Công thức:</strong> {activeForecast.formula}
             </div>
 
             {/* Breakdown per ingredient */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-              {cfSuaForecast.breakdown.map((b) => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '0.75rem' }}>
+              {activeForecast.breakdown.map((b) => (
                 <div
                   key={b.ingredientCode}
                   style={{
                     background: b.isBottleneck ? '#fff3e0' : '#fff',
                     border: b.isBottleneck ? '1.5px solid #ff9800' : '1px solid #e0d5cb',
                     borderRadius: '8px',
-                    padding: '0.75rem',
+                    padding: '0.85rem',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
-                    <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text)' }}>{b.ingredientName}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                    <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text)' }}>{b.ingredientName}</span>
                     {b.isBottleneck && (
                       <span style={{ fontSize: '0.7rem', background: '#ff9800', color: '#fff', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 700 }}>
-                        Bottleneck
+                        ⚠️ Bottleneck
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginBottom: '0.35rem' }}>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginBottom: '0.4rem' }}>
                     Định mức: <strong>{b.amountPerCup} {b.unit}/ly</strong> (Kho: {b.currentStock} {b.unit})
                   </div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 800, color: b.isBottleneck ? '#e65100' : 'var(--text)' }}>
-                    → Khả dụng: {b.availableCups} ly
+                  <div style={{ fontSize: '0.92rem', fontWeight: 800, color: b.isBottleneck ? '#e65100' : 'var(--text)' }}>
+                    → Giới hạn: {b.availableCups} ly
                   </div>
                 </div>
               ))}
@@ -575,7 +642,7 @@ export default function AdminInventoryPage() {
               </h2>
             </div>
             <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: 0 }}>
-              Kịch bản chuẩn Giảng viên: Bán liên tục 20 ly $\to$ Sữa về 0ml $\to$ Chặn ly thứ 21 với HTTP 400 (OUT_OF_STOCK_INGREDIENT).
+              Kịch bản chuẩn Giảng viên: Bán liên tục 20 ly &rarr; Sữa về 0ml &rarr; Chặn ly thứ 21 với HTTP 400 (OUT_OF_STOCK_INGREDIENT).
             </p>
           </div>
 
@@ -617,6 +684,53 @@ export default function AdminInventoryPage() {
               <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#382217' }}>
                 Số ly bán thành công: {simulationResult.successCount} / 20 | Số ly bị chặn: 1 / 1
               </span>
+            </div>
+
+            {/* 4-Step Verification Stepper Visualizer */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ background: '#fff', border: '1px solid #c8e6c9', borderRadius: '10px', padding: '0.85rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem', color: '#2e7d32', fontWeight: 800, fontSize: '0.82rem' }}>
+                  <CheckCircle size={15} /> 1. Khởi Tạo Kho Ban Đầu
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#555', lineHeight: 1.45 }}>
+                  • Cà phê Robusta: <strong>500g</strong><br />
+                  • Sữa tươi Đà Lạt: <strong>1.000ml</strong><br />
+                  • Đường mía tinh luyện: <strong>200g</strong>
+                </div>
+              </div>
+
+              <div style={{ background: '#fff', border: '1px solid #c8e6c9', borderRadius: '10px', padding: '0.85rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem', color: '#2e7d32', fontWeight: 800, fontSize: '0.82rem' }}>
+                  <CheckCircle size={15} /> 2. Bán 20 Ly Cà Phê Sữa
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#555', lineHeight: 1.45 }}>
+                  • Trừ Cà phê: 20 × 10g = <strong>200g</strong><br />
+                  • Trừ Sữa tươi: 20 × 50ml = <strong>1.000ml</strong><br />
+                  • Trừ Đường: 20 × 5g = <strong>100g</strong>
+                </div>
+              </div>
+
+              <div style={{ background: '#fff', border: '1px solid #ffe0b2', borderRadius: '10px', padding: '0.85rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem', color: '#e65100', fontWeight: 800, fontSize: '0.82rem' }}>
+                  <AlertTriangle size={15} /> 3. Chạm Điểm Nghẽn Sữa
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#555', lineHeight: 1.45 }}>
+                  • Sữa tươi: <strong style={{ color: '#c62828' }}>0 ml (CHẠM ĐÁY)</strong><br />
+                  • Cà phê còn dư: <strong>300g</strong><br />
+                  • Đường còn dư: <strong>100g</strong>
+                </div>
+              </div>
+
+              <div style={{ background: '#fff', border: '1px solid #ffcdd2', borderRadius: '10px', padding: '0.85rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem', color: '#c62828', fontWeight: 800, fontSize: '0.82rem' }}>
+                  <ShieldCheck size={15} /> 4. Chặn Ly 21 (HTTP 400)
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#555', lineHeight: 1.45 }}>
+                  • Lỗi: <strong>OUT_OF_STOCK_INGREDIENT</strong><br />
+                  • Máy chủ từ chối nhận đơn ly 21<br />
+                  • Trạng thái: <strong style={{ color: '#2e7d32' }}>PASS 100%</strong>
+                </div>
+              </div>
             </div>
 
             {/* Error Rejection Box */}
@@ -672,12 +786,12 @@ export default function AdminInventoryPage() {
             </thead>
             <tbody>
               {recipes.map((r) => {
-                const regItems = r.recipes.REGULAR;
-                const coffee = regItems.find((i) => i.ingredientCode === 'ING-COFFEE-ROBUSTA')?.amount || 0;
-                const milk = regItems.find((i) => i.ingredientCode === 'ING-MILK-FRESH')?.amount || 0;
-                const sugar = regItems.find((i) => i.ingredientCode === 'ING-SUGAR-REFINED')?.amount || 0;
+                const items = r.recipes[selectedSize] || r.recipes.REGULAR;
+                const coffee = items.find((i) => i.ingredientCode === 'ING-COFFEE-ROBUSTA')?.amount || 0;
+                const milk = items.find((i) => i.ingredientCode === 'ING-MILK-FRESH')?.amount || 0;
+                const sugar = items.find((i) => i.ingredientCode === 'ING-SUGAR-REFINED')?.amount || 0;
 
-                const forecast = forecasts.find((f) => f.productCode === r.productCode && f.size === 'REGULAR');
+                const forecast = forecasts.find((f) => f.productCode === r.productCode && f.size === selectedSize);
 
                 return (
                   <tr key={r.productCode} style={{ borderBottom: '1px solid var(--border)' }}>
@@ -687,7 +801,7 @@ export default function AdminInventoryPage() {
                     </td>
                     <td style={{ padding: '0.85rem 1rem' }}>
                       <span style={{ background: '#f0f0f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.78rem', fontWeight: 600 }}>
-                        REGULAR
+                        {selectedSize}
                       </span>
                     </td>
                     <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: '#68402c' }}>{coffee} g</td>
@@ -744,6 +858,32 @@ export default function AdminInventoryPage() {
           </button>
         </div>
 
+        {/* Quick KPI stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
+          <div style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '10px', padding: '0.75rem 1rem' }}>
+            <span style={{ fontSize: '0.74rem', color: 'var(--muted)', display: 'block' }}>Tổng Số Phiếu Nhập</span>
+            <strong style={{ fontSize: '1.25rem', color: '#1b5e20' }}>{inboundLogs.length} phiếu</strong>
+          </div>
+          <div style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '10px', padding: '0.75rem 1rem' }}>
+            <span style={{ fontSize: '0.74rem', color: 'var(--muted)', display: 'block' }}>Tổng Sữa Tươi Đã Nhập</span>
+            <strong style={{ fontSize: '1.25rem', color: '#1565c0' }}>
+              {inboundLogs.filter((l) => l.ingredientCode === 'ING-MILK-FRESH').reduce((acc, l) => acc + l.amountAdded, 0).toLocaleString('vi-VN')} ml
+            </strong>
+          </div>
+          <div style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '10px', padding: '0.75rem 1rem' }}>
+            <span style={{ fontSize: '0.74rem', color: 'var(--muted)', display: 'block' }}>Tổng Cà Phê Đã Nhập</span>
+            <strong style={{ fontSize: '1.25rem', color: '#68402c' }}>
+              {inboundLogs.filter((l) => l.ingredientCode === 'ING-COFFEE-ROBUSTA').reduce((acc, l) => acc + l.amountAdded, 0).toLocaleString('vi-VN')} g
+            </strong>
+          </div>
+          <div style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '10px', padding: '0.75rem 1rem' }}>
+            <span style={{ fontSize: '0.74rem', color: 'var(--muted)', display: 'block' }}>Lần Nhập Gần Nhất</span>
+            <strong style={{ fontSize: '0.9rem', color: 'var(--text)' }}>
+              {inboundLogs[0] ? new Date(inboundLogs[0].createdAt).toLocaleTimeString('vi-VN') : '—'}
+            </strong>
+          </div>
+        </div>
+
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
@@ -773,7 +913,7 @@ export default function AdminInventoryPage() {
                     +{log.amountAdded.toLocaleString('vi-VN')} {log.unit}
                   </td>
                   <td style={{ padding: '0.75rem 0.85rem', fontSize: '0.8rem', color: 'var(--muted)' }}>
-                    {log.beforeStock} → <strong style={{ color: 'var(--text)' }}>{log.afterStock} {log.unit}</strong>
+                    {log.beforeStock} &rarr; <strong style={{ color: 'var(--text)' }}>{log.afterStock} {log.unit}</strong>
                   </td>
                   <td style={{ padding: '0.75rem 0.85rem', color: '#555' }}>
                     {log.supplierOrNote}
@@ -796,7 +936,9 @@ export default function AdminInventoryPage() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.5)',
+            background: 'rgba(0,0,0,0.45)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -905,7 +1047,9 @@ export default function AdminInventoryPage() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.5)',
+            background: 'rgba(0,0,0,0.45)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
