@@ -1,36 +1,27 @@
 @startuml
-skinparam actorStyle awesome
-skinparam packageStyle rectangle
-skinparam defaultFontName Arial
-skinparam usecaseBorderColor #2B6CB0
-skinparam usecaseBackgroundColor #EBF8FF
-
+title Ca sử dụng đặt món và thanh toán
+!pragma layout smetana
 left to right direction
+skinparam defaultFontName Arial
 
-actor "Khách hàng\n(Customer)" as Customer
-actor "Cổng thanh toán mô phỏng\n(Payment Gateway)" as Gateway
-
-rectangle "Phạm vi Use-case: Đặt và Thanh toán Đơn hàng (UC-CHECKOUT-01)" {
-  usecase "Xác thực phiên đăng nhập (JWT)" as UC_VerifyAuth
-  usecase "Kiểm tra tồn kho sản phẩm" as UC_CheckStock
-  usecase "Tạo đơn hàng & OrderItems" as UC_CreateOrder
-  usecase "Chọn phương thức thanh toán\n(Ví điện tử / Thẻ)" as UC_SelectMethod
-  usecase "Thanh toán mô phỏng (Idempotency)" as UC_Pay
-  usecase "Xác nhận & Cập nhật đơn PAID" as UC_Confirm
-  usecase "Thông báo lỗi hết hàng" as UC_ErrorStock
-  usecase "Thông báo lỗi thanh toán" as UC_ErrorPayment
+actor "Khách hàng" as Customer
+actor "Mock Gateway" as Gateway
+rectangle BrewLite {
+  usecase "Xác thực phiên JWT" as Auth
+  usecase "Tạo đơn PENDING" as Create
+  usecase "Giữ tồn thành phẩm" as SKU
+  usecase "Trừ nguyên liệu và ghi SALE" as BOM
+  usecase "Thanh toán mô phỏng\ncó Idempotency-Key" as Payment
+  usecase "Thử lại trên cùng đơn" as Retry
+  usecase "Xem chi tiết và tiến độ đơn" as Track
 }
-
-Customer --> UC_SelectMethod
-Customer --> UC_Pay
-
-UC_Pay ..> UC_VerifyAuth : <<include>>
-UC_Pay ..> UC_CheckStock : <<include>>
-UC_Pay ..> UC_CreateOrder : <<include>>
-UC_Pay ..> UC_Confirm : <<include>>
-
-UC_Pay --> Gateway
-
-UC_CheckStock <.. UC_ErrorStock : <<extend>>\n(khi hết hàng)
-UC_Pay <.. UC_ErrorPayment : <<extend>>\n(khi thanh toán thất bại)
+Customer --> Create
+Customer --> Payment
+Customer --> Track
+Create ..> Auth : <<include>>
+Create ..> SKU : <<include>>
+BOM ..> Create : <<extend>>\nkhi món có định mức
+Payment ..> Auth : <<include>>
+Retry ..> Payment : <<extend>>\nkhi đã xác nhận FAILED
+Payment --> Gateway
 @enduml

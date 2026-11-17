@@ -1,0 +1,30 @@
+@startuml
+title Hoạt động kho nguyên liệu và Test D
+skinparam defaultFontName Arial
+skinparam ActivityFontSize 13
+
+|Quản lý / Quản trị viên|
+start
+:Mở /admin/inventory;
+|NestJS API|
+:Kiểm JWT và vai trò;
+if (Tác vụ?) then (Dự báo)
+  :Đọc Ingredient và ProductRecipe trong PostgreSQL;
+  :Theo size, tính min(floor(tồn / định mức));
+  :Trả số ly tối đa và nguyên liệu giới hạn;
+elseif (Nhập hoặc điều chỉnh tồn?) then (Có)
+  :Kiểm DTO và quyền MANAGER hoặc ADMIN;
+  :Mở transaction, khóa dòng nguyên liệu;
+  :Cập nhật Ingredient.currentStock;
+  :Ghi RESTOCK hoặc ADJUSTMENT với tồn trước và sau;
+  :Commit PostgreSQL;
+else (Mô phỏng Test D)
+  :Tạo dữ liệu mẫu riêng cho lượt chạy;
+  :Trừ định mức cho 20 ly Regular;
+  :Thử ly 21 và ghi nhận thiếu sữa tươi;
+  :Trả kết quả mô phỏng, kho SQL giữ nguyên;
+endif
+|Quản lý / Quản trị viên|
+:Xem tồn kho, phiếu nhập hoặc kết quả Test D;
+stop
+@enduml

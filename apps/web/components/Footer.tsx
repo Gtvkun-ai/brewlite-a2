@@ -65,6 +65,21 @@ export function Footer() {
                   Tài khoản thành viên
                 </Link>
               </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new CustomEvent('brewlite:install-pwa'));
+                    }
+                  }}
+                  className="footer__link text-left"
+                  data-testid="pwa-install-footer-btn"
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left', font: 'inherit' }}
+                >
+                  📲 Cài đặt App BrewLite
+                </button>
+              </li>
             </ul>
           </div>
 

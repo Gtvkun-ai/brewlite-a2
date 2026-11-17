@@ -1,52 +1,41 @@
 @startuml
-skinparam actorStyle awesome
-skinparam packageStyle rectangle
-skinparam handwritten false
-skinparam defaultFontName Arial
-skinparam monochrome false
-skinparam packageBorderColor #4A5568
-skinparam usecaseBorderColor #2B6CB0
-skinparam usecaseBackgroundColor #EBF8FF
-
+title Ca sử dụng hệ thống BrewLite
+!pragma layout smetana
 left to right direction
+skinparam defaultFontName Arial
+skinparam packageStyle rectangle
 
-actor "Khách hàng\n(Customer)" as Customer
-actor "Nhân viên Barista\n(Barista)" as Barista
-actor "Quản lý / Quản trị viên\n(Manager / Admin)" as Admin
-actor "Cổng thanh toán\n(Payment Gateway)" as Gateway
+actor "Khách hàng" as Customer
+actor "Nhân viên pha chế" as Barista
+actor "Quản lý / Quản trị viên" as Manager
+actor "Mock Gateway" as Gateway
 
-rectangle "Hệ thống BrewLite (System Boundary)" {
-  usecase "FR-01: Xem danh mục món" as UC_Menu
-  usecase "FR-02: Tùy biến món (size/topping)" as UC_Customize
-  usecase "FR-03: Quản lý giỏ hàng" as UC_Cart
-  usecase "FR-04: Đăng ký & Đăng nhập" as UC_Auth
-  usecase "FR-05: Đặt và thanh toán đơn" as UC_Checkout
-  usecase "FR-06: Theo dõi & Lịch sử đơn" as UC_Track
-  usecase "FR-07: Cập nhật trạng thái đơn (KDS)" as UC_UpdateStatus
-  usecase "FR-08: Quản lý thực đơn & giá bán" as UC_ManageCatalog
-  usecase "FR-09: Quản lý mã khuyến mãi (Vouchers)" as UC_ManagePromotions
-  usecase "FR-10: Quản lý Định mức BOM & Điểm nghẽn (TEST D)" as UC_ManageBOM
-  usecase "FR-11: Lập phiếu nhập kho & Kiểm toán (Audit Trail)" as UC_InboundRestock
-  usecase "Xử lý thanh toán số (Ví/Thẻ/QR)" as UC_ProcessPayment
+rectangle BrewLite {
+  usecase "Duyệt thực đơn, tùy biến món\nvà quản lý giỏ" as Menu
+  usecase "Đăng ký, đăng nhập\nvà quản lý hồ sơ" as Profile
+  usecase "Tạo đơn và thanh toán" as Checkout
+  usecase "Xem lịch sử, tiến độ\nvà hủy đơn đủ điều kiện" as Track
+  usecase "Xử lý đơn qua KDS" as KDS
+  usecase "Đọc tồn kho và dự báo theo BOM" as Forecast
+  usecase "Chạy Test D mô phỏng" as Demo
+  usecase "Nhập kho và điều chỉnh tồn" as Restock
+  usecase "Quản lý thực đơn và voucher" as Catalog
+  usecase "Xem dashboard doanh thu" as Dashboard
+  usecase "Xử lý ví/thẻ mô phỏng" as Pay
 }
-
-Customer --> UC_Menu
-Customer --> UC_Customize
-Customer --> UC_Cart
-Customer --> UC_Auth
-Customer --> UC_Checkout
-Customer --> UC_Track
-
-UC_Checkout ..> UC_Cart : <<include>>
-UC_Checkout ..> UC_Auth : <<include>>
-UC_Checkout ..> UC_ProcessPayment : <<include>>
-
-UC_ProcessPayment --> Gateway
-
-Barista --> UC_UpdateStatus
-Admin --> UC_UpdateStatus
-Admin --> UC_ManageCatalog
-Admin --> UC_ManagePromotions
-Admin --> UC_ManageBOM
-Admin --> UC_InboundRestock
+Customer --> Menu
+Customer --> Profile
+Customer --> Checkout
+Customer --> Track
+Barista --> KDS
+Barista --> Forecast : qua API
+Barista --> Demo : qua API
+Manager --> KDS
+Manager --> Forecast
+Manager --> Demo
+Manager --> Restock
+Manager --> Catalog
+Manager --> Dashboard
+Pay ..> Checkout : <<extend>>
+Pay --> Gateway
 @enduml

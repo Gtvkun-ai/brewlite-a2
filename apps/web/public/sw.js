@@ -1,5 +1,5 @@
 // BrewLite Service Worker for Progressive Web App (PWA)
-const CACHE_NAME = 'brewlite-pwa-v2';
+const CACHE_NAME = 'brewlite-pwa-v3';
 const PRECACHE_ASSETS = [
   '/',
   '/manifest.json',
@@ -11,8 +11,14 @@ const PRECACHE_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // Use map with catch so a single asset cannot break SW installation
+      const cachePromises = PRECACHE_ASSETS.map((asset) =>
+        cache.add(asset).catch((err) => {
+          console.warn('[SW] Precache optional asset skipped:', asset, err);
+        })
+      );
+      await Promise.all(cachePromises);
     })
   );
   self.skipWaiting();

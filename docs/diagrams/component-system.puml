@@ -1,0 +1,33 @@
+@startuml
+title Thành phần phần mềm BrewLite
+!pragma layout smetana
+skinparam defaultFontName Arial
+skinparam linetype polyline
+
+component "Next.js Web\nKhách hàng và back-office" as Web
+package "NestJS" {
+  component "REST API\nJWT, RBAC, DTO" as API
+  component "Auth · Catalog · Orders\nPayments · Promotions" as Commerce
+  component "InventoryService" as Inventory
+  component "InventoryDemoService" as Demo
+  component "Mock Gateway" as Mock
+  component "Prisma Client" as Prisma
+
+  Commerce -[hidden]right-> Inventory
+  Inventory -[hidden]right-> Demo
+  Mock -[hidden]right-> Prisma
+}
+database "PostgreSQL\nGiao dịch, danh mục và kho BOM" as DB
+artifact "Dữ liệu mẫu theo lượt Test D" as Sample
+
+Web -down-> API : HTTPS / JSON
+API -down-> Commerce
+API -down-> Inventory : quản lý kho
+API -down-> Demo : mô phỏng
+Commerce --> Inventory : dự báo, giữ và hoàn kho
+Commerce -down-> Mock : thanh toán mô phỏng
+Commerce -down-> Prisma
+Inventory -down-> Prisma
+Prisma -down-> DB
+Demo -down-> Sample
+@enduml

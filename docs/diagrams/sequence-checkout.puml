@@ -1,138 +1,58 @@
 @startuml
-title Sơ đồ Tuần tự: Use-case Đặt và Thanh toán Đơn hàng (Sequence Diagram)
-autonumber
+title Tuần tự đặt món và thanh toán
 skinparam defaultFontName Arial
-skinparam BoxPadding 10
-skinparam ParticipantPadding 10
-skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 12
 
-actor "Customer\n(Khách hàng)" as Customer
-box "Frontend Client" #EBF8FF
-participant "Next.js UI\n(PWA)" as UI
-end box
+participant "Next.js Web" as Web
+participant "NestJS REST API" as API
+participant "OrdersService" as Orders
+participant "PaymentsService" as Payments
+participant "InventoryService" as Inventory
+database "PostgreSQL" as DB
+participant "Mock Gateway" as Mock
 
-box "Backend Services" #E6FFFA
-participant "NestJS API\n(OrderController)" as API
-participant "OrderService" as Service
-participant "InventoryService\n(BOM Engine)" as Inventory
-end box
-
-box "Data Persistence" #EDF2F7
-database "PostgreSQL\n(Prisma ORM)" as DB
-end box
-
-box "Third-party" #FED7D7
-participant "Payment Service\n(Mock Gateway)" as Payment
-end box
-
-Customer -> UI: Bấm "Xác nhận đặt hàng & Thanh toán"
-activate UI
-UI -> UI: Generate UUIDv4 for Idempotency-Key
-UI -> API: POST /api/orders/checkout\nHeaders: [Authorization: Bearer <JWT>, Idempotency-Key: <UUID>]\nBody: { items, paymentMethod: 'E_WALLET', deliveryNote }
-activate API
-
-API -> API: JwtAuthGuard: Verify Bearer Token & Extract userId
-API -> API: ValidationPipe: Validate CreateOrderDto format
-
-API -> Service: checkout(userId, dto, idempotencyKey)
-activate Service
-
-Service -> DB: Check IdempotencyKey in Cache/DB
-activate DB
-DB --> Service: Key status: NOT_FOUND (Request mới)
-deactivate DB
-
-note over Service, DB: Bắt đầu Database Transaction: prisma.$transaction(async (tx) => ...)
-Service -> DB: tx.product.findMany({ where: { id: in [itemIds] } })
-activate DB
-DB --> Service: Danh sách sản phẩm & tồn kho
-deactivate DB
-
-alt Trường hợp: Hết nguyên liệu thô theo định mức BOM (Test D Bottleneck)
-  Service -> Inventory: deductRecipe(tx, item.productCode, item.size, item.quantity)
-  activate Inventory
-  Inventory -> DB: Kiểm tra tồn kho nguyên liệu (Cà phê, Sữa, Đường)
-  activate DB
-  DB --> Inventory: Sữa tươi = 0ml (chạm đáy bottleneck)
-  deactivate DB
-  Inventory --> Service: Throw BadRequestException('OUT_OF_STOCK_INGREDIENT')
-  deactivate Inventory
-  Service --> API: Throw BadRequestException('OUT_OF_STOCK_INGREDIENT')
-  API --> UI: HTTP 400 Bad Request { errorCode: 'OUT_OF_STOCK_INGREDIENT' }
-  UI --> Customer: Cảnh báo hết nguyên liệu & gợi ý điều chỉnh
-else Đủ nguyên vật liệu & sản phẩm
-  Service -> Inventory: deductRecipe(tx, item.productCode, item.size, item.quantity)
-  activate Inventory
-  Inventory -> DB: tx.ingredient.update({ decrement: amount }) & tx.inventoryMovement.create(SALE)
-  activate DB
-  DB --> Inventory: Đã trừ kho nguyên tử & lưu audit log
-  deactivate DB
-  Inventory --> Service: Deducted success
-  deactivate Inventory
-
-  Service -> DB: tx.order.create({ data: { code, userId, status: 'PENDING', totalAmount } })
-  activate DB
-  DB --> Service: Order created (id: 'ord_123')
-  deactivate DB
-
-  Service -> DB: tx.orderItem.createMany({ items with price snapshot })
-  activate DB
-  DB --> Service: OrderItems created
-  deactivate DB
-
-  Service -> Payment: processPayment({ orderId: 'ord_123', amount, method: 'E_WALLET', idempotencyKey })
-  activate Payment
-
-  alt Nhánh thanh toán THẤT BẠI (Số dư không đủ / Thẻ lỗi)
-    Payment --> Service: { success: false, errorCode: 'INSUFFICIENT_FUNDS' }
-    Service -> DB: tx.order.update({ status: 'PAYMENT_FAILED' })
-    activate DB
-    DB --> Service: Order status updated
-    deactivate DB
-
-    Service -> Inventory: restoreRecipe(tx, item.productCode, item.size, item.quantity, 'PAYMENT_FAILED')
-    activate Inventory
-    Inventory -> DB: tx.ingredient.update({ increment: amount }) & tx.inventoryMovement.create(PAYMENT_FAILED)
-    activate DB
-    DB --> Inventory: Đã hoàn trả nguyên liệu về kho
-    deactivate DB
-    Inventory --> Service: Restored success
-    deactivate Inventory
-
-    Service --> API: Throw PaymentRequiredException('Thanh toán thất bại')
-    API --> UI: HTTP 402 Payment Required { errorCode: 'INSUFFICIENT_FUNDS' }
-    UI --> Customer: Báo lỗi thanh toán & cho phép chọn phương thức khác
-  else Nhánh thanh toán THÀNH CÔNG
-    Payment --> Service: { success: true, transactionRef: 'TX_998877', paidAt: ISO }
-    deactivate Payment
-
-    Service -> DB: tx.payment.create({ data: { orderId, transactionRef, status: 'SUCCESS' } })
-    activate DB
-    DB --> Service: Payment record saved
-    deactivate DB
-
-    Service -> DB: tx.order.update({ where: { id }, data: { status: 'PAID' } })
-    activate DB
-    DB --> Service: Order status updated to PAID
-    deactivate DB
-
-    loop Từng sản phẩm trong đơn hàng
-      Service -> DB: tx.product.update({ decrement: quantity })
-      activate DB
-      DB --> Service: Tồn kho thành phẩm đã cập nhật
-      deactivate DB
-    end
-    note over Service, DB: Commit Database Transaction thành công
-  end
+Web -> API: POST /orders (JWT, key tạo đơn, items)
+API -> Orders: createOrder(userId, dto, key)
+Orders -> DB: BEGIN, kiểm tra key và giữ tồn thành phẩm
+opt Món có BOM
+  Orders -> Inventory: deductRecipe(productCode, size, quantity, tx)
+  Inventory -> DB: Cập nhật Ingredient có điều kiện, ghi SALE
+end
+alt Thiếu thành phẩm hoặc nguyên liệu
+  Orders -> DB: ROLLBACK
+  API --> Web: 400 OUT_OF_STOCK hoặc OUT_OF_STOCK_INGREDIENT
+else Đủ hàng
+  Orders -> DB: Tạo Order PENDING cùng OrderItem, COMMIT
+  API --> Web: 201 { id, code, status: PENDING }
 end
 
-Service --> API: Return { orderId, code: 'BL-2026', status: 'PAID', totalAmount }
-deactivate Service
-
-API --> UI: HTTP 201 Created { success: true, data: OrderSummary }
-deactivate API
-
-UI -> UI: Clear Cart in LocalStorage/State
-UI --> Customer: Điều hướng sang /orders/BL-2026 & Hiển thị thông báo thành công
-deactivate UI
+== Thanh toán cho đơn đã tạo ==
+Web -> API: POST /payments (JWT, key thanh toán, orderId)
+API -> Payments: createPayment(userId, dto, key)
+Payments -> DB: BEGIN, khóa Order và đối chiếu quyền sở hữu
+alt Cùng key và cùng payload
+  DB --> Payments: Payment đã ghi
+  API --> Web: 200 trả kết quả đã lưu
+else Lần thanh toán mới hợp lệ
+  Payments -> Mock: charge(amount từ Order, method, accountRef)
+  Mock --> Payments: SUCCESS hoặc FAILED
+  opt Đơn đang PAYMENT_FAILED
+    Payments -> DB: Giữ lại tồn thành phẩm
+    Payments -> Inventory: Giữ lại nguyên liệu theo BOM
+    Inventory -> DB: Ghi SALE
+  end
+  Payments -> DB: Lưu Payment
+  alt SUCCESS
+    Payments -> DB: Chuyển Order sang PAID, COMMIT
+    API --> Web: 200 SUCCESS và orderId
+    Web -> Web: Xóa giỏ, mở /orders/{orderId}
+  else FAILED
+    Payments -> DB: Hoàn tồn thành phẩm
+    Payments -> Inventory: Hoàn nguyên liệu có BOM
+    Inventory -> DB: Ghi biến động PAYMENT_FAILED
+    Payments -> DB: Chuyển Order sang PAYMENT_FAILED, COMMIT
+    API --> Web: 200 FAILED
+    Web -> Web: Giữ orderId, đổi key cho lần thử mới
+  end
+end
 @enduml

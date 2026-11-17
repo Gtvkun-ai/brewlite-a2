@@ -8,8 +8,8 @@ Tài liệu này mô tả chi tiết kiến trúc triển khai thực tế của
 
 Sơ đồ mô tả chi tiết các nút thiết bị, vùng mạng (VPC/Private Network), container, dịch vụ đám mây và ranh giới môi trường (Local, CI/CD, Production).
 
-![Production Deployment Diagram](../diagrams/deployment-production.svg)
-*File mã nguồn PlantUML: [`docs/diagrams/deployment-production.puml`](../diagrams/deployment-production.puml)*
+![Production Deployment Diagram](diagrams/deployment-production.svg)
+*File mã nguồn PlantUML: [`docs/diagrams/deployment-production.puml`](diagrams/deployment-production.puml)*
 
 ---
 

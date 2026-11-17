@@ -1,0 +1,26 @@
+@startuml
+title Trạng thái đơn hàng và giữ tồn
+!pragma layout smetana
+skinparam defaultFontName Arial
+
+[*] --> PENDING : Tạo đơn và giữ tồn
+PENDING --> PAID : Payment SUCCESS
+PENDING --> PAYMENT_FAILED : Payment FAILED,\nhoàn tồn đã giữ
+PAYMENT_FAILED --> PAID : Thử lại SUCCESS,\ngiữ tồn lại
+PAYMENT_FAILED --> PAYMENT_FAILED : Thử lại FAILED,\ngiữ rồi hoàn tồn
+PENDING --> CANCELLED : Hủy hợp lệ,\nhoàn tồn
+PAID --> CANCELLED : Hủy hợp lệ,\nhoàn tồn và REFUND_PENDING
+PAID --> PREPARING : Bắt đầu pha chế
+PREPARING --> READY : Món đã sẵn sàng
+READY --> COMPLETED : Giao món
+CANCELLED --> [*]
+COMPLETED --> [*]
+note bottom of PAYMENT_FAILED
+  Đơn có BOM ghi PAYMENT_FAILED
+  vào InventoryMovement khi hoàn nguyên liệu.
+end note
+note bottom of CANCELLED
+  Hoàn tồn trong cùng transaction khi gọi
+  nghiệp vụ hủy đơn có hoàn kho.
+end note
+@enduml
