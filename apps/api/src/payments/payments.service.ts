@@ -19,6 +19,7 @@ import { InventoryService } from '../inventory/inventory.service';
 import { CreatePaymentDto } from './payments.dto';
 import { PaymentError } from './payment.errors';
 import { MockGatewayService } from './mock-gateway.service';
+import { sendTelegramNotification } from '../common/telegram.service';
 
 const KEY_PATTERN = /^[A-Za-z0-9._:-]+$/;
 const PAID_STATUSES: OrderStatus[] = [
@@ -59,7 +60,7 @@ export class PaymentsService {
     const requestHash = this.hashRequest(userId, dto);
 
     try {
-      return await this.prisma.$transaction(async (tx) => {
+      const response = await this.prisma.$transaction(async (tx) => {
         await tx.$queryRaw`SELECT id FROM "Order" WHERE id = ${dto.orderId} FOR UPDATE`;
 
         const order = await tx.order.findFirst({
@@ -182,6 +183,33 @@ export class PaymentsService {
             : OrderStatus.PAYMENT_FAILED,
         );
       });
+
+      if (response.orderStatus === OrderStatus.PAID && typeof this.prisma?.order?.findUnique === 'function') {
+        void Promise.resolve(this.prisma.order.findUnique({
+          where: { id: dto.orderId },
+          include: { items: { include: { product: true } } },
+        })).then((ord) => {
+          if (!ord) return;
+          const items = ord.items || [];
+          const itemLines = items.length > 0
+            ? items.map((i) => `  • ${i.quantity}x ${i.product?.name ?? 'Món'} (${i.selectedSize || 'M'})`).join('\n')
+            : '  • (Đang chuẩn bị)';
+          return sendTelegramNotification(
+            `☕ <b>[BREWLITE - ĐƠN ĐÃ THANH TOÁN]</b> 🎉\n` +
+            `-----------------------------------\n` +
+            `📦 <b>Mã đơn:</b> #${ord.code || ord.id}\n` +
+            `💰 <b>Tổng tiền:</b> ${Number(ord.totalAmount).toLocaleString('vi-VN')} đ\n` +
+            `⚡ <b>Trạng thái:</b> ĐÃ THANH TOÁN (PAID)\n` +
+            `📋 <b>Chi tiết món:</b>\n${itemLines}\n` +
+            `-----------------------------------\n` +
+            `👉 <i>Barista vui lòng chuẩn bị món!</i>`
+          );
+        }).catch((err) => {
+          this.logger.warn(`Failed to dispatch Telegram alert: ${(err as Error).message}`);
+        });
+      }
+
+      return response;
     } catch (error) {
       if (this.isUniqueViolation(error)) {
         throw new ConflictException({
