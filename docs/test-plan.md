@@ -29,23 +29,24 @@ Phạm vi và nguồn dữ liệu:
 | TC-07 | NFR-02 | Unit | Xem chi tiết đơn của người khác (403) | Báo không có quyền, không hiện dữ liệu đơn | Khớp Expected | ✅ Pass | `order-detail.test.tsx` |
 | TC-08 | FR-06, NFR-02 | API | User A gọi `GET /orders/:id` của user B | `403 ORDER_ACCESS_DENIED`, không lộ dữ liệu | Chưa có API | ⏳ Chờ | Chờ owner C |
 | TC-09 | FR-06 | API | `GET /orders` chỉ trả đơn của chính user, mới nhất trước | Danh sách đúng user, sắp xếp giảm dần theo ngày | Chưa có API | ⏳ Chờ | Chờ owner C |
-| TC-10 | FR-05 | E2E | Happy path: giỏ hàng, tạo đơn, thanh toán thành công | Đơn `PENDING` rồi `PAID`, có mã đơn, xuất hiện trong lịch sử | Chưa chạy | ⏳ Chờ | `checkout-flow.spec.ts` (khung) |
-| TC-11 | FR-05 | E2E/API | Payment failure: `accountRef` kết thúc `0000` | `Payment FAILED`, `Order PAYMENT_FAILED`, hoàn tồn kho, giữ giỏ hàng | Chưa chạy | ⏳ Chờ | Chờ C, D |
-| TC-12 | FR-05, NFR-05 | Integration | Retry: gửi lại cùng `Idempotency-Key` và cùng payload | Trả kết quả cũ, không trừ tiền lần hai, chỉ 1 đơn | Chưa chạy | ⏳ Chờ | Chờ D |
-| TC-13 | NFR-05 | Integration | Cùng `Idempotency-Key` nhưng khác payload | `409 IDEMPOTENCY_KEY_PAYLOAD_MISMATCH` | Chưa chạy | ⏳ Chờ | Chờ D |
+| TC-10 | FR-05, FR-06 | E2E | Từ menu, tùy chỉnh món, giỏ hàng, tạo đơn và thanh toán | Mở chi tiết đúng mã đơn, thấy trạng thái `PAID` | Chrome desktop với Ví và viewport mobile với Thẻ đã thấy chi tiết đơn sau thanh toán | ✅ Pass | [Nghiệm thu Chrome thật](evidence/demo-acceptance-2026-11-14/AUDIT.md#2-đối-chiếu-yêu-cầu) |
+| TC-11 | FR-05, NFR-05 | E2E/API | Thanh toán bị từ chối, sau đó thử lại trên cùng đơn | Hoàn kho khi `FAILED`. Lần thử mới dùng key mới, chuyển `SUCCESS` và giữ đúng một lượt trừ kho | Chuỗi `FAILED → SUCCESS` trên cùng order ID. Tồn kho sau lỗi bằng ban đầu, sau thành công giảm 1 | ✅ Pass | [Kết quả retry](evidence/demo-acceptance-2026-11-14/payment-retry.json) |
+| TC-12 | FR-05, NFR-05 | Integration | Gửi lại `POST /payments` với cùng `Idempotency-Key` và nội dung | Cùng kết quả và mã giao dịch, đúng một bản ghi thanh toán, tồn kho sau replay giữ nguyên | Cả hai trả 200 với cùng `paymentId` và `transactionRef`, PostgreSQL có 1 bản ghi, kho vẫn 1 | ✅ Pass | [Nghiệm thu Postman + PostgreSQL](evidence/postman-acceptance-2026-11-17/README.md) |
+| TC-13 | FR-05, NFR-05 | Integration | Gửi lại `POST /payments` với cùng key và đổi `accountRef` | `409 IDEMPOTENCY_KEY_PAYLOAD_MISMATCH` | HTTP 409 và mã lỗi đúng | ✅ Pass | [Nghiệm thu Postman](evidence/postman-acceptance-2026-11-17/README.md) |
 | TC-14 | FR-05 | Integration | Thanh toán đơn đã `PAID` | `400 ORDER_ALREADY_PAID` | Chưa chạy | ⏳ Chờ | Chờ D |
-| TC-15 | FR-05, NFR-05 | Integration | Hết hàng khi tạo đơn | `400 OUT_OF_STOCK`, tồn kho không đổi, không tạo đơn | Chưa chạy | ⏳ Chờ | Chờ C |
+| TC-15 | FR-05, NFR-05 | Integration | Hết hàng khi tạo đơn | `400 OUT_OF_STOCK` và yêu cầu bị từ chối không tạo thêm đơn | Ca tranh kho 2/2 tạo đúng một đơn, yêu cầu còn lại trả `400 OUT_OF_STOCK` | ✅ Pass | [Nghiệm thu Postman](evidence/postman-acceptance-2026-11-17/README.md) |
 | TC-16 | NFR-02 | Integration | Gọi `POST /orders` không có token | `401 UNAUTHORIZED` | Khớp Expected | ✅ Pass | `orders.security.spec.ts` |
 | TC-17 | FR-07 | API | Nhân viên chuyển `PAID` sang `PREPARING`; khách gọi `PATCH` | Staff thành công (200); khách bị chặn (403); chuyển sai trả 400 | Khớp Expected | ✅ Pass | `orders.security.spec.ts`, `orders.service.spec.ts` |
 | TC-18 | NFR-03 | Thủ công | Xem `/orders` ở 375px và 430px; ngắt mạng | Layout không vỡ; có thông báo lỗi thân thiện và nút Retry | Chưa chạy | ⏳ Chờ | Ảnh chụp, bổ sung sau |
-| TC-19 | NFR-04 | Smoke | `GET /health` | `200 OK`, database `up` | Chưa chạy | ⏳ Chờ | Chờ D |
+| TC-19 | NFR-04 | Smoke | `GET /health` | `200 OK`, database `up` | Kiểm tra health và PostgreSQL thành công trên API demo cục bộ | ✅ Pass | [Log nghiệm thu Postman](evidence/postman-acceptance-2026-11-17/newman.txt) |
 | TC-20 | FR-08 | Unit | Áp mã ưu đãi | Giảm tiền theo voucher | Không áp dụng | ⛔ Hoãn | `api-contracts.md` mục 1.2 |
 | TC-21 | FR-02, NFR-03 | Unit | `/products/[id]` chọn Size Regular/Large (+10.000đ), Topping và các trạng thái Loading/Error/Retry/404/Out of stock | Giá tính lại tức thời đúng công thức; nút Retry hoạt động; món hết hàng khóa nút thêm | Khớp Expected | ✅ Pass | `apps/web/__tests__/cart.test.tsx` (`WEB-T02`) |
 | TC-22 | FR-03 | Unit | Quản lý giỏ hàng (`CartContext`, `/cart`, `CartDrawer`): thêm/tăng/giảm/xóa/clear, gộp dòng cùng cấu hình, tách dòng khác cấu hình, xuất payload cho F | Cùng cấu hình gộp số lượng; khác cấu hình tách dòng; payload chỉ gửi `productId/quantity/selectedSize/selectedToppings` | Khớp Expected | ✅ Pass | `apps/web/__tests__/cart.test.tsx` (`WEB-T03`) |
 | TC-23 | FR-03, FR-05, NFR-03 | Integration | E-20 Regression: Chọn Large+topping -> checkout có cùng cấu hình; thanh toán thất bại giữ giỏ & retry; thanh toán thành công xóa giỏ đúng 1 lần; đối soát sync giá và tồn kho với server | Giữ nguyên cấu hình món và ghi chú sang checkout; lỗi thanh toán bảo toàn giỏ 100%; thành công clear giỏ; tự động cập nhật giá và loại bỏ món hết hàng | Khớp Expected | ✅ Pass | `apps/web/__tests__/cart.test.tsx` (`WEB-T03`), `checkout.test.tsx` |
+| TC-24 | FR-05, NFR-05 | Integration | Kho còn 2 bánh, hai khách đặt 2 bánh đồng thời | Một đơn được tạo, một yêu cầu hết hàng. Kho giảm từ 2 xuống 0 rồi về 2 khi hủy đơn | HTTP 201 và `400 OUT_OF_STOCK`, API báo kho `2 → 0 → 2` | ✅ Pass | [Nghiệm thu Postman](evidence/postman-acceptance-2026-11-17/README.md) |
 
 ## 3. Ghi chú
 
-- Các ca TC-08 đến TC-19 phụ thuộc API của B, C, D (Sprint 2). Khi API sẵn sàng, đổi `NEXT_PUBLIC_USE_FIXTURES=false`, chạy lại và điền Actual kèm log hoặc ảnh.
-- Khung E2E: `tests/e2e/checkout-flow.spec.ts`. Các ca chưa chạy được đánh dấu `test.fixme` kèm lý do, không tính là pass.
+- Các ca luồng thật được chạy với `NEXT_PUBLIC_USE_FIXTURES=false`. Bảng ghi rõ ca nào có bằng chứng trên môi trường demo.
+- Bộ E2E API thật nằm ở `tests/real-browser/demo-acceptance.spec.ts`. Các ca khung `test.fixme` trong `tests/e2e/checkout-flow.spec.ts` giữ trạng thái skip.
 - Quy ước Mock Gateway: `accountRef` kết thúc bằng `0000` sẽ giả lập thanh toán thất bại (theo `api-contracts.md`).

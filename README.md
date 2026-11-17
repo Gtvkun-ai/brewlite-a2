@@ -292,3 +292,12 @@ npx playwright show-report docs/evidence/demo-acceptance-2026-11-14/playwright-r
 ```
 
 `Ctrl+C` dừng web/API. Dừng database demo và giữ dữ liệu: `docker compose -p brewlite-acceptance -f docker-compose.demo.yml down`.
+
+## 11. Nghiệm thu API với Postman
+
+Với API demo ở cổng 3101, import [collection BrewLite API Demo](output/BrewLite-Concurrency-Demo.postman_collection.json), mở từng request, bấm **Send** và xem **Test Results**. Nếu chỉ cần API, chạy `node scripts/demo.cjs prepare`, `npm --workspace @brewlite/api run build` và `node scripts/demo.cjs api` theo thứ tự.
+
+- **Hai khách tranh 2 bánh cuối** kiểm tra hai lượt đặt đồng thời, kết quả HTTP và tồn kho `2 → 0 → 2`.
+- **Gửi lại thanh toán cùng key** kiểm tra cùng giao dịch khi phát lại, HTTP 409 khi đổi nội dung và tồn kho sau khi hủy đơn.
+
+[Kết quả nghiệm thu, đối soát PostgreSQL và lệnh chạy lại](docs/evidence/postman-acceptance-2026-11-17/README.md).

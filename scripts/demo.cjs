@@ -12,9 +12,18 @@ const env = {
   NEXT_PUBLIC_API_URL: 'http://localhost:3101',
   NEXT_PUBLIC_USE_FIXTURES: 'false',
   DEMO_ORDER_PROGRESSION: 'true',
+  TELEGRAM_BOT_TOKEN: '',
+  TELEGRAM_CHAT_ID: '',
 };
 function run(command, args, options = {}) {
-  const result = spawnSync(command, args, { cwd: root, env, stdio: 'inherit', ...options });
+  // npm and npx are command scripts on Windows. All arguments below are fixed.
+  const isWindowsScript = process.platform === 'win32' && (command === 'npm' || command === 'npx');
+  const result = spawnSync(
+    isWindowsScript ? 'cmd.exe' : command,
+    isWindowsScript ? ['/d', '/c', command, ...args] : args,
+    { cwd: root, env, stdio: 'inherit', ...options },
+  );
+  if (result.error) console.error(result.error.message);
   if (result.status !== 0) process.exit(result.status || 1);
 }
 function launch(services) {

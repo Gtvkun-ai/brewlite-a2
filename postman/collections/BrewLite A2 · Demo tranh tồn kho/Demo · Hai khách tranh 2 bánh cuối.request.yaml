@@ -1,0 +1,166 @@
+$kind: http-request
+url: "{{demoApiUrl}}/health"
+method: GET
+description: "Nhấn Send một lần rồi mở Test Results. Demo gọi NestJS API thật trên 127.0.0.1:3101, tạo một món có tồn 2 và gửi hai đơn đồng thời bằng hai tài khoản khách. Sau đó demo đọc tồn kho, hủy đơn thử và tắt bán món. Khởi động lại API nếu cần bằng node scripts/demo.cjs api trong repo."
+scripts:
+  - type: afterResponse
+    code: |-
+      const api = pm.variables.get('demoApiUrl');
+      const demoPassword = 'Password123!';
+
+      async function request(method, path, { token, body, key } = {}) {
+        const header = { Accept: 'application/json' };
+        if (token) header.Authorization = 'Bearer ' + token;
+        if (key) header['Idempotency-Key'] = key;
+        const options = { url: api + path, method, header };
+        if (body !== undefined) {
+          header['Content-Type'] = 'application/json';
+          options.body = { mode: 'raw', raw: JSON.stringify(body) };
+        }
+        const response = await new Promise((resolve, reject) => {
+          pm.sendRequest(options, (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          });
+        });
+        return { status: response.code, body: response.json() };
+      }
+
+      function expectStatus(response, expected, action) {
+        pm.expect(response.status, action + ' · ' + JSON.stringify({
+          errorCode: response.body.errorCode, message: response.body.message
+        })).to.equal(expected);
+      }
+
+      async function login(email, role) {
+        const response = await request('POST', '/auth/login', {
+          body: { email, password: demoPassword }
+        });
+        expectStatus(response, 200, 'Đăng nhập ' + email);
+        pm.expect(response.body.user.role).to.equal(role);
+        pm.expect(response.body.accessToken).to.be.a('string').that.is.not.empty;
+        return response.body;
+      }
+
+      async function getStock(productId) {
+        const response = await request('GET', '/products/' + productId);
+        expectStatus(response, 200, 'Đọc tồn kho');
+        return response.body.stockQuantity;
+      }
+
+      async function runDemo() {
+        pm.expect(api, 'Địa chỉ API demo cục bộ').to.match(/^http:\/\/127\.0\.0\.1:\d{1,5}$/);
+        pm.test('API local và PostgreSQL sẵn sàng', () => {
+          pm.response.to.have.status(200);
+          pm.expect(pm.response.json()).to.have.nested.property('database.status', 'up');
+        });
+        if (pm.response.code !== 200 || pm.response.json().database?.status !== 'up') return;
+
+        let admin;
+        let productId;
+        const orders = [];
+        try {
+          let customerA, customerB;
+          [admin, customerA, customerB] = await Promise.all([
+            login('admin@brewlite.vn', 'ADMIN'),
+            login('customer@brewlite.vn', 'CUSTOMER'),
+            login('customer@brewlite.test', 'CUSTOMER')
+          ]);
+          pm.test('SETUP · Hai tài khoản CUSTOMER khác nhau', () => {
+            pm.expect(customerA.user.id).to.be.a('string').that.is.not.empty;
+            pm.expect(customerB.user.id).to.be.a('string').that.is.not.empty;
+            pm.expect(customerA.user.id).to.not.equal(customerB.user.id);
+          });
+
+          const runId = pm.variables.replaceIn('{{$guid}}');
+          const product = await request('POST', '/products', {
+            token: admin.accessToken,
+            body: {
+              code: 'DEMO-RACE-' + runId,
+              name: 'Bánh Croissant — Demo tranh tồn kho',
+              basePrice: 30000,
+              imageUrl: '/img/croissant.jpg',
+              category: 'Pastry',
+              isAvailable: true,
+              stockQuantity: 2
+            }
+          });
+          expectStatus(product, 201, 'Tạo món demo');
+          pm.expect(product.body.id).to.be.a('string').that.is.not.empty;
+          productId = product.body.id;
+
+          const before = await getStock(productId);
+          pm.test('BEFORE · Tồn kho đọc từ API = ' + before, () => {
+            pm.expect(before).to.equal(2);
+          });
+          if (before !== 2) return;
+
+          const users = [customerA, customerB];
+          const body = { items: [{ productId, quantity: 2, selectedSize: 'REGULAR' }] };
+          const results = await Promise.allSettled(users.map((user, index) =>
+            request('POST', '/orders', {
+              token: user.accessToken,
+              body,
+              key: 'demo-race-' + runId + '-' + index
+            })
+          ));
+          const responses = results.map((result, index) => {
+            if (result.status === 'rejected') return 'lỗi kết nối';
+            const { status, body } = result.value;
+            if (status === 201 && typeof body.id === 'string') {
+              orders.push({ id: body.id, code: body.code, token: users[index].accessToken });
+            }
+            return status + (body.errorCode ? ' ' + body.errorCode : '');
+          });
+
+          pm.test('RACE · Khách A: ' + responses[0] + ' | Khách B: ' + responses[1], () => {
+            pm.expect(responses.slice().sort()).to.deep.equal(['201', '400 OUT_OF_STOCK']);
+            pm.expect(orders).to.have.lengthOf(1);
+          });
+
+          const after = await getStock(productId);
+          pm.test('AFTER · Tồn kho đọc từ API = ' + after, () => {
+            pm.expect(after).to.equal(0);
+          });
+        } catch (error) {
+          pm.test('Demo chạy qua API thành công', () => { throw error; });
+        } finally {
+          if (productId) {
+            for (const order of orders) {
+              const label = 'CLEANUP · Hủy đơn ' + order.code;
+              try {
+                const cancelled = await request('PATCH', '/orders/' + order.id + '/cancel', {
+                  token: order.token, body: {}
+                });
+                pm.test(label, () => {
+                  expectStatus(cancelled, 200, 'Hủy đơn ' + order.code);
+                  pm.expect(cancelled.body.status).to.equal('CANCELLED');
+                });
+              } catch (error) {
+                pm.test(label, () => pm.expect.fail(String(error)));
+              }
+            }
+            try {
+              const restored = await getStock(productId);
+              pm.test('RESTORED · Tồn kho đọc từ API = ' + restored, () => {
+                pm.expect(restored).to.equal(2);
+              });
+            } finally {
+              const hidden = await request('PATCH', '/products/' + productId, {
+                token: admin.accessToken,
+                body: { isAvailable: false }
+              });
+              pm.test('CLEANUP · Tắt bán món thử trên DB demo', () => {
+                expectStatus(hidden, 200, 'Tắt bán món demo');
+                pm.expect(hidden.body.isAvailable).to.equal(false);
+              });
+            }
+          }
+        }
+      }
+
+      runDemo().catch((error) => {
+        pm.test('Demo kết thúc đầy đủ', () => { throw error; });
+      });
+    language: text/javascript
+order: 1000

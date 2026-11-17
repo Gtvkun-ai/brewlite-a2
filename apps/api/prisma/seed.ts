@@ -182,19 +182,19 @@ async function main() {
     { productCode: 'CF-AME', size: RecipeSize.REGULAR, ingredientCode: 'ING-COFFEE-ROBUSTA', amount: 15 },
     { productCode: 'CF-AME', size: RecipeSize.LARGE, ingredientCode: 'ING-COFFEE-ROBUSTA', amount: 20 },
   ];
-  for (const recipe of recipes) {
-    const ingredientId = ingredientIds.get(recipe.ingredientCode);
+  for (const { productCode, size, ingredientCode, amount } of recipes) {
+    const ingredientId = ingredientIds.get(ingredientCode);
     if (!ingredientId) continue;
     await prisma.productRecipe.upsert({
       where: {
         productCode_size_ingredientId: {
-          productCode: recipe.productCode,
-          size: recipe.size,
+          productCode,
+          size,
           ingredientId,
         },
       },
       update: {},
-      create: { ...recipe, ingredientId },
+      create: { productCode, size, amount, ingredientId },
     });
   }
   console.log('Seeded persistent BOM ingredients, recipes, and opening movements.');

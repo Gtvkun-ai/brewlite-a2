@@ -85,7 +85,7 @@ Kết quả: PASS trên API local. Đây là kiểm tra API thực tế, không 
 
 ### Giới hạn nghiệm thu
 
-- Test C chưa chạy đúng kịch bản giảng viên yêu cầu: tồn kho 2, hai khách cùng đặt 2.
+- Lần nghiệm thu 11/11 dùng tồn kho 40. Ca 2/2 qua HTTP được xác nhận trong [nghiệm thu Postman ngày 17/11](evidence/postman-acceptance-2026-11-17/README.md).
 - Test D đã hoàn thành trọn vẹn: có InventoryService, BOM matrix, thuật toán Bottleneck min, kiểm thử Jest 9/9 pass (bán 20 ly, chặn ly 21) và phân hệ Admin Quản lý kho trực quan.
 - Test B xác nhận trạng thái `REFUND_PENDING`, không chứng minh tiền đã được hoàn về ngân hàng.
 
@@ -104,4 +104,12 @@ Phần này bổ sung phạm vi nghiệm thu hiện tại trên nhánh làm vi�
 | Chuẩn hóa hợp đồng xác thực thật để Admin nhận đúng role ngay sau đăng nhập | FR-04, NFR-02 | [auth API client](../apps/web/lib/auth-api.ts), [AuthContext](../apps/web/context/AuthContext.tsx). Login/register trả `accessToken`; client lấy profile xác thực từ `/auth/me`, ánh xạ `userId` thành `id`, giữ role do API trả về và xóa phiên khi tái xác thực trả 401. | [auth-contract.test.tsx](../apps/web/__tests__/auth-contract.test.tsx) — token-only ADMIN, reload, đăng ký, profile/token không hợp lệ, 401 và logout khi request cũ còn chờ; [Chrome acceptance](../tests/real-browser/demo-acceptance.spec.ts) — đăng nhập Admin và truy cập quản trị không cần reload. |
 
 Môi trường nghiệm thu riêng được cấu hình bởi [scripts/demo.cjs](../scripts/demo.cjs), [docker-compose.demo.yml](../docker-compose.demo.yml) và [playwright.real.config.ts](../playwright.real.config.ts). Bộ test browser này tách khỏi bộ fixture lịch sử `tests/e2e/checkout-flow.spec.ts`; không thay đổi kết luận cũ hoặc tính các ca `fixme` thành đã chạy. Cấu hình và lệnh tái lập được ghi tại kế hoạch và audit liên kết ở trên.
+
+## 7. Nghiệm thu API bằng Postman ngày 17/11/2026
+
+| Mã yêu cầu | Use-case | Thiết kế | Code/API | Test và bằng chứng |
+|---|---|---|---|---|
+| FR-05, NFR-05 | UC-01 Đặt đơn | [Sequence checkout](diagrams/sequence-checkout.puml) | [OrdersService](../apps/api/src/orders/orders.service.ts), `POST /orders` | TC-15, TC-24. Hai tài khoản đặt đồng thời, một đơn thành công và một đơn hết hàng. Kho `2 → 0 → 2` sau khi hủy đơn. [Nghiệm thu HTTP](evidence/postman-acceptance-2026-11-17/README.md) |
+| FR-05, NFR-05 | UC-01 Thanh toán | [Sequence checkout](diagrams/sequence-checkout.puml) | [PaymentsService](../apps/api/src/payments/payments.service.ts), `POST /payments` | TC-12, TC-13. Gửi lại cùng key trả cùng giao dịch, PostgreSQL có một bản ghi và kho giữ nguyên. Đổi nội dung với cùng key trả HTTP 409. [Nghiệm thu HTTP và đối soát DB](evidence/postman-acceptance-2026-11-17/README.md) |
+| NFR-04 | Kiểm tra sức khỏe API demo | [Deployment diagram](diagrams/deployment-production.puml) | [HealthController](../apps/api/src/health/health.controller.ts), `GET /health` | TC-19. HTTP 200 và PostgreSQL `up` trước hai ca tích hợp. [Log Newman](evidence/postman-acceptance-2026-11-17/newman.txt) |
 
