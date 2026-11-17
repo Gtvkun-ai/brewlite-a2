@@ -41,6 +41,20 @@ enum PromotionType {
   FIXED_AMOUNT
 }
 
+enum RecipeSize {
+  REGULAR
+  LARGE
+}
+
+enum InventoryMovementType {
+  OPENING
+  RESTOCK
+  ADJUSTMENT
+  SALE
+  ORDER_CANCELLED
+  PAYMENT_FAILED
+}
+
 class User {
   - id: String
   - email: String
@@ -137,6 +151,44 @@ class LoyaltyTransaction {
   - createdAt: DateTime
 }
 
+class Ingredient {
+  - id: String
+  - code: String
+  - name: String
+  - unit: String
+  - currentStock: Decimal
+  - baselineStock: Decimal
+  - minThreshold: Decimal
+  - category: String
+  - createdAt: DateTime
+  - updatedAt: DateTime
+  + isLowStock(): Boolean
+  + checkAvailability(amount: Decimal): Boolean
+}
+
+class ProductRecipe {
+  - id: String
+  - productCode: String
+  - ingredientId: String
+  - size: RecipeSize
+  - amount: Decimal
+}
+
+class InventoryMovement {
+  - id: String
+  - ingredientId: String
+  - ingredientCodeSnapshot: String
+  - ingredientNameSnapshot: String
+  - unitSnapshot: String
+  - type: InventoryMovementType
+  - amount: Decimal
+  - beforeStock: Decimal
+  - afterStock: Decimal
+  - note: String
+  - referenceKey: String
+  - createdAt: DateTime
+}
+
 ' Relationships & Multiplicities
 User "1" -- "0..*" Order : places >
 User "1" -- "0..*" LoyaltyTransaction : owns >
@@ -145,10 +197,15 @@ Product "1" -- "0..*" OrderItem : referenced in >
 Order "1" -- "0..1" Payment : settled by >
 Promotion "0..1" -- "0..*" Order : applied to >
 Order "0..1" -- "0..1" LoyaltyTransaction : generates >
+Product "1" -- "0..*" ProductRecipe : configured with >
+Ingredient "1" -- "0..*" ProductRecipe : measured in >
+Ingredient "1" -- "0..*" InventoryMovement : records >
 
 User ..> Role
 Order ..> OrderStatus
 Payment ..> PaymentStatus
 Payment ..> PaymentMethod
 Promotion ..> PromotionType
+ProductRecipe ..> RecipeSize
+InventoryMovement ..> InventoryMovementType
 @enduml

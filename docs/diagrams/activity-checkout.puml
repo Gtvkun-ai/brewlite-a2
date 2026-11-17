@@ -58,22 +58,24 @@ endif
 
 :Bắt đầu Database Transaction (prisma.$transaction);
 |Database (PostgreSQL)|
-:Kiểm tra số lượng tồn kho của các sản phẩm;
+:Kiểm tra tồn kho & Định mức nguyên vật liệu BOM (Cà phê, Sữa, Đường);
 |NestJS API (Backend)|
-if (Còn đủ tồn kho?) then (Không đủ / Hết hàng)
+if (Đủ nguyên liệu theo định mức BOM?) then (Hết nguyên liệu / Chạm đáy Bottleneck)
   :Rollback Database Transaction;
-  :Trả về mã lỗi HTTP 400 (Out of stock);
+  :Trả về mã lỗi HTTP 400 (OUT_OF_STOCK_INGREDIENT);
   |Next.js UI (Frontend)|
-  :Hiển thị thông báo "Sản phẩm đã hết hàng";
+  :Hiển thị thông báo "Hết nguyên liệu pha chế";
   :Cập nhật lại giỏ hàng của người dùng;
   |Customer (Khách hàng)|
   :Điều chỉnh giỏ hàng;
   stop
-else (Đủ tồn kho)
+else (Đủ nguyên liệu & tồn kho)
 endif
 
 |NestJS API (Backend)|
 |Database (PostgreSQL)|
+:Trừ kho nguyên tử các nguyên liệu thô (Cà phê hạt, Sữa tươi, Đường mía);
+:Ghi vết biến động kho InventoryMovement (SALE);
 :Tạo bản ghi Order (Status: PENDING);
 :Tạo các bản ghi OrderItem kèm snapshot giá;
 
@@ -86,6 +88,10 @@ if (Giao dịch thành công?) then (Thất bại / Từ chối)
   |NestJS API (Backend)|
   |Database (PostgreSQL)|
   :Cập nhật Order Status = PAYMENT_FAILED hoặc Rollback;
+  |NestJS API (Backend)|
+  |Database (PostgreSQL)|
+  :Hoàn trả nguyên liệu về kho Ingredient;
+  :Ghi vết biến động kho InventoryMovement (PAYMENT_FAILED);
   |NestJS API (Backend)|
   :Trả về mã lỗi HTTP 402 Payment Required;
   |Next.js UI (Frontend)|

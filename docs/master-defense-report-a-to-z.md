@@ -95,6 +95,8 @@ flowchart LR
         UC09(["UC-09: Quản Trị Thực Đơn & Khóa Hết Hàng (FR-09)"])
         UC10(["UC-10: Dashboard Doanh Thu & KDS Barista (FR-10)"])
         UC11(["UC-11: Giữ Ấm Container Anti-Cold-Start /health"])
+        UC12(["UC-12: Quản Trị Định Mức BOM & Nút Thắt Kho (TEST D)"])
+        UC13(["UC-13: Lập Phiếu Nhập Hàng (Restock) & Audit Trail"])
     end
 
     CUST --> UC01
@@ -113,6 +115,9 @@ flowchart LR
     MGR --> UC08
     MGR --> UC09
     MGR --> UC10
+    MGR --> UC11
+    MGR --> UC12
+    MGR --> UC13
 
     CRON --> UC11
 
@@ -320,14 +325,55 @@ classDiagram
         +DateTime endDate
     }
 
+    class Ingredient {
+        +String id (CUID) PK
+        +String code (Unique)
+        +String name
+        +String unit
+        +Decimal currentStock
+        +Decimal baselineStock
+        +Decimal minThreshold
+        +String category
+        +DateTime createdAt
+        +DateTime updatedAt
+    }
+
+    class ProductRecipe {
+        +String id (CUID) PK
+        +String productCode FK
+        +String ingredientId FK
+        +RecipeSize size
+        +Decimal amount
+    }
+
+    class InventoryMovement {
+        +String id (CUID) PK
+        +String ingredientId FK
+        +String ingredientCodeSnapshot
+        +InventoryMovementType type
+        +Decimal amount
+        +Decimal beforeStock
+        +Decimal afterStock
+        +String note
+        +String referenceKey (Unique)
+        +DateTime createdAt
+    }
+
     User "1" --> "0..*" Order : places
     Product "1" --> "0..*" OrderItem : referenced_in
     Order "1" --> "1..*" OrderItem : contains
     Order "1" --> "0..*" Payment : billed_by
+    Product "1" --> "0..*" ProductRecipe : configured_with
+    Ingredient "1" --> "0..*" ProductRecipe : measured_in
+    Ingredient "1" --> "0..*" InventoryMovement : audit_movements
 ```
 
 * **Thuyết minh chuyên sâu về Mô hình Thực thể:**
   1. **Quan hệ Order - OrderItem - Product:** Một Đơn hàng gồm nhiều OrderItems. Mỗi OrderItem lưu bản snapshot `unitPrice` và `itemTotal` tại thời điểm mua (dưới dạng `Decimal`). Dù sau này giá gốc `Product.basePrice` có điều chỉnh, lịch sử tài chính của Order cũ vẫn được bảo toàn nguyên vẹn.
+  2. **Quản lý Định mức Nguyên vật liệu BOM & Kiểm toán Kho (TEST D):**
+     * `Ingredient` lưu trữ tồn kho nguyên tử thực tế (`currentStock`) của nguyên liệu thô (Cà phê Robusta g, Sữa tươi Đà Lạt ml, Đường mía tinh luyện g) trong PostgreSQL.
+     * `ProductRecipe` định nghĩa ma trận công thức pha chế theo kích cỡ (`REGULAR` / `LARGE`), phục vụ thuật toán Điểm nghẽn Bottleneck $Q = \min(\lfloor \text{Stock}_i / \text{Ratio}_i \rfloor)$.
+     * `InventoryMovement` là sổ cái kiểm toán kho bất biến (Immutable Audit Trail), ghi nhận mọi biến động kho có đối soát: `OPENING` (khởi tạo), `RESTOCK` (nhập hàng), `SALE` (trừ khi khách mua), `ORDER_CANCELLED` (hoàn kho khi hủy đơn), và `PAYMENT_FAILED` (hoàn kho khi cổng thanh toán lỗi).
   2. **Quan hệ Order - Payment:** Cho phép một đơn hàng có thể thanh toán lại nếu lần đầu thất bại, hoặc ghi nhận trạng thái hoàn tiền đối soát `REFUND_PENDING`.
   3. **Ràng buộc duy nhất IdempotencyKey:** Cả bảng `Order` và `Payment` đều sở hữu cột `idempotencyKey String? @unique` ở tầng Database Index, đảm bảo cơ sở dữ liệu sẽ tự động từ chối (Unique Constraint Violation) bất kỳ giao dịch nào bị gửi lặp.
 

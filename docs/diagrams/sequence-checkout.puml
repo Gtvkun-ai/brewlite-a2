@@ -14,6 +14,7 @@ end box
 box "Backend Services" #E6FFFA
 participant "NestJS API\n(OrderController)" as API
 participant "OrderService" as Service
+participant "InventoryService\n(BOM Engine)" as Inventory
 end box
 
 box "Data Persistence" #EDF2F7
@@ -47,11 +48,28 @@ activate DB
 DB --> Service: Danh sách sản phẩm & tồn kho
 deactivate DB
 
-alt Trường hợp: Sản phẩm hết hàng (Stock <= 0)
-  Service --> API: Throw BadRequestException('Sản phẩm đã hết hàng')
-  API --> UI: HTTP 400 Bad Request { message: 'Out of stock' }
-  UI --> Customer: Hiển thị cảnh báo hết hàng & cập nhật giỏ
-else Sản phẩm đủ tồn kho
+alt Trường hợp: Hết nguyên liệu thô theo định mức BOM (Test D Bottleneck)
+  Service -> Inventory: deductRecipe(tx, item.productCode, item.size, item.quantity)
+  activate Inventory
+  Inventory -> DB: Kiểm tra tồn kho nguyên liệu (Cà phê, Sữa, Đường)
+  activate DB
+  DB --> Inventory: Sữa tươi = 0ml (chạm đáy bottleneck)
+  deactivate DB
+  Inventory --> Service: Throw BadRequestException('OUT_OF_STOCK_INGREDIENT')
+  deactivate Inventory
+  Service --> API: Throw BadRequestException('OUT_OF_STOCK_INGREDIENT')
+  API --> UI: HTTP 400 Bad Request { errorCode: 'OUT_OF_STOCK_INGREDIENT' }
+  UI --> Customer: Cảnh báo hết nguyên liệu & gợi ý điều chỉnh
+else Đủ nguyên vật liệu & sản phẩm
+  Service -> Inventory: deductRecipe(tx, item.productCode, item.size, item.quantity)
+  activate Inventory
+  Inventory -> DB: tx.ingredient.update({ decrement: amount }) & tx.inventoryMovement.create(SALE)
+  activate DB
+  DB --> Inventory: Đã trừ kho nguyên tử & lưu audit log
+  deactivate DB
+  Inventory --> Service: Deducted success
+  deactivate Inventory
+
   Service -> DB: tx.order.create({ data: { code, userId, status: 'PENDING', totalAmount } })
   activate DB
   DB --> Service: Order created (id: 'ord_123')
@@ -71,6 +89,16 @@ else Sản phẩm đủ tồn kho
     activate DB
     DB --> Service: Order status updated
     deactivate DB
+
+    Service -> Inventory: restoreRecipe(tx, item.productCode, item.size, item.quantity, 'PAYMENT_FAILED')
+    activate Inventory
+    Inventory -> DB: tx.ingredient.update({ increment: amount }) & tx.inventoryMovement.create(PAYMENT_FAILED)
+    activate DB
+    DB --> Inventory: Đã hoàn trả nguyên liệu về kho
+    deactivate DB
+    Inventory --> Service: Restored success
+    deactivate Inventory
+
     Service --> API: Throw PaymentRequiredException('Thanh toán thất bại')
     API --> UI: HTTP 402 Payment Required { errorCode: 'INSUFFICIENT_FUNDS' }
     UI --> Customer: Báo lỗi thanh toán & cho phép chọn phương thức khác
@@ -91,7 +119,7 @@ else Sản phẩm đủ tồn kho
     loop Từng sản phẩm trong đơn hàng
       Service -> DB: tx.product.update({ decrement: quantity })
       activate DB
-      DB --> Service: Tồn kho đã trừ
+      DB --> Service: Tồn kho thành phẩm đã cập nhật
       deactivate DB
     end
     note over Service, DB: Commit Database Transaction thành công

@@ -43,10 +43,12 @@ Hệ thống **BrewLite** được thiết kế theo mô hình **Kiến trúc Ph
 
 ### 2.2. Backend: NestJS Modular Architecture
 * Tổ chức mã nguồn theo các Module độc lập:
-  * `AuthModule`: Đăng ký, đăng nhập, băm mật khẩu Bcrypt/Argon2 và ký JWT Token.
-  * `CatalogModule`: Cung cấp danh mục sản phẩm, chi tiết món và quản lý tồn kho.
-  * `OrderModule`: Xử lý tạo đơn hàng, tính tiền, áp dụng Transaction khi trừ tồn kho.
-  * `PaymentModule`: Tích hợp dịch vụ thanh toán mô phỏng (Mock Gateway) với xử lý Idempotency.
+  * `AuthModule`: Đăng ký, đăng nhập, băm mật khẩu Bcrypt/Argon2 và ký JWT Token, phân quyền RBAC đa vai trò.
+  * `CatalogModule`: Cung cấp danh mục sản phẩm, chi tiết món và quản lý tình trạng mở bán của thực đơn.
+  * `OrderModule`: Xử lý tạo đơn hàng, tính tiền, áp dụng Transaction ACID khi trừ tồn kho và đồng bộ trạng thái KDS Barista.
+  * `PaymentModule`: Tích hợp dịch vụ thanh toán mô phỏng (Mock Gateway) với xử lý Idempotency, mã hóa VietQR động và cơ chế hoàn tiền khi hủy đơn.
+  * `InventoryModule`: Quản lý kho theo Định mức Nguyên vật liệu thô (BOM - Bill of Materials: Cà phê hạt, Sữa tươi, Đường mía) lưu vĩnh viễn trong PostgreSQL qua Prisma (`Ingredient`, `ProductRecipe`, `InventoryMovement`); tính toán năng lực phục vụ tối đa theo nguyên lý Điểm nghẽn Bottleneck $Q = \min(\lfloor \text{Stock}_i / \text{Ratio}_i \rfloor)$; hỗ trợ Lập phiếu nhập kho (Restock) và Audit Trail.
+  * `PromotionsModule`: Quản lý mã giảm giá (Vouchers), kiểm tra điều kiện áp dụng, chiết khấu phần trăm hoặc số tiền cố định.
   * `HealthModule`: Cung cấp endpoint `GET /health` kiểm tra tình trạng kết nối Database và bộ nhớ.
 
 ### 2.3. Cơ sở dữ liệu: PostgreSQL & Prisma Migrations
