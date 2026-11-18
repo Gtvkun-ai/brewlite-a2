@@ -1,0 +1,73 @@
+newman
+
+BrewLite A2 · Demo tranh tồn kho
+
+→ Demo · Hai khách tranh 2 bánh cuối
+  GET http://127.0.0.1:3102/health [200 OK, 403B, 53ms]
+  √  API local và PostgreSQL sẵn sàng
+  POST http://127.0.0.1:3102/auth/login   POST http://127.0.0.1:3102/auth/login   POST http://127.0.0.1:3102/auth/login [200 OK, 794B, 408ms]
+[200 OK, 794B, 477ms]
+[200 OK, 798B, 483ms]
+  √  SETUP · Hai tài khoản CUSTOMER khác nhau
+  POST http://127.0.0.1:3102/products [201 Created, 613B, 29ms]
+  GET http://127.0.0.1:3102/products/cmwkh79ab000ju5xcn6p988e3 [200 OK, 608B, 12ms]
+  √  BEFORE · Tồn kho đọc từ API = 2
+  POST http://127.0.0.1:3102/orders   POST http://127.0.0.1:3102/orders [201 Created, 1.16kB, 71ms]
+[400 Bad Request, 432B, 77ms]
+  √  RACE · Khách A: 400 OUT_OF_STOCK | Khách B: 201
+  GET http://127.0.0.1:3102/products/cmwkh79ab000ju5xcn6p988e3 [200 OK, 608B, 9ms]
+  √  AFTER · Tồn kho đọc từ API = 0
+  PATCH http://127.0.0.1:3102/orders/cmwkh79cy000lu5xc8ij3h2xq/cancel [200 OK, 950B, 52ms]
+  √  CLEANUP · Hủy đơn BL-20261117-0CN5
+  GET http://127.0.0.1:3102/products/cmwkh79ab000ju5xcn6p988e3 [200 OK, 608B, 9ms]
+  √  RESTORED · Tồn kho đọc từ API = 2
+  PATCH http://127.0.0.1:3102/products/cmwkh79ab000ju5xcn6p988e3 [200 OK, 609B, 19ms]
+  √  CLEANUP · Tắt bán món thử trên DB demo
+
+→ Demo · Gửi lại thanh toán cùng key
+  GET http://127.0.0.1:3102/health [200 OK, 403B, 5ms]
+  √  API local và PostgreSQL sẵn sàng
+  POST http://127.0.0.1:3102/auth/login   POST http://127.0.0.1:3102/auth/login [200 OK, 794B, 238ms]
+[200 OK, 794B, 273ms]
+  POST http://127.0.0.1:3102/products [201 Created, 620B, 18ms]
+  GET http://127.0.0.1:3102/products/cmwkh79t3000ou5xctzdctp0l [200 OK, 615B, 9ms]
+  POST http://127.0.0.1:3102/orders [201 Created, 1.15kB, 42ms]
+  GET http://127.0.0.1:3102/products/cmwkh79t3000ou5xctzdctp0l [200 OK, 615B, 7ms]
+  √  BEFORE · Kho 2 → 1 khi tạo đơn
+  POST http://127.0.0.1:3102/payments [200 OK, 544B, 51ms]
+  GET http://127.0.0.1:3102/products/cmwkh79t3000ou5xctzdctp0l [200 OK, 615B, 17ms]
+  √  PAY · HTTP 200, SUCCESS, tổng tiền 30000đ
+  POST http://127.0.0.1:3102/payments [200 OK, 544B, 27ms]
+  √  REPLAY · HTTP 200, cùng paymentId cmwkh79x2000uu5xcokf3p3go
+  POST http://127.0.0.1:3102/payments [409 Conflict, 424B, 19ms]
+  √  CONFLICT · Cùng key, nội dung khác → HTTP 409
+  GET http://127.0.0.1:3102/products/cmwkh79t3000ou5xctzdctp0l [200 OK, 615B, 8ms]
+  √  AFTER · Kho vẫn là 1 sau khi gửi lại
+  PATCH http://127.0.0.1:3102/orders/cmwkh79uq000qu5xcudcv8i6q/cancel [200 OK, 952B, 45ms]
+  √  CLEANUP · Hủy đơn BL-20261117-GZRJ
+  GET http://127.0.0.1:3102/products/cmwkh79t3000ou5xctzdctp0l [200 OK, 615B, 7ms]
+  √  RESTORED · Tồn kho quay về 2
+  PATCH http://127.0.0.1:3102/products/cmwkh79t3000ou5xctzdctp0l [200 OK, 616B, 18ms]
+  √  CLEANUP · Tắt bán món thử trên DB demo
+
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                27 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                 2 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                 0 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                17 │                 0 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 1757ms                                      │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 10.08kB (approx)                           │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 91ms [min: 5ms, max: 483ms, s.d.: 143ms] │
+└─────────────────────────────────────────────────────────────────┘
+
+PostgreSQL verification after cleanup: paymentId=cmwkh79x2000uu5xcokf3p3go | payment_rows=1 | status=REFUND_PENDING

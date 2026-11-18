@@ -1,0 +1,4 @@
+$kind: collection
+description: "Hai ca tích hợp qua NestJS API thật trên máy cục bộ. Chọn một request, nhấn Send và xem Test Results. Mỗi ca tạo món tạm, kiểm tra tồn kho rồi hủy đơn và tắt bán món thử."
+variables:
+  demoApiUrl: http://127.0.0.1:3101

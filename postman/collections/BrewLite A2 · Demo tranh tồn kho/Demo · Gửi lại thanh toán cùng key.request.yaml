@@ -1,0 +1,130 @@
+$kind: http-request
+url: "{{demoApiUrl}}/health"
+method: GET
+description: "Kiểm tra gửi lại cùng key trả đúng giao dịch, payload khác bị từ chối 409, tồn kho giữ nguyên và được phục hồi sau khi hủy đơn."
+scripts:
+  - type: afterResponse
+    code: |-
+      const api = pm.variables.get('demoApiUrl');
+      const demoPassword = 'Password123!';
+
+      async function request(method, path, { status = 200, token, body, key } = {}) {
+        const header = { Accept: 'application/json' };
+        if (token) header.Authorization = 'Bearer ' + token;
+        if (key) header['Idempotency-Key'] = key;
+        const options = { method, url: api + path, header };
+        if (body !== undefined) {
+          header['Content-Type'] = 'application/json';
+          options.body = { mode: 'raw', raw: JSON.stringify(body) };
+        }
+        const response = await new Promise((resolve, reject) => {
+          pm.sendRequest(options, (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          });
+        });
+        pm.expect(response.code, method + ' ' + path).to.equal(status);
+        return response.json();
+      }
+
+      async function login(email, role) {
+        const session = await request('POST', '/auth/login', { body: { email, password: demoPassword } });
+        pm.expect(session.user.role).to.equal(role);
+        pm.expect(session.accessToken).to.be.a('string').that.is.not.empty;
+        return session.accessToken;
+      }
+
+      async function runDemo() {
+        pm.expect(api, 'Địa chỉ API demo cục bộ').to.match(/^http:\/\/127\.0\.0\.1:\d{1,5}$/);
+        const healthy = pm.response.code === 200 && pm.response.json().database?.status === 'up';
+        pm.test('API local và PostgreSQL sẵn sàng', () => pm.expect(healthy).to.be.true);
+        if (!healthy) return;
+
+        const [admin, customer] = await Promise.all([
+          login('admin@brewlite.vn', 'ADMIN'),
+          login('customer@brewlite.vn', 'CUSTOMER')
+        ]);
+        const runId = pm.variables.replaceIn('{{$guid}}');
+        const product = await request('POST', '/products', {
+          status: 201,
+          token: admin,
+          body: {
+            code: 'DEMO-PAY-' + runId,
+            name: 'Bánh Croissant — Demo gửi lại thanh toán',
+            basePrice: 30000,
+            imageUrl: '/img/croissant.jpg',
+            category: 'Pastry',
+            isAvailable: true,
+            stockQuantity: 2
+          }
+        });
+        pm.expect(product.id).to.be.a('string').that.is.not.empty;
+        const productPath = '/products/' + product.id;
+        let order;
+        try {
+          const before = await request('GET', productPath);
+          order = await request('POST', '/orders', {
+            status: 201,
+            token: customer,
+            key: 'order-' + runId,
+            body: { items: [{ productId: product.id, quantity: 1, selectedSize: 'REGULAR' }] }
+          });
+          const reserved = await request('GET', productPath);
+          pm.test('BEFORE · Kho ' + before.stockQuantity + ' → ' + reserved.stockQuantity + ' khi tạo đơn', () => {
+            pm.expect(before.stockQuantity).to.equal(2);
+            pm.expect(order.status).to.equal('PENDING');
+            pm.expect(reserved.stockQuantity).to.equal(1);
+          });
+
+          const key = 'payment-' + runId;
+          const body = { orderId: order.id, method: 'E_WALLET', accountRef: 'DEMO-1234' };
+          const first = await request('POST', '/payments', { token: customer, key, body });
+          const afterFirst = await request('GET', productPath);
+          pm.test('PAY · HTTP 200, SUCCESS, tổng tiền ' + first.amount + 'đ', () => {
+            pm.expect(first).to.include({ status: 'SUCCESS', orderId: order.id, orderStatus: 'PAID', amount: order.totalAmount });
+            pm.expect(first.paymentId).to.be.a('string').that.is.not.empty;
+            pm.expect(first.transactionRef).to.be.a('string').that.is.not.empty;
+            pm.expect(afterFirst.stockQuantity).to.equal(1);
+          });
+
+          const replay = await request('POST', '/payments', { token: customer, key, body });
+          pm.test('REPLAY · HTTP 200, cùng paymentId ' + first.paymentId, () => {
+            pm.expect(replay).to.deep.equal(first);
+          });
+
+          const conflict = await request('POST', '/payments', {
+            status: 409,
+            token: customer,
+            key,
+            body: { ...body, accountRef: 'DEMO-5678' }
+          });
+          pm.test('CONFLICT · Cùng key, nội dung khác → HTTP 409', () => {
+            pm.expect(conflict.errorCode).to.equal('IDEMPOTENCY_KEY_PAYLOAD_MISMATCH');
+          });
+
+          const afterReplay = await request('GET', productPath);
+          pm.test('AFTER · Kho vẫn là ' + afterReplay.stockQuantity + ' sau khi gửi lại', () => {
+            pm.expect(afterReplay.stockQuantity).to.equal(afterFirst.stockQuantity);
+          });
+        } finally {
+          try {
+            if (order?.id) {
+              const cancelled = await request('PATCH', '/orders/' + order.id + '/cancel', {
+                token: customer, body: {}
+              });
+              pm.test('CLEANUP · Hủy đơn ' + order.code, () => pm.expect(cancelled.status).to.equal('CANCELLED'));
+              const restored = await request('GET', productPath);
+              pm.test('RESTORED · Tồn kho quay về ' + restored.stockQuantity, () => pm.expect(restored.stockQuantity).to.equal(2));
+            }
+          } finally {
+            const hidden = await request('PATCH', productPath, { token: admin, body: { isAvailable: false } });
+            pm.test('CLEANUP · Tắt bán món thử trên DB demo', () => pm.expect(hidden.isAvailable).to.equal(false));
+          }
+        }
+      }
+
+      runDemo().catch((error) => {
+        pm.test('Demo thanh toán chạy đầy đủ', () => pm.expect.fail(String(error)));
+      });
+    language: text/javascript
+order: 2000
